@@ -1,41 +1,31 @@
 #ifndef NETMANAGER_H_
 #define NETMANAGER_H_
 
-#include <SDL/SDL_net.h>
-
-#define NETMANAGER_BUFFER_SIZE 7084
+#include <unordered_map>
+#include <SDL_net.h>
+#include "Packet.h"
 
 class NetManager
 {
-public:
-    NetManager();
-    ~NetManager();
-    void init();
+    private:
+        IPaddress ip;
+        TCPsocket server;
+        std::unordered_map<int, TCPsocket> clients;
+        SDLNet_SocketSet socket_set;
+        bool isServer;
+        bool isRunning;
+        int nextClientId;
 
-    void startServer();
-    void stopServer();
-    bool acceptClient();
-    void sendMessageToClient(void * message, int len);
-    bool receiveMessageFromClient(void * buff);
-    bool messageWaitingFromClient();
+    public:
+        NetManager();
+        ~NetManager();
 
-    void connectToServer(char* host);
-    void sendMessageToServer(void * message, int len);
-    bool receiveMessageFromServer(void * buff);
+        void startServer();
+        void startClient(char* host);
 
-    
-
-    
-
-    
-    
-private:
-    TCPsocket sd, csd; /* Socket descriptor, Client socket descriptor */
-    SDLNet_SocketSet set; //a set of sockets. Used here only to check existing packets
-    IPaddress ip;
-
-    bool serverRunning;
+        void messageServer(const Packet& p);
+        void messageClients(const Packet& p);
+        std::unordered_map<int, Packet> getData();
 };
-
 
 #endif /* NETMANAGER_H_ */

@@ -1,31 +1,32 @@
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <cstring>
 #include "NetManager.h"
+#include "Packet.h"
 
 NetManager::NetManager(){
-    serverRunning = false;
-    set = SDLNet_AllocSocketSet(1);
+    SDLNet_Init();
+    socket_set = SDLNet_AllocSocketSet(16);
+    nextClientId = 1;
 }
 
 NetManager::~NetManager(){
+    SDLNet_FreeSocketSet(socket_set);
+    SDLNet_TCP_Close(server);
+
+    for (auto client : clients) {
+        TCPsocket& socket = client.second;
+        SDLNet_TCP_Close(socket);
+    }
+
     SDLNet_Quit();
 }
 
-void NetManager::init(){
-    if (SDLNet_Init() < 0)
-	{
-		fprintf(stderr, "SDLNet_Init: %s\n", SDLNet_GetError());
-		exit(EXIT_FAILURE);
-	}
-}
-
 //------------------------------------------------------------
-// Server fuctions
+// Start fuctions
 //------------------------------------------------------------
 
 void NetManager::startServer(){
+    isServer = true;
+
     if (SDLNet_ResolveHost(&ip, NULL, 49152) < 0)
     {
         fprintf(stderr, "SDLNet_ResolveHost: %s\n", SDLNet_GetError());
@@ -33,93 +34,141 @@ void NetManager::startServer(){
     }
 
     /* Open a connection with the IP provided (listen on the host's port) */
-    if (!(sd = SDLNet_TCP_Open(&ip)))
+    if (!(server = SDLNet_TCP_Open(&ip)))
     {
         fprintf(stderr, "SDLNet_TCP_Open: %s\n", SDLNet_GetError());
         exit(EXIT_FAILURE);
     }
 
-    serverRunning = true;
-}
-
-bool NetManager::acceptClient(){
-    csd = SDLNet_TCP_Accept(sd);
-    if (csd) printf("TCP client accepted\n");
-    if(SDLNet_TCP_AddSocket(set,csd)==-1) {
-        fprintf(stderr, "SDLNet_TCP_AddSocket: %s\n", SDLNet_GetError());
+    if (SDLNet_AddSocket(socket_set, (SDLNet_GenericSocket) server) < 0)
+    {
+        fprintf(stderr, "SDLNet_AddSocket: %s\n", SDLNet_GetError());
         exit(EXIT_FAILURE);
     }
-    if (csd) return true;
-    return false;
+
+    isRunning = true;
 }
 
-void NetManager::sendMessageToClient(void * message, int len){
-    //printf("want to send message(%d): %s\n", len, (char*)message);
-    if (SDLNet_TCP_Send(csd, message, len) < len){
-        fprintf(stderr, "SDLNet_TCP_Send: %s\n", SDLNet_GetError());
-        exit(EXIT_FAILURE);
-    }
-    //printf("Sent message: %s\n", (char*)message);
-}
-bool NetManager::receiveMessageFromClient(void * buff){
-    if (SDLNet_TCP_Recv(csd, buff, NETMANAGER_BUFFER_SIZE) > 0){
-        //printf("Received message: %s\n", (char*)buff);
-        return true;
-    }
-    return false;
-}
+void NetManager::startClient(char* host) {
+    isServer = false;
 
-bool NetManager::messageWaitingFromClient(){
-    bool rd = false;
-    int numready = SDLNet_CheckSockets(set, 0);
-    if (numready == -1){
-        fprintf(stderr, "SDLNet_CheckSockets: %s\n", SDLNet_GetError());
-        exit(EXIT_FAILURE);
-    }
-    else if (numready)
-        rd = SDLNet_SocketReady(csd);
-    return rd;
-}
-
-//------------------------------------------------------------
-// Client fuctions
-//------------------------------------------------------------
-
-void NetManager::connectToServer(char* host){
-    /* Resolve the host we are connecting to */
     if (SDLNet_ResolveHost(&ip, host, 49152) < 0)
     {
         fprintf(stderr, "SDLNet_ResolveHost: %s\n", SDLNet_GetError());
-	    exit(EXIT_FAILURE);
-    }
-
-    /* Open a connection with the IP provided (listen on the host's port) */
-    if (!(sd = SDLNet_TCP_Open(&ip)))
-    {
-	    fprintf(stderr, "SDLNet_TCP_Open: %s\n", SDLNet_GetError());
-    	exit(EXIT_FAILURE);
-    }
-}
-
-void NetManager::sendMessageToServer(void * message, int len){
-    //printf("want to send message(%d): %s\n", len, (char*)message);
-    if (SDLNet_TCP_Send(sd, message, len) < len){
-        fprintf(stderr, "SDLNet_TCP_Send: %s\n", SDLNet_GetError());
         exit(EXIT_FAILURE);
     }
-    //printf("Sent message: %s\n", (char*)message);
-}
-bool NetManager::receiveMessageFromServer(void * buff){
-    if (SDLNet_TCP_Recv(sd, buff, NETMANAGER_BUFFER_SIZE) > 0){
-        //printf("Received message: %s\n", (char*)buff);
-        return true;
+
+    if (!(server = SDLNet_TCP_Open(&ip)))
+    {
+        fprintf(stderr, "SDLNet_TCP_Open: %s\n", SDLNet_GetError());
+        exit(EXIT_FAILURE);
     }
-    return false;
+
+    if (SDLNet_AddSocket(socket_set, (SDLNet_GenericSocket) server) < 0)
+    {
+        fprintf(stderr, "SDLNet_AddSocket: %s\n", SDLNet_GetError());
+        exit(EXIT_FAILURE);
+    }
+
+    isRunning = true;
 }
 
 //------------------------------------------------------------
-// Shared fuctions
+// Message fuctions
 //------------------------------------------------------------
 
+void NetManager::messageServer(const Packet &p) {
+    const char* buf = p.data();
+    const int len = p.size();
 
+    SDLNet_TCP_Send(server, &len, sizeof(int));
 
+    if (SDLNet_TCP_Send(server, buf, len) < len) {
+        // server probably disconnected; handle
+    }
+}
+
+void NetManager::messageClients(const Packet &p) {
+    const char* buf = p.data();
+    const int len = p.size();
+
+    auto iter = clients.begin();
+
+    while (iter != clients.end()) {
+        TCPsocket client = iter->second;
+        SDLNet_TCP_Send(server, &len, sizeof(int));
+
+        if (SDLNet_TCP_Send(server, buf, len) < len) {
+            // client probably disconnected; handle in game
+
+            SDLNet_TCP_Close(client);
+            SDLNet_DelSocket(socket_set, (SDLNet_GenericSocket) client);
+            iter = clients.erase(iter);
+        } else {
+            ++iter;
+        }
+    }
+}
+
+std::unordered_map<int, Packet> NetManager::getData() {
+    std::unordered_map<int, Packet> data;
+
+    if (isServer) {
+        SDLNet_CheckSockets(socket_set, 0);
+
+        // check for new clients
+        if (SDLNet_SocketReady(server)) {
+            TCPsocket connection = SDLNet_TCP_Accept(server);
+            if (connection != nullptr) {
+                clients[nextClientId] = connection;
+                SDLNet_AddSocket(socket_set, (SDLNet_GenericSocket) connection);
+                nextClientId++;
+            }
+        }
+
+        // check for client messages
+        auto iter = clients.begin();
+
+        while (iter != clients.end()) {
+            TCPsocket client = iter->second;
+            if (SDLNet_SocketReady(client)) {
+                int len;
+
+                if (SDLNet_TCP_Recv(client, &len, sizeof(int)) <= 0) {
+                    SDLNet_TCP_Close(client);
+                    SDLNet_DelSocket(socket_set, (SDLNet_GenericSocket) client);
+                    iter = clients.erase(iter);
+                } else {
+                    char* buf = new char[len];
+                    if (SDLNet_TCP_Recv(client, buf, len) <= 0) {
+                        SDLNet_TCP_Close(client);
+                        SDLNet_DelSocket(socket_set, (SDLNet_GenericSocket) client);
+                        iter = clients.erase(iter);
+                    } else {
+                        data[iter->first] = Packet(buf, len);
+                        ++iter;
+                    }
+                }
+            }
+        }
+    } else {
+        SDLNet_CheckSockets(socket_set, 0);
+
+        if (SDLNet_SocketReady(server)) {
+            int len;
+
+            if (SDLNet_TCP_Recv(server, &len, sizeof(int)) <= 0) {
+                // lost connection (server probably quit)?
+            } else {
+                char* buf = new char[len];
+                if (SDLNet_TCP_Recv(server, buf, len) <= 0) {
+                    // lost connection (server probably quit)?
+                } else {
+                    data[0] = Packet(buf, len);
+                }
+            }
+        }
+    }
+
+    return data;
+}
