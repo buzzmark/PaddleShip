@@ -73,6 +73,10 @@ void NetManager::startClient(char* host) {
     isRunning = true;
 }
 
+int NetManager::numClients() const {
+    return clients.size();
+}
+
 //------------------------------------------------------------
 // Message fuctions
 //------------------------------------------------------------

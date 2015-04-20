@@ -22,6 +22,7 @@ class NetManager
 
         void startServer();
         void startClient(char* host);
+        int numClients() const;
 
         void messageServer(const Packet& p);
         void messageClients(const Packet& p);
