@@ -10,11 +10,14 @@ NetManager::NetManager(){
 
 NetManager::~NetManager(){
     SDLNet_FreeSocketSet(socket_set);
-    SDLNet_TCP_Close(server);
 
-    for (auto client : clients) {
-        TCPsocket& socket = client.second;
-        SDLNet_TCP_Close(socket);
+    if (isRunning) {
+        SDLNet_TCP_Close(server);
+
+        for (auto client : clients) {
+            TCPsocket& socket = client.second;
+            SDLNet_TCP_Close(socket);
+        }
     }
 
     SDLNet_Quit();
