@@ -9,6 +9,7 @@
 #include "Paddle.h"
 #include "SoundPlayer.h"
 #include "Alien.h"
+#include "Packet.h"
 
 //---------------------------------------------------------------------------
 
@@ -21,8 +22,8 @@ public:
 	void setClient(bool client);
 	void setSinglePlayer(bool single);
 	void update(const Ogre::FrameEvent &evt);
-	void updateClient(const Ogre::FrameEvent &evt, float * positions);
-	int getPositions(float * positions);
+	void updateClient(const Ogre::FrameEvent &evt, Packet& p);
+	Packet getPositions();
 	void setDeetsPan(OgreBites::ParamsPanel*mDeetsPan);
 	void injectKeyDown(const OIS::KeyEvent &arg);
 	void injectKeyUp(const OIS::KeyEvent &arg);

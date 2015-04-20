@@ -7,6 +7,7 @@
 #include <CEGUI/CEGUI.h>
 #include <CEGUI/RendererModules/Ogre/Renderer.h>
 #include "NetManager.h"
+#include "Packet.h"
 
 //---------------------------------------------------------------------------
 
@@ -47,7 +48,6 @@ protected:
   bool singlePlayer;
   bool clientFound;
   char *host;
-  float buffer[NETMANAGER_BUFFER_SIZE/4];
   bool test;
   Ogre::Light* shipLight;
   Ogre::Light* alienLight;

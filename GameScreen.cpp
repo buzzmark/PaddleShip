@@ -67,75 +67,70 @@ void GameScreen::update(const Ogre::FrameEvent &evt)
 	sim->stepSimulation(evt.timeSinceLastFrame, 1, 1/60.0f);
 }
 //---------------------------------------------------------------------------
-void GameScreen::updateClient(const Ogre::FrameEvent &evt, float * positions)
+void GameScreen::updateClient(const Ogre::FrameEvent &evt, Packet& p)
 {
-	ship->setPosition(positions[0], positions[1], positions[2]);
-	ship->getNode()->setOrientation(Ogre::Quaternion(positions[3],positions[4],positions[5],positions[6]));
-	alien->setPosition(positions[7], positions[8], positions[9]);
-	alien->getNode()->setOrientation(Ogre::Quaternion(positions[10],positions[11],positions[12],positions[13]));
-	alien->setCam(positions[7], positions[8] + 25, positions[9] + 40, positions[7], positions[8], positions[9] - 25);
-	alien ->setLight(positions[7], positions[8] + 500, positions[9] + 250);
-	paddle->setPosition(positions[14], positions[15], positions[16]);
-	paddle->getNode()->setOrientation(Ogre::Quaternion(positions[17],positions[18],positions[19],positions[20]));
+	Ogre::Vector3 pos;
+	Ogre::Quaternion rot;
+
+	p >> pos >> rot;
+
+	ship->setPosition(pos.x, pos.y, pos.z);
+	ship->getNode()->setOrientation(rot);
+
+	p >> pos >> rot;
+
+	alien->setPosition(pos.x, pos.y, pos.z);
+	alien->getNode()->setOrientation(rot);
+	alien->setCam(pos.x, pos.y + 25, pos.z + 40, pos.x, pos.y, pos.z - 25);
+	alien->setLight(pos.x, pos.y + 500, pos.z + 250);
+
+	p >> pos >> rot;
+
+	paddle->setPosition(pos.x, pos.y, pos.z);
+	paddle->getNode()->setOrientation(rot);
 	
 	std::deque<GameObject*> oList = *(sim->getObjList());
 	int astIndex = 3;
 	for(int i = 21; i < 21+7*NUM_ASTEROIDS; i+=7, astIndex++){
 		Asteroid* ast = (Asteroid*)oList[astIndex];
-		ast->setPosition(positions[i], positions[i+1], positions[i+2]);
-		ast->getNode()->setOrientation(Ogre::Quaternion(positions[i+3],positions[i+4],positions[i+5],positions[i+6]));
+
+		p >> pos >> rot;
+		ast->setPosition(pos.x, pos.y, pos.z);
+		ast->getNode()->setOrientation(rot);
 	}
 
 }
 //---------------------------------------------------------------------------
-int GameScreen::getPositions(float * positions)
+Packet GameScreen::getPositions()
 {
+	Packet p;
+
 	Ogre::Vector3 pos = ship->getPos();
-	positions[0] = pos.x;
-	positions[1] = pos.y;
-	positions[2] = pos.z;
 	Ogre::Quaternion rot = ship->getNode()->getOrientation();
-	positions[3] = rot.w;
-	positions[4] = rot.x;
-	positions[5] = rot.y;
-	positions[6] = rot.z;
+
+	p << pos << rot;
 
 	pos = alien->getPos();
-	positions[7] = pos.x;
-	positions[8] = pos.y;
-	positions[9] = pos.z;
 	rot = alien->getNode()->getOrientation();
-	positions[10] = rot.w;
-	positions[11] = rot.x;
-	positions[12] = rot.y;
-	positions[13] = rot.z;
+
+	p << pos << rot;
 
 	pos = paddle->getPos();
-	positions[14] = pos.x;
-	positions[15] = pos.y;
-	positions[16] = pos.z;
 	rot = paddle->getNode()->getOrientation();
-	positions[17] = rot.w;
-	positions[18] = rot.x;
-	positions[19] = rot.y;
-	positions[20] = rot.z;
+
+	p << pos << rot;
 
 	std::deque<GameObject*> oList = *(sim->getObjList());
 	int astIndex = 3;
 	for(int i = 21; i < 21+7*NUM_ASTEROIDS; i+=7, astIndex++){
 		Asteroid* ast = (Asteroid*)oList[astIndex];
 		pos = ast->getPos();
-		positions[i] = pos.x;
-		positions[i+1] = pos.y;
-		positions[i+2] = pos.z;
 		rot = ast->getNode()->getOrientation();
-		positions[i+3] = rot.w;
-		positions[i+4] = rot.x;
-		positions[i+5] = rot.y;
-		positions[i+6] = rot.z;
+
+		p << pos << rot;
 	}
 
-	return (21+7*NUM_ASTEROIDS)*sizeof(float);
+	return p;
 }
 //---------------------------------------------------------------------------
 void GameScreen::injectKeyDown(const OIS::KeyEvent &arg)

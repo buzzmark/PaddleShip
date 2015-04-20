@@ -147,7 +147,8 @@ void Game::destroyScene(void){
 bool Game::frameRenderingQueued(const Ogre::FrameEvent &evt){
     if(!gameStarted){
         if(isServer && !clientFound){
-            if(netMgr->acceptClient()){
+            netMgr->getData();  // accept connections
+            if(netMgr->numClients() > 0){
                 clientFound = true;
                 gameStarted = true;
                 gameScreen->setClient(false);
@@ -160,17 +161,24 @@ bool Game::frameRenderingQueued(const Ogre::FrameEvent &evt){
     else{
         if (singlePlayer)
             gameScreen->update(evt); //render game
-        else if (!isServer && netMgr->receiveMessageFromServer(buffer))
-            gameScreen->updateClient(evt, buffer); //render game based on data from host
-        else if (isServer){
-            if(netMgr->messageWaitingFromClient()){
-                netMgr->receiveMessageFromClient(buffer);
-                //printf("recieved message from client: %d\n", *((int*)buffer));
-                gameScreen->clientKey(*((int*)buffer));
+        else if (!isServer) {
+            auto serverData = netMgr->getData();
+            auto iter = serverData.find(0);
+            if (iter != serverData.end()) {
+                //render game based on data from host
+                gameScreen->updateClient(evt, iter->second);
             }
+        } else if (isServer){
+            auto clientData = netMgr->getData();
+            auto iter = clientData.begin();
+            if (iter != clientData.end()) {
+                gameScreen->clientKey(iter->second.data()[0]);
+            }
+
             gameScreen->update(evt);
-            int len = gameScreen->getPositions(buffer);
-            netMgr->sendMessageToClient(buffer, len);
+
+            Packet p = gameScreen->getPositions();
+            netMgr->messageClients(p);
         }
     }
         
@@ -219,7 +227,7 @@ bool Game::keyPressed(const OIS::KeyEvent &arg){
         }
 
         if (message != -1)
-            netMgr->sendMessageToServer(&message, 4);
+            netMgr->messageServer(Packet((char*) &message, sizeof(int)));
     }
 
     CEGUI::GUIContext& context = CEGUI::System::getSingleton().getDefaultGUIContext();
@@ -268,7 +276,7 @@ bool Game::keyReleased(const OIS::KeyEvent &arg)
         }
 
         if (message != -1)
-            netMgr->sendMessageToServer(&message, 4);
+            netMgr->messageServer(Packet((char*) &message, sizeof(int)));
     }
 
     //mCameraMan->injectKeyUp(arg);
@@ -341,7 +349,6 @@ bool Game::startSinglePlayer(const CEGUI::EventArgs &e)
 void Game::setUpSDL(void)
 {
     netMgr = new NetManager();
-    netMgr->init();
     
 }
 //---------------------------------------------------------------------------
@@ -367,7 +374,7 @@ bool Game::joinGame(const CEGUI::EventArgs &e)
         return true;
     }
 
-    netMgr->connectToServer(host);
+    netMgr->startClient(host);
 
     std::cout << "connected to " << host << std::endl;
     
