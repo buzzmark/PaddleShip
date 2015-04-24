@@ -156,6 +156,8 @@ std::unordered_map<int, Packet> NetManager::getData() {
                         ++iter;
                     }
                 }
+            } else {
+                ++iter;
             }
         }
     } else {
