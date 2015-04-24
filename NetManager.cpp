@@ -103,9 +103,9 @@ void NetManager::messageClients(const Packet &p) {
 
     while (iter != clients.end()) {
         TCPsocket client = iter->second;
-        SDLNet_TCP_Send(server, &len, sizeof(int));
+        SDLNet_TCP_Send(client, &len, sizeof(int));
 
-        if (SDLNet_TCP_Send(server, buf, len) < len) {
+        if (SDLNet_TCP_Send(client, buf, len) < len) {
             // client probably disconnected; handle in game
 
             SDLNet_TCP_Close(client);
