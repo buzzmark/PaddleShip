@@ -25,6 +25,7 @@ public:
 protected:
 	Ogre::Vector3 asteroidVelocity;
 	Ogre::Vector3 asteroidPosition;
+	btVector3 asteroidRotation;
 	btDiscreteDynamicsWorld* dynamicsWorld;
 	float sphereSize;
 	float massVal;

@@ -52,6 +52,9 @@ void Ship::addToSimulator(void)
 //---------------------------------------------------------------------------
 void Ship::update(void)
 {
+	if (sqrt(getPos().x*getPos().x+getPos().z*getPos().z) > 4000){
+		body->applyCentralForce(btVector3(-5*getPos().x,0,-5*getPos().z));
+	}
 	if (left && body->getLinearVelocity().getX() < 250) {
 		body->applyCentralForce(btVector3(1000,0,0));
 	}
