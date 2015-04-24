@@ -147,7 +147,7 @@ void Game::destroyScene(void){
 bool Game::frameRenderingQueued(const Ogre::FrameEvent &evt){
     if(!gameStarted){
         if(isServer && !clientFound){
-            netMgr->getData();  // accept connections
+            netMgr->checkForUpdates();  // accept connection
             if(netMgr->numClients() > 0){
                 clientFound = true;
                 gameStarted = true;
@@ -162,14 +162,14 @@ bool Game::frameRenderingQueued(const Ogre::FrameEvent &evt){
         if (singlePlayer)
             gameScreen->update(evt); //render game
         else if (!isServer) {
-            auto serverData = netMgr->getData();
+            auto serverData = netMgr->checkForUpdates();
             auto iter = serverData.find(0);
             if (iter != serverData.end()) {
                 //render game based on data from host
                 gameScreen->updateClient(evt, iter->second);
             }
         } else if (isServer){
-            auto clientData = netMgr->getData();
+            auto clientData = netMgr->checkForUpdates();
             auto iter = clientData.begin();
             if (iter != clientData.end()) {
                 gameScreen->clientKey(iter->second.data()[0]);

@@ -117,12 +117,10 @@ void NetManager::messageClients(const Packet &p) {
     }
 }
 
-std::unordered_map<int, Packet> NetManager::getData() {
-    std::unordered_map<int, Packet> data;
+std::unordered_map<int, Packet> NetManager::checkForUpdates() {
+    SDLNet_CheckSockets(socket_set, 0);
 
     if (isServer) {
-        SDLNet_CheckSockets(socket_set, 0);
-
         // check for new clients
         if (SDLNet_SocketReady(server)) {
             TCPsocket connection = SDLNet_TCP_Accept(server);
@@ -133,51 +131,63 @@ std::unordered_map<int, Packet> NetManager::getData() {
             }
         }
 
-        // check for client messages
-        auto iter = clients.begin();
+        return serverGetData();
+    } else {
+        return clientGetData();
+    }
+}
 
-        while (iter != clients.end()) {
-            TCPsocket client = iter->second;
-            if (SDLNet_SocketReady(client)) {
-                int len;
+std::unordered_map<int, Packet> serverGetData() {
+    std::unordered_map<int, Packet> data;
 
-                if (SDLNet_TCP_Recv(client, &len, sizeof(int)) <= 0) {
+    // check for client messages
+    auto iter = clients.begin();
+
+    while (iter != clients.end()) {
+        TCPsocket client = iter->second;
+        if (SDLNet_SocketReady(client)) {
+            int len;
+
+            if (SDLNet_TCP_Recv(client, &len, sizeof(int)) <= 0) {
+                SDLNet_TCP_Close(client);
+                SDLNet_DelSocket(socket_set, (SDLNet_GenericSocket) client);
+                iter = clients.erase(iter);
+            } else {
+                char* buf = new char[len];
+                if (SDLNet_TCP_Recv(client, buf, len) <= 0) {
                     SDLNet_TCP_Close(client);
                     SDLNet_DelSocket(socket_set, (SDLNet_GenericSocket) client);
                     iter = clients.erase(iter);
                 } else {
-                    char* buf = new char[len];
-                    if (SDLNet_TCP_Recv(client, buf, len) <= 0) {
-                        SDLNet_TCP_Close(client);
-                        SDLNet_DelSocket(socket_set, (SDLNet_GenericSocket) client);
-                        iter = clients.erase(iter);
-                    } else {
-                        data[iter->first] = Packet(buf, len);
-                        ++iter;
-                    }
-                    delete[] buf;
-                }
-            } else {
-                ++iter;
-            }
-        }
-    } else {
-        SDLNet_CheckSockets(socket_set, 0);
-
-        if (SDLNet_SocketReady(server)) {
-            int len;
-
-            if (SDLNet_TCP_Recv(server, &len, sizeof(int)) <= 0) {
-                // lost connection (server probably quit)?
-            } else {
-                char* buf = new char[len];
-                if (SDLNet_TCP_Recv(server, buf, len) <= 0) {
-                    // lost connection (server probably quit)?
-                } else {
-                    data[0] = Packet(buf, len);
+                    data[iter->first] = Packet(buf, len);
+                    ++iter;
                 }
                 delete[] buf;
             }
+        } else {
+            ++iter;
+        }
+    }
+
+    return data;
+}
+
+std::unordered_map<int, Packet> clientGetData() {
+    std::unordered_map<int, Packet> data;
+
+    if (SDLNet_SocketReady(server)) {
+        int len;
+
+        if (SDLNet_TCP_Recv(server, &len, sizeof(int)) <= 0) {
+            // lost connection (server probably quit)?
+        } else {
+            char* buf = new char[len];
+            if (SDLNet_TCP_Recv(server, buf, len) <= 0) {
+                // lost connection (server probably quit)?
+            } else {
+                data[0] = Packet(buf, len);
+            }
+            delete[] buf;
         }
     }
 

@@ -16,6 +16,9 @@ class NetManager
         bool isRunning;
         int nextClientId;
 
+        std::unordered_map<int, Packet> serverGetData();
+        std::unordered_map<int, Packet> clientGetData();
+
     public:
         NetManager();
         ~NetManager();
@@ -26,7 +29,7 @@ class NetManager
 
         void messageServer(const Packet& p);
         void messageClients(const Packet& p);
-        std::unordered_map<int, Packet> getData();
+        std::unordered_map<int, Packet> checkForUpdates();
 };
 
 #endif /* NETMANAGER_H_ */
