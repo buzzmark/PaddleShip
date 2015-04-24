@@ -137,7 +137,7 @@ std::unordered_map<int, Packet> NetManager::checkForUpdates() {
     }
 }
 
-std::unordered_map<int, Packet> serverGetData() {
+std::unordered_map<int, Packet> NetManager::serverGetData() {
     std::unordered_map<int, Packet> data;
 
     // check for client messages
@@ -172,7 +172,7 @@ std::unordered_map<int, Packet> serverGetData() {
     return data;
 }
 
-std::unordered_map<int, Packet> clientGetData() {
+std::unordered_map<int, Packet> NetManager::clientGetData() {
     std::unordered_map<int, Packet> data;
 
     if (SDLNet_SocketReady(server)) {
