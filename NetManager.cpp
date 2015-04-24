@@ -155,6 +155,7 @@ std::unordered_map<int, Packet> NetManager::getData() {
                         data[iter->first] = Packet(buf, len);
                         ++iter;
                     }
+                    delete[] buf;
                 }
             } else {
                 ++iter;
@@ -175,6 +176,7 @@ std::unordered_map<int, Packet> NetManager::getData() {
                 } else {
                     data[0] = Packet(buf, len);
                 }
+                delete[] buf;
             }
         }
     }
