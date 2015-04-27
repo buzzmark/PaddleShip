@@ -99,6 +99,14 @@ void Game::createScene(void)
     mainMenu->getChild("hostButton")->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&Game::startHosting, this));
     mainMenu->getChild("joinButton")->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&Game::joinGame, this));
 
+    //warning gui
+    CEGUI::Window *warningMessage = wmgr.createWindow("TaharezLook/Button", "warningMessage");
+    warningMessage->setText("Warning: return to the arena");
+    warningMessage->setPosition( CEGUI::UVector2( CEGUI::UDim( 0.25f, 0.0f ), CEGUI::UDim( 0.25f, 0.0f ) ) );
+    warningMessage->setSize(CEGUI::USize(CEGUI::UDim(0.50, 0), CEGUI::UDim(0.05, 0)));
+    guiRoot->addChild(warningMessage);
+    warningMessage->setVisible(false);
+
     //sound
     soundPlayer = new SoundPlayer();
     soundPlayer->startBgMusic();
@@ -153,7 +161,7 @@ bool Game::frameRenderingQueued(const Ogre::FrameEvent &evt){
                 gameScreen->setClient(false);
                 gameScreen->setSinglePlayer(false);
                 CEGUI::System::getSingleton().getDefaultGUIContext().getMouseCursor().hide();
-                guiRoot->setVisible(false);
+                guiRoot->getChild("mainMenu")->setVisible(false);
             }
         }
     }
@@ -332,7 +340,7 @@ bool Game::startSinglePlayer(const CEGUI::EventArgs &e)
 {
     singlePlayer = true;
     gameStarted = true;
-    guiRoot->setVisible(false);
+    guiRoot->getChild("mainMenu")->setVisible(false);
     gameScreen->setSinglePlayer(true);
     CEGUI::System::getSingleton().getDefaultGUIContext().getMouseCursor().hide();
     return true;
@@ -375,7 +383,7 @@ bool Game::joinGame(const CEGUI::EventArgs &e)
     gameScreen->setSinglePlayer(false);
     gameStarted = true;
 
-    guiRoot->setVisible(false);
+    guiRoot->getChild("mainMenu")->setVisible(false);
     CEGUI::System::getSingleton().getDefaultGUIContext().getMouseCursor().hide();
 
     return true;

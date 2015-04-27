@@ -1,6 +1,8 @@
 #include <OgreMath.h>
 #include "Ship.h"
 #include <iostream>
+#include <CEGUI/CEGUI.h>
+#include <CEGUI/RendererModules/Ogre/Renderer.h>
 
 Ogre::Vector3 direction;
 Ogre::Vector3 prevDirection;
@@ -31,6 +33,7 @@ Ship::Ship(Ogre::String nym, Ogre::SceneManager* mgr, Simulator* sim, Ogre::Scen
 	turnRight = false;
 	turnLeft = false;
 	soundPlayer = sPlayer;
+	outOfBounds = false;
 	/*
 	deltDirection = Ogre::Vector3(0,0,0);
 	prevDirection = rootNode->getOrientation() * Ogre::Vector3(0,0,1);
@@ -71,9 +74,14 @@ void Ship::addToSimulator(void)
 //---------------------------------------------------------------------------
 void Ship::update(void)
 {
-	if (sqrt(getPos().x*getPos().x+getPos().z*getPos().z) > 4000){
-		body->applyCentralForce(btVector3(-5*getPos().x,0,-5*getPos().z));
+	if (!outOfBounds && sqrt(getPos().x*getPos().x+getPos().z*getPos().z) > 4000){
+		CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild("warningMessage")->setVisible(true);
+		outOfBounds = true;
+	} else if (outOfBounds && sqrt(getPos().x*getPos().x+getPos().z*getPos().z) < 4000){
+		CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild("warningMessage")->setVisible(false);
+		outOfBounds = false;
 	}
+
 	if (forward && body->getLinearVelocity().getZ() < 250) {
 		direction = rootNode->getOrientation() * Ogre::Vector3(0,0,1);
 		body->applyCentralForce(btVector3(10000*direction.x, 10000*direction.y, 10000*direction.z));

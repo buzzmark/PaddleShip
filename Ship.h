@@ -45,6 +45,7 @@ protected:
 	bool turnRight;
 	bool turnLeft;
 	int &score;
+	bool outOfBounds;
 };
 
 //---------------------------------------------------------------------------
