@@ -150,6 +150,25 @@ std::unordered_map<int, Packet> NetManager::checkForUpdates() {
     }
 }
 
+bool read_buffer(TCPsocket socket, void* vbuf, int len) {
+    char* buf = reinterpret_cast<char*>(vbuf);
+    int chunk_pos = 0;
+
+    while (chunk_pos < len) {
+        int chunk_len = SDLNet_TCP_Recv(socket, buf + chunk_pos, len - chunk_pos);
+        logger << "read chunk " << chunk_len << std::endl;
+
+        if (chunk_len <= 0) {
+            // lost connection
+            return false;
+        }
+
+        chunk_pos += chunk_len;
+    }
+
+    return true;
+}
+
 std::unordered_map<int, Packet> NetManager::serverGetData() {
     std::unordered_map<int, Packet> data;
 
@@ -163,26 +182,28 @@ std::unordered_map<int, Packet> NetManager::serverGetData() {
         if (SDLNet_SocketReady(client)) {
             int len;
 
-            if (SDLNet_TCP_Recv(client, &len, sizeof(int)) <= 0) {
-                logger << "client " << iter->first << " disconnected" << std::endl;
-                SDLNet_TCP_Close(client);
-                SDLNet_DelSocket(socket_set, (SDLNet_GenericSocket) client);
-                iter = clients.erase(iter);
-                exit(EXIT_FAILURE);
-            } else {
+            if (read_buffer(client, &len, sizeof(int))) {
                 char* buf = new char[len];
-                if (SDLNet_TCP_Recv(client, buf, len) <= 0) {
+
+                if (read_buffer(client, buf, len)) {
+                    logger << "received " << len << " packet from client " << iter->first << std::endl;
+                    data[iter->first] = Packet(buf, len);
+                    ++iter;
+                } else {
                     logger << "client " << iter->first << " disconnected" << std::endl;
                     SDLNet_TCP_Close(client);
                     SDLNet_DelSocket(socket_set, (SDLNet_GenericSocket) client);
                     iter = clients.erase(iter);
                     exit(EXIT_FAILURE);
-                } else {
-                    logger << "received " << len << " packet from client " << iter->first << std::endl;
-                    data[iter->first] = Packet(buf, len);
-                    ++iter;
                 }
+
                 delete[] buf;
+            } else {
+                logger << "client " << iter->first << " disconnected" << std::endl;
+                SDLNet_TCP_Close(client);
+                SDLNet_DelSocket(socket_set, (SDLNet_GenericSocket) client);
+                iter = clients.erase(iter);
+                exit(EXIT_FAILURE);
             }
         } else {
             ++iter;
@@ -200,20 +221,19 @@ std::unordered_map<int, Packet> NetManager::clientGetData() {
     if (SDLNet_SocketReady(server)) {
         int len;
 
-        if (SDLNet_TCP_Recv(server, &len, sizeof(int)) <= 0) {
-            logger << "lost connection to server" << std::endl;
-            // lost connection (server probably quit)?
-        } else {
+        if (read_buffer(server, &len, sizeof(int))) {
             char* buf = new char[len];
-            if (SDLNet_TCP_Recv(server, buf, len) <= 0) {
-                // lost connection (server probably quit)?
-                logger << "lost connection to server" << std::endl;
-                exit(EXIT_FAILURE);
-            } else {
+            if (read_buffer(server, buf, len)) {
                 logger << "received " << len << " packet from server" << std::endl;
                 data[0] = Packet(buf, len);
+            } else {
+                logger << "lost connection to server" << std::endl;
+                exit(EXIT_FAILURE);
             }
             delete[] buf;
+        } else {
+            logger << "lost connection to server" << std::endl;
+            // lost connection (server probably quit)?
         }
     }
 
