@@ -42,7 +42,10 @@ protected:
 	bool back;
 	bool left;
 	bool right;
+	bool turnRight;
+	bool turnLeft;
 	int &score;
+	bool outOfBounds;
 };
 
 //---------------------------------------------------------------------------

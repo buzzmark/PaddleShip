@@ -7,7 +7,7 @@ Alien::Alien(Ogre::String nym, Ogre::SceneManager* mgr, Simulator* sim, Ogre::Sc
 	cameraNode = cm;
 	alienLight = alienLt;
 	objList = oList;
-	cam = (Ogre::Camera*) cameraNode -> getAttachedObject("PlayerCam");
+	//cam = (Ogre::Camera*) cameraNode -> getAttachedObject("PlayerCam");
 	//rootNode->getParent()->removeChild(rootNode);
 	//cameraNode->addChild(rootNode);
 	//rootNode = cameraNode;
