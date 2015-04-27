@@ -1,5 +1,8 @@
 #include <cstring>
+#include <fstream>
 #include "Packet.h"
+
+static std::ofstream logger("packet.log");
 
 //---------------------------------------------------------------------------
 
@@ -38,20 +41,24 @@ const char* Packet::data() const {
 //---------------------------------------------------------------------------
 
 Packet& Packet::operator<<(const int a) {
+    logger << "packet write int " << a << std::endl;
     mem_write_to_packet(&a, sizeof(int));
     return *this;
 }
 
 Packet& Packet::operator<<(const float a) {
+    logger << "packet write float " << a << std::endl;
     mem_write_to_packet(&a, sizeof(float));
     return *this;
 }
 
 Packet& Packet::operator<<(const Ogre::Vector3& a) {
+    logger << "packet sending vector" << a << std::endl;
     return *this << a.x << a.y << a.z;
 }
 
 Packet& Packet::operator<<(const Ogre::Quaternion& a) {
+    logger << "packet sending quat" << a << std::endl;
     return *this << a.w << a.x << a.y << a.z;
 }
 
@@ -59,19 +66,23 @@ Packet& Packet::operator<<(const Ogre::Quaternion& a) {
 
 Packet& Packet::operator>>(int &a) {
     mem_read_from_packet(&a, sizeof(int));
+    logger << "packet read int " << a << std::endl;
     return *this;
 }
 
 Packet& Packet::operator>>(float &a) {
     mem_read_from_packet(&a, sizeof(float));
+    logger << "packet read float " << a << std::endl;
     return *this;
 }
 
 Packet& Packet::operator>>(Ogre::Vector3& a) {
+    logger << "packet reading vector" << std::endl;
     return *this >> a.x >> a.y >> a.z;
 }
 
 Packet& Packet::operator>>(Ogre::Quaternion& a) {
+    logger << "packet reading quat" << std::endl;
     return *this >> a.w >> a.x >> a.y >> a.z;
 }
 
