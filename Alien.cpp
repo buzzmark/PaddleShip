@@ -393,6 +393,8 @@ void Alien::aimAsteroid(int arg) {
 
 void Alien::grabCamera() {
 	cam = (Ogre::Camera*) cameraNode -> detachObject("PlayerCam");
+	cam->setPosition(Ogre::Vector3(0,25,40));
+	cam->lookAt(Ogre::Vector3(0,0,-25));
 	rootNode -> attachObject(cam);
 }
 
