@@ -98,14 +98,24 @@ void GameScreen::updateClient(const Ogre::FrameEvent &evt, Packet& p)
 
 	alien->setPosition(pos.x, pos.y, pos.z);
 	alien->getNode()->setOrientation(rot);
-	alien->setCam(pos.x, pos.y + 25, pos.z + 40, pos.x, pos.y, pos.z - 25);
+	//alien->setCam(pos.x, pos.y + 25, pos.z + 40, pos.x, pos.y, pos.z - 25);
 	alien->setLight(pos.x, pos.y + 500, pos.z + 250);
 
 	p >> pos >> rot;
 
 	paddle->setPosition(pos.x, pos.y, pos.z);
 	paddle->getNode()->setOrientation(rot);
+
+	p >> pos >> rot;
 	
+    shipAI->setPosition(pos.x, pos.y, pos.z);
+    shipAI->getNode()->setOrientation(rot);
+
+	p >> pos >> rot;
+
+	paddleAI->setPosition(pos.x, pos.y, pos.z);
+	paddleAI->getNode()->setOrientation(rot);
+
 	std::deque<GameObject*> oList = *(sim->getObjList());
 	int astIndex = 3;
 	for(int i = 21; i < 21+7*NUM_ASTEROIDS; i+=7, astIndex++){
@@ -134,6 +144,16 @@ Packet GameScreen::getPositions()
 
 	pos = paddle->getPos();
 	rot = paddle->getNode()->getOrientation();
+
+	p << pos << rot;
+
+	pos = shipAI->getPos();
+	rot = shipAI->getNode()->getOrientation();
+
+	p << pos << rot;
+
+	pos = paddleAI->getPos();
+	rot = paddleAI->getNode()->getOrientation();
 
 	p << pos << rot;
 
