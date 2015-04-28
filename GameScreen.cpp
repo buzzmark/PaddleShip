@@ -72,10 +72,20 @@ void GameScreen::createScene(void)
 }
 //---------------------------------------------------------------------------
 void GameScreen::setClient(bool client){
+    if (client) {
+        alien->grabCamera();
+    } else {
+        ship->grabCamera();
+    }
+
 	isClient = client;
 }
 //---------------------------------------------------------------------------
 void GameScreen::setSinglePlayer(bool single){
+    if (single) {
+        ship->grabCamera();
+    }
+
 	singlePlayer = single;
 }
 //---------------------------------------------------------------------------

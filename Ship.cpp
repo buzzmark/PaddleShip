@@ -15,11 +15,11 @@ Ship::Ship(Ogre::String nym, Ogre::SceneManager* mgr, Simulator* sim, Ogre::Scen
 	cameraNode = cm;
 	shipLight = shipLt;
 	//cam = (Ogre::Camera*) cameraNode -> getAttachedObject("PlayerCam");
-	cam = (Ogre::Camera*) cameraNode -> detachObject("PlayerCam");
-	rootNode -> attachObject(cam);
+	//cam = (Ogre::Camera*) cameraNode -> detachObject("PlayerCam");
+	//rootNode -> attachObject(cam);
 	hasDecr = false;
 	//printf("Position of cameraNode: (%f, %f, %f)\n", (cameraNode -> getPosition()).x,(cameraNode -> getPosition()).y, (cameraNode -> getPosition()).z);
-	printf("Position of camera object: (%f, %f, %f)\n", (cam -> getPosition()).x,(cam -> getPosition()).y, (cam -> getPosition()).z);
+	//printf("Position of camera object: (%f, %f, %f)\n", (cam -> getPosition()).x,(cam -> getPosition()).y, (cam -> getPosition()).z);
 	//rootNode->getParent()->removeChild(cameraNode);
 	//cameraNode->addChild(rootNode);
 	//changedView = false;
@@ -190,6 +190,12 @@ void Ship::injectKeyDown(const OIS::KeyEvent &arg)
 	
 
 }
+
+void Ship::grabCamera() {
+	cam = (Ogre::Camera*) cameraNode -> detachObject("PlayerCam");
+	rootNode -> attachObject(cam);
+}
+
 //---------------------------------------------------------------------------
 void Ship::injectKeyUp(const OIS::KeyEvent &arg)
 {

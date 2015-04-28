@@ -23,6 +23,7 @@ public:
 	void addToScene(void);
 	void addToSimulator(void);
 	void update(void);
+    void grabCamera(void);
 	void setDeetsPan(OgreBites::ParamsPanel*mDeetsPan);
 	void injectKeyDown(const OIS::KeyEvent &arg);
 	void injectKeyUp(const OIS::KeyEvent &arg);
