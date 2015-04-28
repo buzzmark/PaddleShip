@@ -18,7 +18,7 @@
 class Paddle: public GameObject 
 {
 public:
-	Paddle(Ogre::String nym, Ogre::SceneManager* mgr, Simulator* sim, int &sc, SoundPlayer* sPlayer);
+	Paddle(Ogre::String nym, Ogre::SceneManager* mgr, Simulator* sim, Ogre::SceneNode* shipNode, int &sc, SoundPlayer* sPlayer);
 	~Paddle(void);
 	void addToScene(void);
 	void addToSimulator(void);
@@ -33,6 +33,7 @@ protected:
 	SoundPlayer* soundPlayer;
 	int &score;
 	bool hasIncr;
+	Ogre::String name;
 };
 
 //---------------------------------------------------------------------------
