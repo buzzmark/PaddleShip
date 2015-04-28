@@ -107,6 +107,14 @@ void Game::createScene(void)
     guiRoot->addChild(warningMessage);
     warningMessage->setVisible(false);
 
+    //minimap
+    CEGUI::Window *minimap = wmgr.createWindow("TaharezLook/FrameWindow", "minimap");
+    minimap->setText("Minimap");
+    minimap->setPosition( CEGUI::UVector2( CEGUI::UDim( 0.85f, 0.0f ), CEGUI::UDim( 0.0f, 0.0f ) ) );
+    minimap->setSize(CEGUI::USize(CEGUI::UDim(0.15, 0), CEGUI::UDim(0.15, 0)));
+    guiRoot->addChild(minimap);
+
+
     //sound
     soundPlayer = new SoundPlayer();
     soundPlayer->startBgMusic();
