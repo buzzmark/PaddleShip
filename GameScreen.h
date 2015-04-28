@@ -9,6 +9,7 @@
 #include "Paddle.h"
 #include "SoundPlayer.h"
 #include "Alien.h"
+#include "ShipAI.h"
 #include "Packet.h"
 
 //---------------------------------------------------------------------------
@@ -40,10 +41,14 @@ protected:
 	Ship* ship;
 	Paddle* paddle;
 	btHingeConstraint* paddleHinge;
+	btHingeConstraint* paddleHingeAI;
 	AsteroidSys* ast1;
 	Alien * alien;
+	ShipAI * shipAI;
+	Paddle* paddleAI;
 	bool motorRight;
 	int score;
+	int scoreAI;
 	int alienHealth;
 	bool isClient;
 	bool singlePlayer;

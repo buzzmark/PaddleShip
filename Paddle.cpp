@@ -1,9 +1,11 @@
 #include "Paddle.h"
 #include <iostream>
 //---------------------------------------------------------------------------
-Paddle::Paddle(Ogre::String nym, Ogre::SceneManager* mgr, Simulator* sim, int &sc, SoundPlayer* sPlayer) : GameObject(nym, mgr, sim), score(sc)
+Paddle::Paddle(Ogre::String nym, Ogre::SceneManager* mgr, Simulator* sim, Ogre::SceneNode* shipNode, int &sc, SoundPlayer* sPlayer) : GameObject(nym, mgr, sim), score(sc)
 {
-	rootNode->setPosition(Ogre::Vector3(-8.25f, 0.0f, 10.0f));
+	name = nym;
+	Ogre::Vector3 shipPos = shipNode -> getPosition();
+	rootNode->setPosition(Ogre::Vector3(shipPos.x - 8.25f, shipPos.y + 0.0f, shipPos.z + 10.0f));
 	soundPlayer = sPlayer;
 }
 //---------------------------------------------------------------------------
@@ -13,7 +15,7 @@ Paddle::~Paddle(void)
 //---------------------------------------------------------------------------
 void Paddle::addToScene(void)
 {
-	geom = sceneMgr->createEntity("paddleEnt", "paddle.mesh");
+	geom = sceneMgr->createEntity(name + "Ent", "paddle.mesh");
 	geom->setCastShadows(true);
 	rootNode->attachObject(geom);
 	
