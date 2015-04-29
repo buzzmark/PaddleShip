@@ -1,6 +1,7 @@
 #ifndef __Game_h_
 #define __Game_h_
 
+#include <chrono>
 #include "BaseApplication.h"
 #include "GameScreen.h"
 #include "SoundPlayer.h"
@@ -52,6 +53,7 @@ protected:
   Ogre::Light* shipLight;
   Ogre::Light* alienLight;
 
+    std::chrono::time_point<std::chrono::steady_clock> lastNetUpdate;
 };
 
 //---------------------------------------------------------------------------

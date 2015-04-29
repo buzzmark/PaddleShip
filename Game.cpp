@@ -16,6 +16,7 @@ Game::Game(char *hostIP)
     isServer = false;
     host = hostIP;
     test = true;
+    lastNetUpdate = std::chrono::steady_clock::now();
 }
 //---------------------------------------------------------------------------
 Game::~Game(void)
@@ -193,8 +194,11 @@ bool Game::frameRenderingQueued(const Ogre::FrameEvent &evt){
 
             gameScreen->update(evt);
 
-            Packet p = gameScreen->getPositions();
-            netMgr->messageClients(p);
+            auto now = std::chrono::steady_clock::now();
+            if (now - lastNetUpdate > std::chrono::milliseconds(16)) {
+                Packet p = gameScreen->getPositions();
+                netMgr->messageClients(p);
+            }
         }
     }
         
