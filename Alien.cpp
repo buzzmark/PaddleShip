@@ -289,7 +289,7 @@ void Alien::grabAsteroid(bool tryGrab)
 {
 	if (tryGrab) {
 		std::deque<GameObject*> oList = *objList;
-		for (int i = 3; i < oList.size(); i++) {
+		for (int i = 5; i < oList.size(); i++) {
 			if (!hasAsteroid && (oList[i] -> getPos()).z <= ((rootNode ->getPosition()).z - 20) && ((oList[i] -> getPos()).z <= (rootNode ->getPosition()).z) && (oList[i] -> getPos()).x <= ((rootNode ->getPosition()).x + 20) && (oList[i] -> getPos()).x >= ((rootNode ->getPosition()).x - 20)) {
 				hasAsteroid = true;
 				currentAsteroid = (Asteroid *) oList[i];
