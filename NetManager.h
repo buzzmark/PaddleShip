@@ -16,6 +16,8 @@ class NetManager
         bool isRunning;
         int nextClientId;
 
+        std::unordered_map<int, TCPsocket>::iterator messageSingleClient(std::unordered_map<int, TCPsocket>::iterator iter, const Packet &p);
+
         std::unordered_map<int, Packet> serverGetData();
         std::unordered_map<int, Packet> clientGetData();
 
@@ -29,6 +31,7 @@ class NetManager
 
         void messageServer(const Packet& p);
         void messageClients(const Packet& p);
+        void messageClient(int clientId, const Packet& p);
         std::unordered_map<int, Packet> checkForUpdates();
 };
 

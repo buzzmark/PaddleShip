@@ -95,25 +95,37 @@ void NetManager::messageServer(const Packet &p) {
     }
 }
 
-void NetManager::messageClients(const Packet &p) {
+std::unordered_map<int, TCPsocket>::iterator NetManager::messageSingleClient(std::unordered_map<int, TCPsocket>::iterator iter, const Packet &p) {
     const char* buf = p.data();
     const int len = p.size();
 
+    TCPsocket client = iter->second;
+    SDLNet_TCP_Send(client, &len, sizeof(int));
+
+    if (SDLNet_TCP_Send(client, buf, len) < len) {
+        // client probably disconnected; handle in game
+
+        SDLNet_TCP_Close(client);
+        SDLNet_DelSocket(socket_set, (SDLNet_GenericSocket) client);
+        return clients.erase(iter);
+    } else {
+        return ++iter;
+    }
+}
+
+void NetManager::messageClients(const Packet &p) {
     auto iter = clients.begin();
 
     while (iter != clients.end()) {
-        TCPsocket client = iter->second;
-        SDLNet_TCP_Send(client, &len, sizeof(int));
+        iter = messageSingleClient(iter, p);
+    }
+}
 
-        if (SDLNet_TCP_Send(client, buf, len) < len) {
-            // client probably disconnected; handle in game
+void NetManager::messageClient(int clientId, const Packet &p) {
+    auto iter = clients.find(clientId);
 
-            SDLNet_TCP_Close(client);
-            SDLNet_DelSocket(socket_set, (SDLNet_GenericSocket) client);
-            iter = clients.erase(iter);
-        } else {
-            ++iter;
-        }
+    if (iter != clients.end()) {
+        messageSingleClient(iter, p);
     }
 }
 
