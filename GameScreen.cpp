@@ -132,7 +132,7 @@ void GameScreen::updateClient(const Ogre::FrameEvent &evt, Packet& p)
 	paddleAI->getNode()->setOrientation(rot);
 
 	std::deque<GameObject*> oList = *(sim->getObjList());
-	int astIndex = 3;
+	int astIndex = 5;
 	for(int i = 21; i < 21+7*NUM_ASTEROIDS; i+=7, astIndex++){
 		Asteroid* ast = (Asteroid*)oList[astIndex];
 
@@ -173,7 +173,7 @@ Packet GameScreen::getPositions()
 	p << pos << rot;
 
 	std::deque<GameObject*> oList = *(sim->getObjList());
-	int astIndex = 3;
+	int astIndex = 5;
 	for(int i = 21; i < 21+7*NUM_ASTEROIDS; i+=7, astIndex++){
 		Asteroid* ast = (Asteroid*)oList[astIndex];
 		pos = ast->getPos();
