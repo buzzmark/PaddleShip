@@ -1,7 +1,7 @@
 #include "ShipAI.h"
 
 //---------------------------------------------------------------------------
-ShipAI::ShipAI(Ogre::String nym, Ogre::SceneManager* mgr, Simulator* sim, Ogre::SceneNode* sn, int &sc, SoundPlayer* sPlayer, Paddle* paddleAI, std::deque<GameObject*>* oList,  int ops) : GameObject(nym, mgr, sim), score(sc)
+ShipAI::ShipAI(Ogre::String nym, Ogre::SceneManager* mgr, Simulator* sim, Ogre::SceneNode* sn, int &sc, SoundPlayer* sPlayer, std::deque<GameObject*>* oList,  int ops) : GameObject(nym, mgr, sim), score(sc)
 {
 	sceneNode = sn;
 	soundPlayer = sPlayer;
@@ -9,8 +9,11 @@ ShipAI::ShipAI(Ogre::String nym, Ogre::SceneManager* mgr, Simulator* sim, Ogre::
 	objList = oList;
 	target = NULL;
 	gameStarted = true;
-	paddle = paddleAI;
+	//paddle = paddleAI;
+	paddle = NULL;
 	yT = 0;
+	motorRight = true;
+	paddleHinge = NULL;
 
 	paces = 1000; //tentative
 	doneRoaming = false;
@@ -46,6 +49,7 @@ void ShipAI::addToScene(void)
 
 	mass = 10.0f;
 	shape = new btCapsuleShapeZ(3.0f, 15.0f);
+	//paddleHinge = paddle -> getPaddleHinge();
 }
 //---------------------------------------------------------------------------
 void ShipAI::addToSimulator(void)
@@ -118,6 +122,7 @@ void ShipAI::roam(void)
   }
 
   if (paces >= 1000) {
+  	//melee();
   	paces = 0;
 
 	float minT = -2000;
@@ -162,6 +167,13 @@ void ShipAI::hunt(void)
 //---------------------------------------------------------------------------
 void ShipAI::melee(void)
 {
+	paddleHinge = paddle -> getPaddleHinge();
+	if (motorRight)
+			paddleHinge->enableAngularMotor(true, -100, 1000);
+	else
+		paddleHinge->enableAngularMotor(true, 100, 1000);
+	motorRight = !motorRight;
+	soundPlayer->playPaddleSwing();
 
 }
 //---------------------------------------------------------------------------
@@ -217,3 +229,9 @@ void ShipAI::opponentProximityCheck(void)
 	*/
 
 }
+//---------------------------------------------------------------------------
+void ShipAI::setPaddle(Paddle* paddleAI) 
+{
+	paddle = paddleAI;
+}
+//---------------------------------------------------------------------------

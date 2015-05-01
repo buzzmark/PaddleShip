@@ -26,11 +26,14 @@ public:
 	void setDeetsPan(OgreBites::ParamsPanel*mDeetsPan);
 	void injectKeyDown(const OIS::KeyEvent &arg);
 	void injectKeyUp(const OIS::KeyEvent &arg);
+	void setPaddleHinge(btHingeConstraint* paddleHinge);
+	btHingeConstraint* getPaddleHinge();
 
 protected:
 	Ogre::SceneNode* mShipNode;
 	OgreBites::ParamsPanel* mDetailsPanel;
 	SoundPlayer* soundPlayer;
+	btHingeConstraint* hinge;
 	int &score;
 	bool hasIncr;
 	Ogre::String name;

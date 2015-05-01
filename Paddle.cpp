@@ -69,3 +69,13 @@ void Paddle::setDeetsPan(OgreBites::ParamsPanel*mDeetsPan)
 	mDetailsPanel = mDeetsPan;
 }
 //---------------------------------------------------------------------------
+void Paddle::setPaddleHinge(btHingeConstraint* paddleHinge)
+{
+	hinge = paddleHinge;
+}
+//---------------------------------------------------------------------------
+btHingeConstraint* Paddle::getPaddleHinge()
+{
+	return hinge;
+}
+//---------------------------------------------------------------------------

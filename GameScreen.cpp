@@ -13,8 +13,8 @@ GameScreen::GameScreen(Ogre::SceneManager* sceneMgr, Ogre::SceneNode* cameraNode
 	ship = new Ship("Ship", sceneMgr, sim, cameraNode, score, sPlayer, shipLt);
 	alien = new Alien("Alien", sceneMgr, sim, cameraNode, alienHealth, objList, sPlayer, alienLt);
 	paddle = new Paddle("paddle", sceneMgr, sim, ship -> getNode(), score, sPlayer); 
+	shipAI = new ShipAI("ShipAI",sceneMgr, sim, cameraNode, scoreAI, sPlayer, objList, 0);
 	paddleAI = new Paddle("paddleAI", sceneMgr, sim, shipAI -> getNode(), scoreAI, sPlayer); 
-	shipAI = new ShipAI("ShipAI",sceneMgr, sim, cameraNode, scoreAI, sPlayer, paddleAI, objList, 0);
 	ast1 = new AsteroidSys(sceneMgr, sim, ship);
 	motorRight = true;
 	isClient = false;
@@ -47,6 +47,7 @@ void GameScreen::createScene(void)
 	paddleHinge->enableAngularMotor(true, 100, 100);
 
 	sim->getDynamicsWorld()->addConstraint(paddleHinge, true);
+	paddle -> setPaddleHinge(paddleHinge);
 
 	//alien
 	alien->addToScene();
@@ -58,9 +59,10 @@ void GameScreen::createScene(void)
 
     //ship AI
 	shipAI->addToScene();
+	//shipAI ->setPaddle(paddleAI);
 	shipAI->addToSimulator();
 
-	//paddle for ship AI
+    //paddle for ship AI
 	paddleAI->addToScene();
 	paddleAI->addToSimulator();
 
@@ -69,6 +71,9 @@ void GameScreen::createScene(void)
 	paddleHingeAI->enableAngularMotor(true, 100, 100);
 
 	sim->getDynamicsWorld()->addConstraint(paddleHingeAI, true);
+	shipAI ->setPaddle(paddleAI);
+	paddleAI -> setPaddleHinge(paddleHingeAI);
+
 }
 //---------------------------------------------------------------------------
 void GameScreen::setClient(bool client){
