@@ -118,25 +118,10 @@ void ShipAI::roam(void)
 
   if (paces >= 1000) {
   	paces = 0;
-  	//body->setLinearVelocity(btVector3(1000,0,1000));
 
 	float minT = -2000;
 	float maxT = 2000;
 	yT = minT + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(maxT-minT)));
-	
-	/*
-	body->setAngularFactor(btVector3(0,1,0));
-	body->applyTorque(btVector3(0, yT,0));
-	body->setAngularFactor(btVector3(0,0,0));
-	*/
-
-	/*
-	direction = rootNode->getOrientation() * Ogre::Vector3(0,0,1);
-	body->applyCentralForce(btVector3(6000*direction.x, 6000*direction.y, 6000*direction.z));
-
-	btVector3 shipVel = body->getLinearVelocity();
-	body->setLinearVelocity(btVector3(shipVel.getX()*0.99,shipVel.getY()*0.99,shipVel.getZ()*0.99));
-	*/
 
 	if (!doneFleeing) {
 		doneRoaming = true;
