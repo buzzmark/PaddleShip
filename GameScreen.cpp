@@ -13,8 +13,8 @@ GameScreen::GameScreen(Ogre::SceneManager* sceneMgr, Ogre::SceneNode* cameraNode
 	ship = new Ship("Ship", sceneMgr, sim, cameraNode, score, sPlayer, shipLt);
 	alien = new Alien("Alien", sceneMgr, sim, cameraNode, alienHealth, objList, sPlayer, alienLt);
 	paddle = new Paddle("paddle", sceneMgr, sim, ship -> getNode(), score, sPlayer); 
-	shipAI = new ShipAI("ShipAI",sceneMgr, sim, cameraNode, scoreAI, sPlayer, objList, 0);
 	paddleAI = new Paddle("paddleAI", sceneMgr, sim, shipAI -> getNode(), scoreAI, sPlayer); 
+	shipAI = new ShipAI("ShipAI",sceneMgr, sim, cameraNode, scoreAI, sPlayer, paddleAI, objList, 0);
 	ast1 = new AsteroidSys(sceneMgr, sim, ship);
 	motorRight = true;
 	isClient = false;

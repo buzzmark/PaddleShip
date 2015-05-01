@@ -28,7 +28,7 @@
 class ShipAI: public GameObject 
 {
 public:
-	ShipAI(Ogre::String nym, Ogre::SceneManager* mgr, Simulator* sim, Ogre::SceneNode* sn, int &sc, SoundPlayer* sPlayer, std::deque<GameObject*>* oList,  int ops);
+	ShipAI(Ogre::String nym, Ogre::SceneManager* mgr, Simulator* sim, Ogre::SceneNode* sn, int &sc, SoundPlayer* sPlayer, Paddle* paddleAI, std::deque<GameObject*>* oList,  int ops);
 	~ShipAI(void);
 	void addToScene(void);
 	void addToSimulator(void);
@@ -48,8 +48,13 @@ protected:
 	std::deque<GameObject*>* objList;
 	Ogre::Vector3 direction;
 	GameObject *target;
+	Paddle * paddle;
 	bool gameStarted;
 	float yT;
+
+	//both closest and alternate are saved and based on reasoning of other states, one of them becomes target
+	GameObject *closest;
+	GameObject *alternate;
 
 	int paces;
 	bool doneRoaming;

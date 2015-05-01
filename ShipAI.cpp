@@ -1,7 +1,7 @@
 #include "ShipAI.h"
 
 //---------------------------------------------------------------------------
-ShipAI::ShipAI(Ogre::String nym, Ogre::SceneManager* mgr, Simulator* sim, Ogre::SceneNode* sn, int &sc, SoundPlayer* sPlayer, std::deque<GameObject*>* oList,  int ops) : GameObject(nym, mgr, sim), score(sc)
+ShipAI::ShipAI(Ogre::String nym, Ogre::SceneManager* mgr, Simulator* sim, Ogre::SceneNode* sn, int &sc, SoundPlayer* sPlayer, Paddle* paddleAI, std::deque<GameObject*>* oList,  int ops) : GameObject(nym, mgr, sim), score(sc)
 {
 	sceneNode = sn;
 	soundPlayer = sPlayer;
@@ -9,6 +9,7 @@ ShipAI::ShipAI(Ogre::String nym, Ogre::SceneManager* mgr, Simulator* sim, Ogre::
 	objList = oList;
 	target = NULL;
 	gameStarted = true;
+	paddle = paddleAI;
 	yT = 0;
 
 	paces = 1000; //tentative
@@ -209,7 +210,6 @@ void ShipAI::opponentProximityCheck(void)
 {
 	/*
 	std::deque<GameObject*> oList = *objList;
-
 	for (int i = 3; i < oList.size(); i++) {
 		(getPos()).squaredDistance(oList(i) -> getPos());
 
