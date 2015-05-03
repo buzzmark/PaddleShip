@@ -241,3 +241,10 @@ void GameScreen::setDeetsPan(OgreBites::ParamsPanel*mDeetsPan)
 	alien->setDeetsPan(mDeetsPan);
 }
 //---------------------------------------------------------------------------
+std::vector<Asteroid*> GameScreen::getAsteroids() {
+    return ast1->getAsteroids();
+}
+//---------------------------------------------------------------------------
+std::vector<GameObject*> GameScreen::getPlayers() {
+    return std::vector<GameObject*>({ship, alien, shipAI});
+}

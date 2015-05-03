@@ -36,3 +36,7 @@ void AsteroidSys::addToSimulator(btDiscreteDynamicsWorld* dynamicsWorld){
         ast->setDynamicsWorld(dynamicsWorld);
     }
 }
+//---------------------------------------------------------------------------
+std::vector<Asteroid*> AsteroidSys::getAsteroids() {
+    return asteroidSystem;
+}

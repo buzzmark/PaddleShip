@@ -15,6 +15,7 @@ public:
 	void update(void);
 	void addToScene(void);
 	void addToSimulator(btDiscreteDynamicsWorld* dynamicsWorld);
+    std::vector<Asteroid*> getAsteroids();
 protected:
 	std::vector<Asteroid*> asteroidSystem;
 };

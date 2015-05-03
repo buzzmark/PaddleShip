@@ -11,6 +11,7 @@
 #include "Alien.h"
 #include "ShipAI.h"
 #include "Packet.h"
+#include <vector>
 
 //---------------------------------------------------------------------------
 
@@ -32,6 +33,9 @@ public:
 	void injectMouseMove(const OIS::MouseEvent &arg);
 	void injectMouseDown(const OIS::MouseEvent &arg, OIS::MouseButtonID id);
 	void injectMouseUp(const OIS::MouseEvent &arg, OIS::MouseButtonID id);
+
+    std::vector<Asteroid*> getAsteroids();
+    std::vector<GameObject*> getPlayers();
 
 protected:
 	Ogre::SceneManager* mSceneMgr;
