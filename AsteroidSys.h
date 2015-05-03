@@ -1,6 +1,7 @@
 #ifndef __AsteroidSys_h_
 #define __AsteroidSys_h_
 
+#include <vector>
 #include "Asteroid.h"
 #define NUM_ASTEROIDS 250
 
@@ -15,7 +16,7 @@ public:
 	void addToScene(void);
 	void addToSimulator(btDiscreteDynamicsWorld* dynamicsWorld);
 protected:
-	Asteroid * asteroidSystem [NUM_ASTEROIDS];
+	std::vector<Asteroid*> asteroidSystem;
 };
 
 //---------------------------------------------------------------------------
