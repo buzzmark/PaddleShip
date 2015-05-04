@@ -88,6 +88,7 @@ void Game::createScene(void)
     CEGUI::WindowManager::setDefaultResourceGroup("Layouts");
     CEGUI::SchemeManager::getSingleton().createFromFile("TaharezLook.scheme");
     CEGUI::System::getSingleton().getDefaultGUIContext().getMouseCursor().setDefaultImage("TaharezLook/MouseArrow");
+    CEGUI::SchemeManager::getSingleton().createFromFile("VanillaSkin.scheme");
 
     CEGUI::WindowManager &wmgr = CEGUI::WindowManager::getSingleton();
     
@@ -109,12 +110,8 @@ void Game::createScene(void)
     warningMessage->setVisible(false);
 
     //minimap
-    CEGUI::Window *minimap = wmgr.createWindow("TaharezLook/FrameWindow", "minimap");
-    minimap->setText("Minimap");
-    minimap->setPosition( CEGUI::UVector2( CEGUI::UDim( 0.85f, 0.0f ), CEGUI::UDim( 0.0f, 0.0f ) ) );
-    minimap->setSize(CEGUI::USize(CEGUI::UDim(0.15, 0), CEGUI::UDim(0.15, 0)));
+    CEGUI::Window *minimap = wmgr.loadLayoutFromFile("minimap.layout");
     guiRoot->addChild(minimap);
-
 
     //sound
     soundPlayer = new SoundPlayer();
@@ -127,31 +124,6 @@ void Game::createScene(void)
     //Lights
     mSceneMgr->setAmbientLight(Ogre::ColourValue(0.1, 0.1, 0.1));
     mSceneMgr->setShadowTechnique(Ogre::SHADOWTYPE_STENCIL_ADDITIVE);
-
-    /*
-    shipLight = mSceneMgr->createLight("shipLight");
-    shipLight->setType(Ogre::Light::LT_POINT);
-    shipLight->setPosition(Ogre::Vector3(0, 500, -250));
- 
-    shipLight->setDiffuseColour(1.0, 1.0, 1.0);
-    shipLight->setSpecularColour(1.0, 1.0, 1.0);
-
-    alienLight = mSceneMgr->createLight("alienLight");
-    alienLight->setType(Ogre::Light::LT_POINT);
-    alienLight->setPosition(Ogre::Vector3(0, 500, -250));
- 
-    alienLight->setDiffuseColour(1.0, 1.0, 1.0);
-    alienLight->setSpecularColour(1.0, 1.0, 1.0);
-    */
-
-    /*
-    Ogre::Light* pointLight = mSceneMgr->createLight("pointLight");
-    pointLight->setType(Ogre::Light::LT_POINT);
-    pointLight->setPosition(Ogre::Vector3(0, 500, -250));
- 
-    pointLight->setDiffuseColour(1.0, 1.0, 1.0);
-    pointLight->setSpecularColour(1.0, 1.0, 1.0);
-    */
     
 }
 //---------------------------------------------------------------------------

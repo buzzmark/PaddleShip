@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<GUILayout version="4" >
+    <Window name="minimap" type="Vanilla/FrameWindow">
+        <Property name="Area" value="{{0,0},{0,0},{0,300},{0,300}}" />
+        <Property name="RollUpEnabled" value="false" />
+	<Property name="DragDropTarget" value="false" />
+	<Property name="TitlebarEnabled" value="false" />
+	<Property name="DragMovingEnabled" value="false" />
+	<Property name="CloseButtonEnabled" value="false" />
+	<Property name="AutoRenderingSurface" value="true" />
+	<Property name="HorizontalAlignment" value="Right" />
+    </Window>
+</GUILayout>
