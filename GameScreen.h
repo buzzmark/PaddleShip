@@ -56,6 +56,7 @@ protected:
 	int alienHealth;
 	bool isClient;
 	bool singlePlayer;
+	Ogre::OverlayElement* mmPlayerIcon;
 };
 
 //---------------------------------------------------------------------------

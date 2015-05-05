@@ -1,0 +1,41 @@
+material minimap
+{
+	technique
+	{
+		pass
+		{
+			ambient 0 0 0 1		
+
+			texture_unit
+			{
+				texture "minimap.png"
+			}
+			
+			scene_blend alpha_blend
+		}
+
+	}
+
+}
+
+material minimap_player
+{
+	technique
+	{
+		pass
+		{
+			ambient 0 0 0 1		
+
+			texture_unit
+			{
+				texture "minimap_icon_player.png"
+				filtering none
+			}
+
+			scene_blend alpha_blend
+			
+		}
+
+	}
+
+}

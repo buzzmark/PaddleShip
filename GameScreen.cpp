@@ -74,6 +74,26 @@ void GameScreen::createScene(void)
 	shipAI ->setPaddle(paddleAI);
 	paddleAI -> setPaddleHinge(paddleHingeAI);
 
+	//minimap
+	Ogre::OverlayManager& omgr = Ogre::OverlayManager::getSingleton();
+    Ogre::Overlay* minimap = omgr.create( "minimap" );
+    Ogre::OverlayContainer* background = static_cast<Ogre::OverlayContainer*>(omgr.createOverlayElement( "Panel", "minimap_background"));
+    background->setMaterialName( "minimap" );
+    Ogre::Real mmWidth = 0.15;
+    background->setDimensions(mmWidth, mmWidth*19.0/12.0);
+    background->setHorizontalAlignment(Ogre::GHA_RIGHT);
+    background->setLeft(-mmWidth);
+    minimap->add2D(background);
+
+    mmPlayerIcon = omgr.createOverlayElement( "Panel", "player_icon");
+    mmPlayerIcon->setMaterialName( "minimap_player" );
+    background->addChild(mmPlayerIcon);
+    mmPlayerIcon->setDimensions(0.15*mmWidth, 0.15*mmWidth*19.0/12.0);
+    mmPlayerIcon->setHorizontalAlignment(Ogre::GHA_CENTER);
+    mmPlayerIcon->setVerticalAlignment(Ogre::GVA_CENTER);
+
+    minimap->show();
+
 }
 //---------------------------------------------------------------------------
 void GameScreen::setClient(bool client){
@@ -97,6 +117,19 @@ void GameScreen::setSinglePlayer(bool single){
 void GameScreen::update(const Ogre::FrameEvent &evt)
 {
 	sim->stepSimulation(evt.timeSinceLastFrame, 1, 1/60.0f);
+
+	Ogre::Real iconWidth = 0.15*0.15;
+	Ogre::Real iconHeight= 0.15*0.15*19.0/12.0;
+	Ogre::Real playerRelativeX = ship->getPos().x/4000.0;
+	Ogre::Real playerRelativeZ = ship->getPos().z/4000.0;
+	mmPlayerIcon->setPosition(playerRelativeX*0.15/2.0 - iconWidth/2.0, playerRelativeZ*0.15*19.0/12.0/2.0 - iconHeight/2.0);
+	// Rotate Texture
+	Ogre::Material *mat = mmPlayerIcon->getMaterial().get();
+	Ogre::TextureUnitState *texture = mat->getTechnique(0)->getPass(0)->getTextureUnitState(0);
+	Ogre::Vector3 dir = ship->getNode()->getOrientation() * Ogre::Vector3(0,0,1);
+	double rot = atan(dir.x/dir.z);
+	int neg = dir.z < 0 ? 0 : M_PI;
+	texture->setTextureRotate(Ogre::Radian(rot+neg));
 }
 //---------------------------------------------------------------------------
 void GameScreen::updateClient(const Ogre::FrameEvent &evt, Packet& p)

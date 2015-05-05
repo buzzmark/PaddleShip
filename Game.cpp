@@ -110,8 +110,8 @@ void Game::createScene(void)
     warningMessage->setVisible(false);
 
     //minimap
-    CEGUI::Window *minimap = wmgr.loadLayoutFromFile("minimap.layout");
-    guiRoot->addChild(minimap);
+    //CEGUI::Window *minimap = wmgr.loadLayoutFromFile("minimap.layout");
+    //guiRoot->addChild(minimap);
 
     //sound
     soundPlayer = new SoundPlayer();
