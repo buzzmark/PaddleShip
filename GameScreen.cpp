@@ -77,23 +77,46 @@ void GameScreen::createScene(void)
 	//minimap
 	Ogre::OverlayManager& omgr = Ogre::OverlayManager::getSingleton();
     Ogre::Overlay* minimap = omgr.create( "minimap" );
-    Ogre::OverlayContainer* background = static_cast<Ogre::OverlayContainer*>(omgr.createOverlayElement( "Panel", "minimap_background"));
-    background->setMaterialName( "minimap" );
+    mmBackground = static_cast<Ogre::OverlayContainer*>(omgr.createOverlayElement( "Panel", "minimap_background"));
+    mmBackground->setMaterialName( "minimap" );
     Ogre::Real mmWidth = 0.15;
-    background->setDimensions(mmWidth, mmWidth*19.0/12.0);
-    background->setHorizontalAlignment(Ogre::GHA_RIGHT);
-    background->setLeft(-mmWidth);
-    minimap->add2D(background);
+    mmBackground->setDimensions(mmWidth, mmWidth*19.0/12.0);
+    mmBackground->setHorizontalAlignment(Ogre::GHA_RIGHT);
+    mmBackground->setLeft(-mmWidth);
+    minimap->add2D(mmBackground);
 
-    mmPlayerIcon = omgr.createOverlayElement( "Panel", "player_icon");
-    mmPlayerIcon->setMaterialName( "minimap_player" );
-    background->addChild(mmPlayerIcon);
-    mmPlayerIcon->setDimensions(0.15*mmWidth, 0.15*mmWidth*19.0/12.0);
-    mmPlayerIcon->setHorizontalAlignment(Ogre::GHA_CENTER);
-    mmPlayerIcon->setVerticalAlignment(Ogre::GVA_CENTER);
+    //will probably have to change this later, based on what players exist when the game starts
+    addPlayerToMinimap(ship);
+    addEnemyToMinimap(alien);
+    addEnemyToMinimap(shipAI);
 
     minimap->show();
 
+}
+//---------------------------------------------------------------------------
+void GameScreen::addPlayerToMinimap(GameObject* player){
+    Ogre::Real mmWidth = 0.15;
+    Ogre::OverlayManager& omgr = Ogre::OverlayManager::getSingleton();
+    Ogre::OverlayElement* mmPlayerIcon = omgr.createOverlayElement( "Panel", "player_icon");
+    mmPlayerIcon->setMaterialName( "minimap_player" );
+    mmBackground->addChild(mmPlayerIcon);
+    mmPlayerIcon->setDimensions(0.15*mmWidth, 0.15*mmWidth*19.0/12.0);
+    mmPlayerIcon->setHorizontalAlignment(Ogre::GHA_CENTER);
+    mmPlayerIcon->setVerticalAlignment(Ogre::GVA_CENTER);
+    mmPlayerIcons.push_back(mmPlayerIcon);
+}
+//---------------------------------------------------------------------------
+void GameScreen::addEnemyToMinimap(GameObject* enemy){
+	Ogre::Real mmWidth = 0.15;
+	Ogre::OverlayManager& omgr = Ogre::OverlayManager::getSingleton();
+	int i = mmPlayerIcons.size();
+	Ogre::OverlayElement* mmEnemyIcon = omgr.createOverlayElement( "Panel", "enemy" + std::to_string(i));
+    mmEnemyIcon->setMaterialName( "minimap_enemy" );
+    mmBackground->addChild(mmEnemyIcon);
+    mmEnemyIcon->setDimensions(0.15*mmWidth, 0.15*mmWidth*19.0/12.0);
+    mmEnemyIcon->setHorizontalAlignment(Ogre::GHA_CENTER);
+    mmEnemyIcon->setVerticalAlignment(Ogre::GVA_CENTER);
+    mmPlayerIcons.push_back(mmEnemyIcon);
 }
 //---------------------------------------------------------------------------
 void GameScreen::setClient(bool client){
@@ -117,19 +140,7 @@ void GameScreen::setSinglePlayer(bool single){
 void GameScreen::update(const Ogre::FrameEvent &evt)
 {
 	sim->stepSimulation(evt.timeSinceLastFrame, 1, 1/60.0f);
-
-	Ogre::Real iconWidth = 0.15*0.15;
-	Ogre::Real iconHeight= 0.15*0.15*19.0/12.0;
-	Ogre::Real playerRelativeX = ship->getPos().x/4000.0;
-	Ogre::Real playerRelativeZ = ship->getPos().z/4000.0;
-	mmPlayerIcon->setPosition(playerRelativeX*0.15/2.0 - iconWidth/2.0, playerRelativeZ*0.15*19.0/12.0/2.0 - iconHeight/2.0);
-	// Rotate Texture
-	Ogre::Material *mat = mmPlayerIcon->getMaterial().get();
-	Ogre::TextureUnitState *texture = mat->getTechnique(0)->getPass(0)->getTextureUnitState(0);
-	Ogre::Vector3 dir = ship->getNode()->getOrientation() * Ogre::Vector3(0,0,1);
-	double rot = atan(dir.x/dir.z);
-	int neg = dir.z < 0 ? 0 : M_PI;
-	texture->setTextureRotate(Ogre::Radian(rot+neg));
+	updateMinimap();
 }
 //---------------------------------------------------------------------------
 void GameScreen::updateClient(const Ogre::FrameEvent &evt, Packet& p)
@@ -173,6 +184,40 @@ void GameScreen::updateClient(const Ogre::FrameEvent &evt, Packet& p)
 		ast->setPosition(pos.x, pos.y, pos.z);
 		ast->getNode()->setOrientation(rot);
     }
+
+    updateMinimap();
+}
+//---------------------------------------------------------------------------
+void GameScreen::updateMinimap()
+{
+	Ogre::Real iconWidth = 0.15*0.15;
+	Ogre::Real iconHeight= 0.15*0.15*19.0/12.0;
+	Ogre::Real playerRelativeX; //TODO change ship to current player
+	Ogre::Real playerRelativeZ; //TODO change ship to current player
+
+
+	std::vector<GameObject*> players = getPlayers();
+	printf("players.size():  %d\n", (int)players.size());
+	printf("mmPlayerIcons.size():  %d\n", (int)mmPlayerIcons.size());
+	for (int i = 0; i < players.size(); i++){
+		GameObject* player = players[i];
+		playerRelativeX = player->getPos().x/4000.0;
+		playerRelativeZ = player->getPos().z/4000.0;
+		mmPlayerIcons[i]->setPosition(playerRelativeX*0.15/2.0 - iconWidth/2.0, playerRelativeZ*0.15*19.0/12.0/2.0 - iconHeight/2.0);
+		
+		//rotate texture
+		if (player == ship) { //TODO change to "if the current player"
+			Ogre::Material *mat = mmPlayerIcons[i]->getMaterial().get();
+			Ogre::TextureUnitState *texture = mat->getTechnique(0)->getPass(0)->getTextureUnitState(0);
+			Ogre::Vector3 dir = player->getNode()->getOrientation() * Ogre::Vector3(0,0,1);
+			double rot = atan(dir.x/dir.z);
+			int neg = dir.z < 0 ? 0 : M_PI;
+			texture->setTextureRotate(Ogre::Radian(rot+neg));
+		} 
+
+	}
+
+
 }
 //---------------------------------------------------------------------------
 Packet GameScreen::getPositions()

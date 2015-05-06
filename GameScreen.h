@@ -21,10 +21,13 @@ public:
 	GameScreen(Ogre::SceneManager* sceneMgr, Ogre::SceneNode* cameraNode, SoundPlayer* sPlayer, Ogre::Light* shipLt, Ogre::Light* alienLt);
 	~GameScreen(void);
 	void createScene(void);
+	void addPlayerToMinimap(GameObject* enemy);
+	void addEnemyToMinimap(GameObject* enemy);
 	void setClient(bool client);
 	void setSinglePlayer(bool single);
 	void update(const Ogre::FrameEvent &evt);
 	void updateClient(const Ogre::FrameEvent &evt, Packet& p);
+	void updateMinimap();
 	Packet getPositions();
 	void setDeetsPan(OgreBites::ParamsPanel*mDeetsPan);
 	void injectKeyDown(const OIS::KeyEvent &arg);
@@ -56,7 +59,8 @@ protected:
 	int alienHealth;
 	bool isClient;
 	bool singlePlayer;
-	Ogre::OverlayElement* mmPlayerIcon;
+	Ogre::OverlayContainer* mmBackground;
+	std::vector<Ogre::OverlayElement*> mmPlayerIcons;
 };
 
 //---------------------------------------------------------------------------

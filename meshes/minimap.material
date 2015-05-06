@@ -39,3 +39,25 @@ material minimap_player
 	}
 
 }
+
+material minimap_enemy
+{
+	technique
+	{
+		pass
+		{
+			ambient 0 0 0 1		
+
+			texture_unit
+			{
+				texture "minimap_icon_enemy.png"
+				filtering none
+			}
+
+			scene_blend alpha_blend
+			
+		}
+
+	}
+
+}
