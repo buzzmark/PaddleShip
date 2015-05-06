@@ -149,11 +149,17 @@ bool Game::frameRenderingQueued(const Ogre::FrameEvent &evt){
         else if (!isServer) {
             NetUpdate serverUpdate = netMgr->checkForUpdates();
 
+            if (!serverUpdate.disconnects.empty()) {
+                std::cout << "Server disconnected" << std::endl;
+                exit(1);
+            }
+
             if (serverUpdate.hasServerUpdate()) {
                 // TODO: refactor by moving out to separate method
                 Packet& p = serverUpdate.getServerUpdate();
 
                 int packetType;
+                int id;
                 p >> packetType;
 
                 switch (packetType) {
@@ -161,9 +167,12 @@ bool Game::frameRenderingQueued(const Ogre::FrameEvent &evt){
                         gameScreen->updateClient(evt, p);
                         break;
                     case PT_CLIENTID:
-                        int id;
                         p >> id;
                         gameScreen->setClientId(id);
+                        break;
+                    case PT_DISCONNECT:
+                        p >> id;
+                        gameScreen->removeClientAlien(id);
                         break;
                     default:
                         std::cerr << "Warning: unrecognized packet type " << packetType;
@@ -172,6 +181,14 @@ bool Game::frameRenderingQueued(const Ogre::FrameEvent &evt){
             }
         } else if (isServer){
             NetUpdate clientUpdate = netMgr->checkForUpdates();
+
+            for (int id : clientUpdate.disconnects) {
+                Packet p;
+                p << PT_DISCONNECT << id;
+                netMgr->messageClients(p);
+
+                gameScreen->removeClientAlien(id);
+            }
 
             if (clientUpdate.newConnection) {
                 int id = clientUpdate.connectionId;

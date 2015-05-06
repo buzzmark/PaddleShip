@@ -5,7 +5,7 @@
 #include <vector>
 
 enum PacketType {
-    PT_POSITIONS, PT_CLIENTID
+    PT_POSITIONS, PT_CLIENTID, PT_DISCONNECT
 };
 
 class Packet {

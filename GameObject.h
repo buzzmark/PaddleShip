@@ -29,6 +29,7 @@ public:
     void setMotionState(OgreMotionState* newState);
     void setBody(btRigidBody* newBody);  
     void setPosition(float x, float y, float z);
+    std::string getName();
 
 protected:
     Ogre::String name;

@@ -70,7 +70,7 @@ void GameScreen::createScene(void)
 void GameScreen::addPlayerToMinimap(GameObject* player){
     Ogre::Real mmWidth = 0.15;
     Ogre::OverlayManager& omgr = Ogre::OverlayManager::getSingleton();
-    Ogre::OverlayElement* mmPlayerIcon = omgr.createOverlayElement( "Panel", "player_icon");
+    Ogre::OverlayElement* mmPlayerIcon = omgr.createOverlayElement( "Panel", player->getName() + "_icon");
     mmPlayerIcon->setMaterialName( "minimap_player" );
     mmBackground->addChild(mmPlayerIcon);
     mmPlayerIcon->setDimensions(0.15*mmWidth, 0.15*mmWidth*19.0/12.0);
@@ -82,8 +82,7 @@ void GameScreen::addPlayerToMinimap(GameObject* player){
 void GameScreen::addEnemyToMinimap(GameObject* enemy){
 	Ogre::Real mmWidth = 0.15;
 	Ogre::OverlayManager& omgr = Ogre::OverlayManager::getSingleton();
-	int i = mmPlayerIcons.size();
-	Ogre::OverlayElement* mmEnemyIcon = omgr.createOverlayElement( "Panel", "enemy" + std::to_string(i));
+	Ogre::OverlayElement* mmEnemyIcon = omgr.createOverlayElement( "Panel", enemy->getName() + "_icon");
     mmEnemyIcon->setMaterialName( "minimap_enemy" );
     mmBackground->addChild(mmEnemyIcon);
     mmEnemyIcon->setDimensions(0.15*mmWidth, 0.15*mmWidth*19.0/12.0);
@@ -340,6 +339,19 @@ Alien* GameScreen::createClientAlien(int id) {
     clientObjects[id] = alien;
 
     return alien;
+}
+
+void GameScreen::removeClientAlien(int id) {
+    Alien* alien = clientObjects[id];
+    clientObjects.erase(id);
+
+    Ogre::OverlayElement* icon = mmPlayerIcons[alien];
+    mmPlayerIcons.erase(alien);
+    mmBackground->removeChild(icon->getName());
+
+    sim->removeObject(alien);
+    alien->removeFromScene();
+    delete alien;
 }
 
 void GameScreen::setClientId(int id) {

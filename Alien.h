@@ -34,6 +34,7 @@ public:
 	Alien(Ogre::String nym, Ogre::SceneManager* mgr, Simulator* sim, Ogre::SceneNode* cm, int &ht, std::deque<GameObject*>* oList, SoundPlayer* sPlayer, Ogre::Light* alienLt);
 	~Alien(void);
 	void addToScene(void);
+    void removeFromScene(void);
     void grabCamera();
 	void setCam(float xP, float yP, float zP, float xD, float yD, float zD);
 	void setLight(float xP, float yP, float zP);

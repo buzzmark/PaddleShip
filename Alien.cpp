@@ -49,6 +49,10 @@ void Alien::addToScene(void)
 	shape = shape = new btSphereShape(5);
 }
 //---------------------------------------------------------------------------
+void Alien::removeFromScene(void) {
+    rootNode->detachObject(geom);
+}
+//---------------------------------------------------------------------------
 void Alien::addToSimulator(void)
 {
 	GameObject::addToSimulator();

@@ -38,6 +38,7 @@ public:
 	void injectMouseDown(const OIS::MouseEvent &arg, OIS::MouseButtonID id);
 	void injectMouseUp(const OIS::MouseEvent &arg, OIS::MouseButtonID id);
     Alien* createClientAlien(int id);
+    void removeClientAlien(int id);
     void setClientId(int id);
 
     std::vector<Asteroid*> getAsteroids();
