@@ -36,7 +36,7 @@ Ship::Ship(Ogre::String nym, Ogre::SceneManager* mgr, Simulator* sim, Ogre::Scen
 	//cam -> setPosition(Ogre::Vector3(0, 25, -40));
 	camPos = Ogre::Vector3(getPos().x + 0, getPos().y + 25, getPos().z - 40);
 	*/
-
+    motorRight = true;
     paddle = NULL;
 }
 //---------------------------------------------------------------------------
