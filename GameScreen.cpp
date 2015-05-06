@@ -7,27 +7,30 @@ GameScreen::GameScreen(Ogre::SceneManager* sceneMgr, Ogre::SceneNode* cameraNode
 	scoreAI = 0;
 	alienHealth = 100;
 	mSceneMgr = sceneMgr;
+    mCameraNode = cameraNode;
 	soundPlayer = sPlayer;
 	sim = new Simulator(sceneMgr);
 	std::deque<GameObject*>* objList = sim -> getObjList();
 	ship = new Ship("Ship", sceneMgr, sim, cameraNode, score, sPlayer, shipLt);
-	alien = new Alien("Alien", sceneMgr, sim, cameraNode, alienHealth, objList, sPlayer, alienLt);
-	paddle = new Paddle("paddle", sceneMgr, sim, ship -> getNode(), score, sPlayer); 
+	ship->setPaddle(new Paddle("paddle", sceneMgr, sim, ship -> getNode(), score, sPlayer));
 	shipAI = new ShipAI("ShipAI",sceneMgr, sim, cameraNode, scoreAI, sPlayer, objList, 0);
-	paddleAI = new Paddle("paddleAI", sceneMgr, sim, shipAI -> getNode(), scoreAI, sPlayer); 
+	shipAI->setPaddle(new Paddle("paddleAI", sceneMgr, sim, ship -> getNode(), score, sPlayer));
 	ast1 = new AsteroidSys(sceneMgr, sim, ship);
-	motorRight = true;
 	isClient = false;
 	singlePlayer = false;
+    clientId = -1;
 }
 //---------------------------------------------------------------------------
 GameScreen::~GameScreen(void)
 {
 	delete ship;
-	delete alien;
-	delete paddle;
+    delete shipAI;
 	delete ast1;
 	delete sim;
+
+    for (auto client : clientObjects) {
+        delete client.second;
+    }
 }
 //---------------------------------------------------------------------------
 void GameScreen::createScene(void)
@@ -38,41 +41,13 @@ void GameScreen::createScene(void)
 	ship->addToScene();
 	ship->addToSimulator();
 
-	//paddle
-	paddle->addToScene();
-	paddle->addToSimulator();
-
-	paddleHinge = new btHingeConstraint(*ship->getBody(), *paddle->getBody(), btVector3(0,0,5), btVector3(8.25,0,-5), btVector3(0,1,0), btVector3(0,1,0));
-	paddleHinge->setLimit(-M_PI, 0);
-	paddleHinge->enableAngularMotor(true, 100, 100);
-
-	sim->getDynamicsWorld()->addConstraint(paddleHinge, true);
-	paddle -> setPaddleHinge(paddleHinge);
-
-	//alien
-	alien->addToScene();
-	alien->addToSimulator();
-
     //asteroid particle system
     ast1->addToScene();
     ast1->addToSimulator(sim->getDynamicsWorld());
 
     //ship AI
 	shipAI->addToScene();
-	//shipAI ->setPaddle(paddleAI);
 	shipAI->addToSimulator();
-
-    //paddle for ship AI
-	paddleAI->addToScene();
-	paddleAI->addToSimulator();
-
-	paddleHingeAI = new btHingeConstraint(*shipAI->getBody(), *paddleAI->getBody(), btVector3(0,0,5), btVector3(8.25,0,-5), btVector3(0,1,0), btVector3(0,1,0));
-	paddleHingeAI->setLimit(-M_PI, 0);
-	paddleHingeAI->enableAngularMotor(true, 100, 100);
-
-	sim->getDynamicsWorld()->addConstraint(paddleHingeAI, true);
-	shipAI ->setPaddle(paddleAI);
-	paddleAI -> setPaddleHinge(paddleHingeAI);
 
 	//minimap
 	Ogre::OverlayManager& omgr = Ogre::OverlayManager::getSingleton();
@@ -86,8 +61,6 @@ void GameScreen::createScene(void)
     minimap->add2D(mmBackground);
 
     //will probably have to change this later, based on what players exist when the game starts
-    addPlayerToMinimap(ship);
-    addEnemyToMinimap(alien);
     addEnemyToMinimap(shipAI);
 
     minimap->show();
@@ -97,33 +70,33 @@ void GameScreen::createScene(void)
 void GameScreen::addPlayerToMinimap(GameObject* player){
     Ogre::Real mmWidth = 0.15;
     Ogre::OverlayManager& omgr = Ogre::OverlayManager::getSingleton();
-    Ogre::OverlayElement* mmPlayerIcon = omgr.createOverlayElement( "Panel", "player_icon");
+    Ogre::OverlayElement* mmPlayerIcon = omgr.createOverlayElement( "Panel", player->getName() + "_icon");
     mmPlayerIcon->setMaterialName( "minimap_player" );
     mmBackground->addChild(mmPlayerIcon);
     mmPlayerIcon->setDimensions(0.15*mmWidth, 0.15*mmWidth*19.0/12.0);
     mmPlayerIcon->setHorizontalAlignment(Ogre::GHA_CENTER);
     mmPlayerIcon->setVerticalAlignment(Ogre::GVA_CENTER);
-    mmPlayerIcons.push_back(mmPlayerIcon);
+    mmPlayerIcons[player] = mmPlayerIcon;
 }
 //---------------------------------------------------------------------------
 void GameScreen::addEnemyToMinimap(GameObject* enemy){
 	Ogre::Real mmWidth = 0.15;
 	Ogre::OverlayManager& omgr = Ogre::OverlayManager::getSingleton();
-	int i = mmPlayerIcons.size();
-	Ogre::OverlayElement* mmEnemyIcon = omgr.createOverlayElement( "Panel", "enemy" + std::to_string(i));
+	Ogre::OverlayElement* mmEnemyIcon = omgr.createOverlayElement( "Panel", enemy->getName() + "_icon");
     mmEnemyIcon->setMaterialName( "minimap_enemy" );
     mmBackground->addChild(mmEnemyIcon);
     mmEnemyIcon->setDimensions(0.15*mmWidth, 0.15*mmWidth*19.0/12.0);
     mmEnemyIcon->setHorizontalAlignment(Ogre::GHA_CENTER);
     mmEnemyIcon->setVerticalAlignment(Ogre::GVA_CENTER);
-    mmPlayerIcons.push_back(mmEnemyIcon);
+    mmPlayerIcons[enemy] = mmEnemyIcon;
 }
 //---------------------------------------------------------------------------
 void GameScreen::setClient(bool client){
-    if (client) {
-        alien->grabCamera();
-    } else {
+    if (!client) {
         ship->grabCamera();
+        addPlayerToMinimap(ship);
+    } else {
+        addEnemyToMinimap(ship);
     }
 
 	isClient = client;
@@ -132,6 +105,7 @@ void GameScreen::setClient(bool client){
 void GameScreen::setSinglePlayer(bool single){
     if (single) {
         ship->grabCamera();
+        addPlayerToMinimap(ship);
     }
 
 	singlePlayer = single;
@@ -155,13 +129,7 @@ void GameScreen::updateClient(const Ogre::FrameEvent &evt, Packet& p)
 
 	p >> pos >> rot;
 
-	alien->setPosition(pos.x, pos.y, pos.z);
-	alien->getNode()->setOrientation(rot);
-	//alien->setCam(pos.x, pos.y + 25, pos.z + 40, pos.x, pos.y, pos.z - 25);
-	alien->setLight(pos.x, pos.y + 500, pos.z + 250);
-
-	p >> pos >> rot;
-
+    Paddle* paddle = ship->getPaddle();
 	paddle->setPosition(pos.x, pos.y, pos.z);
 	paddle->getNode()->setOrientation(rot);
 
@@ -172,8 +140,31 @@ void GameScreen::updateClient(const Ogre::FrameEvent &evt, Packet& p)
 
 	p >> pos >> rot;
 
+    Paddle* paddleAI = shipAI->getPaddle();
 	paddleAI->setPosition(pos.x, pos.y, pos.z);
 	paddleAI->getNode()->setOrientation(rot);
+
+    int id;
+    p >> id;
+
+    while (id != -1) {
+        Alien* alien;
+        auto iter = clientObjects.find(id);
+
+        if (iter == clientObjects.end()) {
+            alien = createClientAlien(id);
+        } else {
+            alien = iter->second;
+        }
+
+        p >> pos >> rot;
+
+        alien->setPosition(pos.x, pos.y, pos.z);
+        alien->getNode()->setOrientation(rot);
+        alien->setLight(pos.x, pos.y + 500, pos.z + 250);
+
+        p >> id;
+    }
 
     int numAsteroids;
     p >> numAsteroids;
@@ -195,19 +186,23 @@ void GameScreen::updateMinimap()
 	Ogre::Real playerRelativeX; //TODO change ship to current player
 	Ogre::Real playerRelativeZ; //TODO change ship to current player
 
-
 	std::vector<GameObject*> players = getPlayers();
-	printf("players.size():  %d\n", (int)players.size());
-	printf("mmPlayerIcons.size():  %d\n", (int)mmPlayerIcons.size());
-	for (int i = 0; i < players.size(); i++){
-		GameObject* player = players[i];
+    GameObject* myPlayerObj;
+
+    if (!singlePlayer && isClient) {
+        myPlayerObj = clientObjects[clientId];
+    } else {
+        myPlayerObj = ship;
+    }
+
+    for (GameObject* player : players) {
 		playerRelativeX = player->getPos().x/4000.0;
 		playerRelativeZ = player->getPos().z/4000.0;
-		mmPlayerIcons[i]->setPosition(playerRelativeX*0.15/2.0 - iconWidth/2.0, playerRelativeZ*0.15*19.0/12.0/2.0 - iconHeight/2.0);
-		
+		mmPlayerIcons[player]->setPosition(playerRelativeX*0.15/2.0 - iconWidth/2.0, playerRelativeZ*0.15*19.0/12.0/2.0 - iconHeight/2.0);
+
 		//rotate texture
-		if (player == ship) { //TODO change to "if the current player"
-			Ogre::Material *mat = mmPlayerIcons[i]->getMaterial().get();
+		if (player == myPlayerObj) {
+			Ogre::Material *mat = mmPlayerIcons[player]->getMaterial().get();
 			Ogre::TextureUnitState *texture = mat->getTechnique(0)->getPass(0)->getTextureUnitState(0);
 			Ogre::Vector3 dir = player->getNode()->getOrientation() * Ogre::Vector3(0,0,1);
 			double rot = atan(dir.x/dir.z);
@@ -224,16 +219,14 @@ Packet GameScreen::getPositions()
 {
 	Packet p;
 
+    p << PT_POSITIONS;
+
 	Ogre::Vector3 pos = ship->getPos();
 	Ogre::Quaternion rot = ship->getNode()->getOrientation();
 
 	p << pos << rot;
 
-	pos = alien->getPos();
-	rot = alien->getNode()->getOrientation();
-
-	p << pos << rot;
-
+    Paddle* paddle = ship->getPaddle();
 	pos = paddle->getPos();
 	rot = paddle->getNode()->getOrientation();
 
@@ -244,10 +237,23 @@ Packet GameScreen::getPositions()
 
 	p << pos << rot;
 
+    Paddle* paddleAI = shipAI->getPaddle();
 	pos = paddleAI->getPos();
 	rot = paddleAI->getNode()->getOrientation();
 
 	p << pos << rot;
+
+    for (auto client : clientObjects) {
+        p << client.first;
+
+        Alien* alien = client.second;
+
+        pos = alien->getPos();
+        rot = alien->getNode()->getOrientation();
+        p << pos << rot;
+    }
+
+    p << (int) -1;
 
     std::vector<Asteroid*> asteroids = getAsteroids();
     p << (int) asteroids.size();
@@ -264,36 +270,23 @@ Packet GameScreen::getPositions()
 //---------------------------------------------------------------------------
 void GameScreen::injectKeyDown(const OIS::KeyEvent &arg)
 {
-	
-	if (arg.key == OIS::KC_SPACE){
-		if (motorRight)
-			paddleHinge->enableAngularMotor(true, -100, 1000);
-		else
-			paddleHinge->enableAngularMotor(true, 100, 1000);
-		motorRight = !motorRight;
-		soundPlayer->playPaddleSwing();
-	}
 	if (arg.key == OIS::KC_M){
 		soundPlayer->soundOff();
 	}
 	if (arg.key == OIS::KC_N){
 		soundPlayer->soundOn();
 	}
-	
 
 	ship->injectKeyDown(arg);
-	paddle->injectKeyDown(arg);
-	if (singlePlayer) alien->injectKeyDown(arg);
 }
 //---------------------------------------------------------------------------
 void GameScreen::injectKeyUp(const OIS::KeyEvent &arg)
 {
 	ship->injectKeyUp(arg);
-	paddle->injectKeyUp(arg);
-	if (singlePlayer) alien->injectKeyUp(arg);
 }
 //---------------------------------------------------------------------------
-void GameScreen::clientKey(int key){
+void GameScreen::clientKey(int id, int key){
+    Alien* alien = clientObjects[id];
 	if(key<=10) alien->injectKeyDown(key);
 	else alien->injectKeyUp(key-10);
 }
@@ -314,8 +307,6 @@ void GameScreen::setDeetsPan(OgreBites::ParamsPanel*mDeetsPan)
 {
 	//mDetailsPanel = mDeetsPan;
 	ship->setDeetsPan(mDeetsPan);
-	paddle->setDeetsPan(mDeetsPan);
-	alien->setDeetsPan(mDeetsPan);
 }
 //---------------------------------------------------------------------------
 std::vector<Asteroid*> GameScreen::getAsteroids() {
@@ -323,5 +314,46 @@ std::vector<Asteroid*> GameScreen::getAsteroids() {
 }
 //---------------------------------------------------------------------------
 std::vector<GameObject*> GameScreen::getPlayers() {
-    return std::vector<GameObject*>({ship, alien, shipAI});
+    std::vector<GameObject*> list({ship, shipAI});
+
+    for (auto client : clientObjects) {
+        list.push_back(client.second);
+    }
+
+    return list;
+}
+//---------------------------------------------------------------------------
+Alien* GameScreen::createClientAlien(int id) {
+    Alien* alien = new Alien("Alien" + std::to_string(id), mSceneMgr, sim, mCameraNode, alienHealth, sim->getObjList(), soundPlayer, NULL);
+
+	alien->addToScene();
+	alien->addToSimulator();
+
+    if (id == clientId) {
+        addPlayerToMinimap(alien);
+        alien->grabCamera();
+    } else {
+        addEnemyToMinimap(alien);
+    }
+
+    clientObjects[id] = alien;
+
+    return alien;
+}
+
+void GameScreen::removeClientAlien(int id) {
+    Alien* alien = clientObjects[id];
+    clientObjects.erase(id);
+
+    Ogre::OverlayElement* icon = mmPlayerIcons[alien];
+    mmPlayerIcons.erase(alien);
+    mmBackground->removeChild(icon->getName());
+
+    sim->removeObject(alien);
+    alien->removeFromScene();
+    delete alien;
+}
+
+void GameScreen::setClientId(int id) {
+    clientId = id;
 }

@@ -2,6 +2,7 @@
 #include <time.h>
 #include "Game.h"
 #include "GameScreen.h"
+#include "NetUpdate.h"
 #include <SdkCameraMan.h>
 
 using namespace OgreBites;
@@ -12,7 +13,6 @@ Game::Game(char *hostIP)
     srand(time(0));
     gameStarted = false;
     netMgr = NULL;
-    clientFound = false;
     isServer = false;
     host = hostIP;
     test = true;
@@ -135,33 +135,75 @@ void Game::destroyScene(void){
 //---------------------------------------------------------------------------
 bool Game::frameRenderingQueued(const Ogre::FrameEvent &evt){
     if(!gameStarted){
-        if(isServer && !clientFound){
-            netMgr->checkForUpdates();  // accept connection
-            if(netMgr->numClients() > 0){
-                clientFound = true;
-                gameStarted = true;
-                gameScreen->setClient(false);
-                gameScreen->setSinglePlayer(false);
-                CEGUI::System::getSingleton().getDefaultGUIContext().getMouseCursor().hide();
-                guiRoot->getChild("mainMenu")->setVisible(false);
-            }
+        if(isServer){
+            gameStarted = true;
+            gameScreen->setClient(false);
+            gameScreen->setSinglePlayer(false);
+            CEGUI::System::getSingleton().getDefaultGUIContext().getMouseCursor().hide();
+            guiRoot->getChild("mainMenu")->setVisible(false);
         }
     }
     else{
         if (singlePlayer)
             gameScreen->update(evt); //render game
         else if (!isServer) {
-            auto serverData = netMgr->checkForUpdates();
-            auto iter = serverData.find(0);
-            if (iter != serverData.end()) {
-                //render game based on data from host
-                gameScreen->updateClient(evt, iter->second);
+            NetUpdate serverUpdate = netMgr->checkForUpdates();
+
+            if (!serverUpdate.disconnects.empty()) {
+                std::cout << "Server disconnected" << std::endl;
+                exit(1);
+            }
+
+            if (serverUpdate.hasServerUpdate()) {
+                // TODO: refactor by moving out to separate method
+                Packet& p = serverUpdate.getServerUpdate();
+
+                int packetType;
+                int id;
+                p >> packetType;
+
+                switch (packetType) {
+                    case PT_POSITIONS:
+                        gameScreen->updateClient(evt, p);
+                        break;
+                    case PT_CLIENTID:
+                        p >> id;
+                        gameScreen->setClientId(id);
+                        break;
+                    case PT_DISCONNECT:
+                        p >> id;
+                        gameScreen->removeClientAlien(id);
+                        break;
+                    default:
+                        std::cerr << "Warning: unrecognized packet type " << packetType;
+                        break;
+                }
             }
         } else if (isServer){
-            auto clientData = netMgr->checkForUpdates();
-            auto iter = clientData.begin();
-            if (iter != clientData.end()) {
-                gameScreen->clientKey(iter->second.data()[0]);
+            NetUpdate clientUpdate = netMgr->checkForUpdates();
+
+            for (int id : clientUpdate.disconnects) {
+                Packet p;
+                p << PT_DISCONNECT << id;
+                netMgr->messageClients(p);
+
+                gameScreen->removeClientAlien(id);
+            }
+
+            if (clientUpdate.newConnection) {
+                int id = clientUpdate.connectionId;
+
+                Packet p;
+                p << PT_CLIENTID << id;
+                netMgr->messageClient(id, p);
+
+                gameScreen->createClientAlien(id);
+            }
+
+            auto& clientData = clientUpdate.data;
+
+            for (auto data : clientData) {
+                gameScreen->clientKey(data.first, data.second.data()[0]);
             }
 
             gameScreen->update(evt);

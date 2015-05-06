@@ -1,4 +1,5 @@
 #include "Simulator.h"
+#include <algorithm>
 
 Simulator::Simulator(Ogre::SceneManager* mgr)
 {
@@ -30,6 +31,12 @@ void Simulator::addObject (GameObject* o)
     objList.push_back(o);
     // use default collision group/mask values (dynamic/kinematic/static)
     dynamicsWorld->addRigidBody(o->getBody());
+}
+
+void Simulator::removeObject(GameObject* o)
+{
+    objList.erase(std::remove(objList.begin(), objList.end(), o), objList.end());
+    dynamicsWorld->removeRigidBody(o->getBody());
 }
 
 void Simulator::stepSimulation(const Ogre::Real elapsedTime, int maxSubSteps, const Ogre::Real fixedTimestep)

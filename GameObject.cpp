@@ -120,3 +120,7 @@ void GameObject::setBody(btRigidBody* newBody) {
 void GameObject::setPosition(float x, float y, float z){
     rootNode->setPosition(Ogre::Vector3(x,y,z));
 }
+
+std::string GameObject::getName() {
+    return name;
+}

@@ -4,6 +4,10 @@
 #include <Ogre.h>
 #include <vector>
 
+enum PacketType {
+    PT_POSITIONS, PT_CLIENTID, PT_DISCONNECT
+};
+
 class Packet {
     private:
         std::vector<char> buffer;

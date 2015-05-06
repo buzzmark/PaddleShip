@@ -25,13 +25,12 @@
 #define NUM_PRIORITIES 4
 
 //---------------------------------------------------------------------------
-class ShipAI: public GameObject 
+class ShipAI: public Ship
 {
 public:
 	ShipAI(Ogre::String nym, Ogre::SceneManager* mgr, Simulator* sim, Ogre::SceneNode* sn, int &sc, SoundPlayer* sPlayer, std::deque<GameObject*>* oList,  int ops);
 	~ShipAI(void);
 	void addToScene(void);
-	void addToSimulator(void);
 	void update(void);
 	void roam(void);
 	void shoot(void);
@@ -41,18 +40,12 @@ public:
 	void survivalCheck(void);
 	void incomingAst(void);
 	void opponentProximityCheck(void);
-	void setPaddle(Paddle* paddleAI);
 
 protected:
 	Ogre::SceneNode* sceneNode;
-	SoundPlayer* soundPlayer;
 	std::deque<GameObject*>* objList;
-	Ogre::Vector3 direction;
 	GameObject *target;
-	Paddle * paddle;
-	btHingeConstraint* paddleHinge;
 	bool gameStarted;
-	bool motorRight;
 	float yT;
 
 	//both closest and alternate are saved and based on reasoning of other states, one of them becomes target
@@ -71,15 +64,6 @@ protected:
 	bool fleeState;
 
 	int numOpponents;
-
-	bool hasDecr;
-	int health; 
-	bool forward;
-	bool back;
-	bool left;
-	bool right;
-	int &score;
-
 };
 
 

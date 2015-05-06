@@ -47,7 +47,6 @@ protected:
   bool gameStarted;
   bool isServer;
   bool singlePlayer;
-  bool clientFound;
   char *host;
   bool test;
   Ogre::Light* shipLight;
