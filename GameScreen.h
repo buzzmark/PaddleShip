@@ -58,7 +58,7 @@ protected:
 	bool isClient;
 	bool singlePlayer;
 	Ogre::OverlayContainer* mmBackground;
-	std::vector<Ogre::OverlayElement*> mmPlayerIcons;
+	std::unordered_map<GameObject*, Ogre::OverlayElement*> mmPlayerIcons;
 
     int clientId;
 

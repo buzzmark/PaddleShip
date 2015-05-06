@@ -76,7 +76,7 @@ void GameScreen::addPlayerToMinimap(GameObject* player){
     mmPlayerIcon->setDimensions(0.15*mmWidth, 0.15*mmWidth*19.0/12.0);
     mmPlayerIcon->setHorizontalAlignment(Ogre::GHA_CENTER);
     mmPlayerIcon->setVerticalAlignment(Ogre::GVA_CENTER);
-    mmPlayerIcons.push_back(mmPlayerIcon);
+    mmPlayerIcons[player] = mmPlayerIcon;
 }
 //---------------------------------------------------------------------------
 void GameScreen::addEnemyToMinimap(GameObject* enemy){
@@ -89,7 +89,7 @@ void GameScreen::addEnemyToMinimap(GameObject* enemy){
     mmEnemyIcon->setDimensions(0.15*mmWidth, 0.15*mmWidth*19.0/12.0);
     mmEnemyIcon->setHorizontalAlignment(Ogre::GHA_CENTER);
     mmEnemyIcon->setVerticalAlignment(Ogre::GVA_CENTER);
-    mmPlayerIcons.push_back(mmEnemyIcon);
+    mmPlayerIcons[enemy] = mmEnemyIcon;
 }
 //---------------------------------------------------------------------------
 void GameScreen::setClient(bool client){
@@ -187,17 +187,23 @@ void GameScreen::updateMinimap()
 	Ogre::Real playerRelativeX; //TODO change ship to current player
 	Ogre::Real playerRelativeZ; //TODO change ship to current player
 
-
 	std::vector<GameObject*> players = getPlayers();
-	for (int i = 0; i < players.size(); i++){
-		GameObject* player = players[i];
+    GameObject* myPlayerObj;
+
+    if (!singlePlayer && isClient) {
+        myPlayerObj = clientObjects[clientId];
+    } else {
+        myPlayerObj = ship;
+    }
+
+    for (GameObject* player : players) {
 		playerRelativeX = player->getPos().x/4000.0;
 		playerRelativeZ = player->getPos().z/4000.0;
-		mmPlayerIcons[i]->setPosition(playerRelativeX*0.15/2.0 - iconWidth/2.0, playerRelativeZ*0.15*19.0/12.0/2.0 - iconHeight/2.0);
-		
+		mmPlayerIcons[player]->setPosition(playerRelativeX*0.15/2.0 - iconWidth/2.0, playerRelativeZ*0.15*19.0/12.0/2.0 - iconHeight/2.0);
+
 		//rotate texture
-		if (player == ship) { //TODO change to "if the current player"
-			Ogre::Material *mat = mmPlayerIcons[i]->getMaterial().get();
+		if (player == myPlayerObj) {
+			Ogre::Material *mat = mmPlayerIcons[player]->getMaterial().get();
 			Ogre::TextureUnitState *texture = mat->getTechnique(0)->getPass(0)->getTextureUnitState(0);
 			Ogre::Vector3 dir = player->getNode()->getOrientation() * Ogre::Vector3(0,0,1);
 			double rot = atan(dir.x/dir.z);
