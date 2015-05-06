@@ -129,24 +129,31 @@ void NetManager::messageClient(int clientId, const Packet &p) {
     }
 }
 
-std::unordered_map<int, Packet> NetManager::checkForUpdates() {
+NetUpdate NetManager::checkForUpdates() {
     SDLNet_CheckSockets(socket_set, 0);
+
+    NetUpdate update;
 
     if (isServer) {
         // check for new clients
         if (SDLNet_SocketReady(server)) {
             TCPsocket connection = SDLNet_TCP_Accept(server);
             if (connection != nullptr) {
+                update.newConnection = true;
+                update.connectionId = nextClientId;
+
                 clients[nextClientId] = connection;
                 SDLNet_AddSocket(socket_set, (SDLNet_GenericSocket) connection);
                 nextClientId++;
             }
         }
 
-        return serverGetData();
+        update.data = serverGetData();
     } else {
-        return clientGetData();
+        update.data = clientGetData();
     }
+
+    return update;
 }
 
 bool read_buffer(TCPsocket socket, void* vbuf, int len) {

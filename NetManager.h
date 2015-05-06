@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <SDL_net.h>
 #include "Packet.h"
+#include "NetUpdate.h"
 
 class NetManager
 {
@@ -32,7 +33,7 @@ class NetManager
         void messageServer(const Packet& p);
         void messageClients(const Packet& p);
         void messageClient(int clientId, const Packet& p);
-        std::unordered_map<int, Packet> checkForUpdates();
+        NetUpdate checkForUpdates();
 };
 
 #endif /* NETMANAGER_H_ */

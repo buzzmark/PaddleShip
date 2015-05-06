@@ -2,6 +2,7 @@
 #include <time.h>
 #include "Game.h"
 #include "GameScreen.h"
+#include "NetUpdate.h"
 #include <SdkCameraMan.h>
 
 using namespace OgreBites;
@@ -151,14 +152,15 @@ bool Game::frameRenderingQueued(const Ogre::FrameEvent &evt){
         if (singlePlayer)
             gameScreen->update(evt); //render game
         else if (!isServer) {
-            auto serverData = netMgr->checkForUpdates();
-            auto iter = serverData.find(0);
-            if (iter != serverData.end()) {
-                //render game based on data from host
-                gameScreen->updateClient(evt, iter->second);
+            NetUpdate serverUpdate = netMgr->checkForUpdates();
+
+            if (serverUpdate.hasServerUpdate()) {
+                gameScreen->updateClient(evt, serverUpdate.getServerUpdate());
             }
         } else if (isServer){
-            auto clientData = netMgr->checkForUpdates();
+            NetUpdate clientUpdate = netMgr->checkForUpdates();
+            auto& clientData = clientUpdate.data;
+
             auto iter = clientData.begin();
             if (iter != clientData.end()) {
                 gameScreen->clientKey(iter->second.data()[0]);
