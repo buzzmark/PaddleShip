@@ -174,8 +174,6 @@ void GameScreen::updateMinimap()
 
 
 	std::vector<GameObject*> players = getPlayers();
-	printf("players.size():  %d\n", (int)players.size());
-	printf("mmPlayerIcons.size():  %d\n", (int)mmPlayerIcons.size());
 	for (int i = 0; i < players.size(); i++){
 		GameObject* player = players[i];
 		playerRelativeX = player->getPos().x/4000.0;
