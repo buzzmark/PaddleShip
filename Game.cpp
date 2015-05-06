@@ -13,7 +13,6 @@ Game::Game(char *hostIP)
     srand(time(0));
     gameStarted = false;
     netMgr = NULL;
-    clientFound = false;
     isServer = false;
     host = hostIP;
     test = true;
@@ -136,16 +135,12 @@ void Game::destroyScene(void){
 //---------------------------------------------------------------------------
 bool Game::frameRenderingQueued(const Ogre::FrameEvent &evt){
     if(!gameStarted){
-        if(isServer && !clientFound){
-            netMgr->checkForUpdates();  // accept connection
-            if(netMgr->numClients() > 0){
-                clientFound = true;
-                gameStarted = true;
-                gameScreen->setClient(false);
-                gameScreen->setSinglePlayer(false);
-                CEGUI::System::getSingleton().getDefaultGUIContext().getMouseCursor().hide();
-                guiRoot->getChild("mainMenu")->setVisible(false);
-            }
+        if(isServer){
+            gameStarted = true;
+            gameScreen->setClient(false);
+            gameScreen->setSinglePlayer(false);
+            CEGUI::System::getSingleton().getDefaultGUIContext().getMouseCursor().hide();
+            guiRoot->getChild("mainMenu")->setVisible(false);
         }
     }
     else{
