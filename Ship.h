@@ -11,6 +11,8 @@
 
 #include "GameObject.h"
 #include "SoundPlayer.h"
+#include "Paddle.h"
+#include "Simulator.h"
 #include <SdkTrays.h>
 
 //---------------------------------------------------------------------------
@@ -20,13 +22,15 @@ class Ship: public GameObject
 public:
 	Ship(Ogre::String nym, Ogre::SceneManager* mgr, Simulator* sim, Ogre::SceneNode* cm, int &sc, SoundPlayer* sPlayer, Ogre::Light* shipLt);
 	~Ship(void);
-	void addToScene(void);
-	void addToSimulator(void);
-	void update(void);
+	virtual void addToScene(void);
+	virtual void addToSimulator(void);
+	virtual void update(void);
     void grabCamera(void);
 	void setDeetsPan(OgreBites::ParamsPanel*mDeetsPan);
 	void injectKeyDown(const OIS::KeyEvent &arg);
 	void injectKeyUp(const OIS::KeyEvent &arg);
+    void setPaddle(Paddle* p);
+    Paddle* getPaddle();
 	//Ogre::Vector3 getPos();
 
 protected:
@@ -35,6 +39,7 @@ protected:
 	Ogre::Camera* cam;
 	OgreBites::ParamsPanel* mDetailsPanel;
 	SoundPlayer* soundPlayer;
+    bool motorRight;
 	bool hasDecr;
 	bool rearView;
 	//bool changedView;
@@ -47,6 +52,15 @@ protected:
 	bool turnLeft;
 	int &score;
 	bool outOfBounds;
+
+    Ogre::Vector3 direction;
+    Ogre::Vector3 prevDirection;
+    Ogre::Vector3 deltDirection; 
+    Ogre::Vector3 camPos;
+    Ogre::Vector3 beforeMove;
+
+    Paddle* paddle;
+	btHingeConstraint* paddleHinge;
 };
 
 //---------------------------------------------------------------------------

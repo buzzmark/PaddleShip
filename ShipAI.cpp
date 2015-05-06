@@ -1,10 +1,9 @@
 #include "ShipAI.h"
 
 //---------------------------------------------------------------------------
-ShipAI::ShipAI(Ogre::String nym, Ogre::SceneManager* mgr, Simulator* sim, Ogre::SceneNode* sn, int &sc, SoundPlayer* sPlayer, std::deque<GameObject*>* oList,  int ops) : GameObject(nym, mgr, sim), score(sc)
+ShipAI::ShipAI(Ogre::String nym, Ogre::SceneManager* mgr, Simulator* sim, Ogre::SceneNode* sn, int &sc, SoundPlayer* sPlayer, std::deque<GameObject*>* oList,  int ops) : Ship(nym, mgr, sim, NULL, sc, sPlayer, NULL)
 {
 	sceneNode = sn;
-	soundPlayer = sPlayer;
 	numOpponents = ops;
 	objList = oList;
 	target = NULL;
@@ -49,15 +48,8 @@ void ShipAI::addToScene(void)
 
 	mass = 10.0f;
 	shape = new btCapsuleShapeZ(3.0f, 15.0f);
-	//paddleHinge = paddle -> getPaddleHinge();
-}
-//---------------------------------------------------------------------------
-void ShipAI::addToSimulator(void)
-{
-	GameObject::addToSimulator();
 
-	body->setLinearFactor(btVector3(1,0,1));
-	body->setAngularFactor(btVector3(0,0,0));
+    paddle->addToScene();
 }
 //---------------------------------------------------------------------------
 void ShipAI::update(void)
@@ -228,10 +220,5 @@ void ShipAI::opponentProximityCheck(void)
 	}
 	*/
 
-}
-//---------------------------------------------------------------------------
-void ShipAI::setPaddle(Paddle* paddleAI) 
-{
-	paddle = paddleAI;
 }
 //---------------------------------------------------------------------------

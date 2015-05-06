@@ -4,11 +4,6 @@
 #include <CEGUI/CEGUI.h>
 #include <CEGUI/RendererModules/Ogre/Renderer.h>
 
-Ogre::Vector3 direction;
-Ogre::Vector3 prevDirection;
-Ogre::Vector3 deltDirection; 
-Ogre::Vector3 camPos;
-Ogre::Vector3 beforeMove;
 //---------------------------------------------------------------------------
 Ship::Ship(Ogre::String nym, Ogre::SceneManager* mgr, Simulator* sim, Ogre::SceneNode* cm, int &sc, SoundPlayer* sPlayer, Ogre::Light* shipLt) : GameObject(nym, mgr, sim), score(sc)
 {
@@ -41,10 +36,13 @@ Ship::Ship(Ogre::String nym, Ogre::SceneManager* mgr, Simulator* sim, Ogre::Scen
 	//cam -> setPosition(Ogre::Vector3(0, 25, -40));
 	camPos = Ogre::Vector3(getPos().x + 0, getPos().y + 25, getPos().z - 40);
 	*/
+
+    paddle = NULL;
 }
 //---------------------------------------------------------------------------
 Ship::~Ship(void)
 {
+    delete paddle;
 }
 //---------------------------------------------------------------------------
 void Ship::addToScene(void)
@@ -62,6 +60,8 @@ void Ship::addToScene(void)
 
 	mass = 10.0f;
 	shape = new btCapsuleShapeZ(3.0f, 15.0f);
+
+    paddle->addToScene();
 }
 //---------------------------------------------------------------------------
 void Ship::addToSimulator(void)
@@ -70,6 +70,15 @@ void Ship::addToSimulator(void)
 
 	body->setLinearFactor(btVector3(1,0,1));
 	body->setAngularFactor(btVector3(0,0,0));
+
+    paddle->addToSimulator();
+
+	paddleHinge = new btHingeConstraint(*getBody(), *paddle->getBody(), btVector3(0,0,5), btVector3(8.25,0,-5), btVector3(0,1,0), btVector3(0,1,0));
+	paddleHinge->setLimit(-M_PI, 0);
+	paddleHinge->enableAngularMotor(true, 100, 100);
+
+	simulator->getDynamicsWorld()->addConstraint(paddleHinge, true);
+	paddle -> setPaddleHinge(paddleHinge);
 }
 //---------------------------------------------------------------------------
 void Ship::update(void)
@@ -163,6 +172,14 @@ void Ship::update(void)
 //---------------------------------------------------------------------------
 void Ship::injectKeyDown(const OIS::KeyEvent &arg)
 {
+	if (arg.key == OIS::KC_SPACE){
+		if (motorRight)
+			paddleHinge->enableAngularMotor(true, -100, 1000);
+		else
+			paddleHinge->enableAngularMotor(true, 100, 1000);
+		motorRight = !motorRight;
+		soundPlayer->playPaddleSwing();
+	}
 	if (arg.key == OIS::KC_W){
 		beforeMove = getPos();
 		forward = true;
@@ -188,7 +205,7 @@ void Ship::injectKeyDown(const OIS::KeyEvent &arg)
 		
 	}
 	
-
+    paddle->injectKeyDown(arg);
 }
 
 void Ship::grabCamera() {
@@ -223,18 +240,22 @@ void Ship::injectKeyUp(const OIS::KeyEvent &arg)
 		
 	}
 	
+    paddle->injectKeyUp(arg);
 }
 //---------------------------------------------------------------------------
 void Ship::setDeetsPan(OgreBites::ParamsPanel*mDeetsPan)
 {
 	mDetailsPanel = mDeetsPan;
+	paddle->setDeetsPan(mDeetsPan);
 }
 //---------------------------------------------------------------------------
-
-//---------------------------------------------------------------------------
-/*
-Ogre::Vector3 Ship::getPos()
+void Ship::setPaddle(Paddle* p)
 {
-	return GameObject::getPos();
+    paddle = p;
 }
-*/
+//---------------------------------------------------------------------------
+Paddle* Ship::getPaddle()
+{
+    return paddle;
+}
+//---------------------------------------------------------------------------

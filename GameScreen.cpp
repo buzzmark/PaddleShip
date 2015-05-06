@@ -11,12 +11,11 @@ GameScreen::GameScreen(Ogre::SceneManager* sceneMgr, Ogre::SceneNode* cameraNode
 	sim = new Simulator(sceneMgr);
 	std::deque<GameObject*>* objList = sim -> getObjList();
 	ship = new Ship("Ship", sceneMgr, sim, cameraNode, score, sPlayer, shipLt);
+	ship->setPaddle(new Paddle("paddle", sceneMgr, sim, ship -> getNode(), score, sPlayer));
 	alien = new Alien("Alien", sceneMgr, sim, cameraNode, alienHealth, objList, sPlayer, alienLt);
-	paddle = new Paddle("paddle", sceneMgr, sim, ship -> getNode(), score, sPlayer); 
 	shipAI = new ShipAI("ShipAI",sceneMgr, sim, cameraNode, scoreAI, sPlayer, objList, 0);
-	paddleAI = new Paddle("paddleAI", sceneMgr, sim, shipAI -> getNode(), scoreAI, sPlayer); 
+	shipAI->setPaddle(new Paddle("paddleAI", sceneMgr, sim, ship -> getNode(), score, sPlayer));
 	ast1 = new AsteroidSys(sceneMgr, sim, ship);
-	motorRight = true;
 	isClient = false;
 	singlePlayer = false;
 }
@@ -25,7 +24,7 @@ GameScreen::~GameScreen(void)
 {
 	delete ship;
 	delete alien;
-	delete paddle;
+    delete shipAI;
 	delete ast1;
 	delete sim;
 }
@@ -38,17 +37,6 @@ void GameScreen::createScene(void)
 	ship->addToScene();
 	ship->addToSimulator();
 
-	//paddle
-	paddle->addToScene();
-	paddle->addToSimulator();
-
-	paddleHinge = new btHingeConstraint(*ship->getBody(), *paddle->getBody(), btVector3(0,0,5), btVector3(8.25,0,-5), btVector3(0,1,0), btVector3(0,1,0));
-	paddleHinge->setLimit(-M_PI, 0);
-	paddleHinge->enableAngularMotor(true, 100, 100);
-
-	sim->getDynamicsWorld()->addConstraint(paddleHinge, true);
-	paddle -> setPaddleHinge(paddleHinge);
-
 	//alien
 	alien->addToScene();
 	alien->addToSimulator();
@@ -59,20 +47,7 @@ void GameScreen::createScene(void)
 
     //ship AI
 	shipAI->addToScene();
-	//shipAI ->setPaddle(paddleAI);
 	shipAI->addToSimulator();
-
-    //paddle for ship AI
-	paddleAI->addToScene();
-	paddleAI->addToSimulator();
-
-	paddleHingeAI = new btHingeConstraint(*shipAI->getBody(), *paddleAI->getBody(), btVector3(0,0,5), btVector3(8.25,0,-5), btVector3(0,1,0), btVector3(0,1,0));
-	paddleHingeAI->setLimit(-M_PI, 0);
-	paddleHingeAI->enableAngularMotor(true, 100, 100);
-
-	sim->getDynamicsWorld()->addConstraint(paddleHingeAI, true);
-	shipAI ->setPaddle(paddleAI);
-	paddleAI -> setPaddleHinge(paddleHingeAI);
 
 	//minimap
 	Ogre::OverlayManager& omgr = Ogre::OverlayManager::getSingleton();
@@ -162,6 +137,7 @@ void GameScreen::updateClient(const Ogre::FrameEvent &evt, Packet& p)
 
 	p >> pos >> rot;
 
+    Paddle* paddle = ship->getPaddle();
 	paddle->setPosition(pos.x, pos.y, pos.z);
 	paddle->getNode()->setOrientation(rot);
 
@@ -172,6 +148,7 @@ void GameScreen::updateClient(const Ogre::FrameEvent &evt, Packet& p)
 
 	p >> pos >> rot;
 
+    Paddle* paddleAI = shipAI->getPaddle();
 	paddleAI->setPosition(pos.x, pos.y, pos.z);
 	paddleAI->getNode()->setOrientation(rot);
 
@@ -234,6 +211,7 @@ Packet GameScreen::getPositions()
 
 	p << pos << rot;
 
+    Paddle* paddle = ship->getPaddle();
 	pos = paddle->getPos();
 	rot = paddle->getNode()->getOrientation();
 
@@ -244,6 +222,7 @@ Packet GameScreen::getPositions()
 
 	p << pos << rot;
 
+    Paddle* paddleAI = shipAI->getPaddle();
 	pos = paddleAI->getPos();
 	rot = paddleAI->getNode()->getOrientation();
 
@@ -264,32 +243,20 @@ Packet GameScreen::getPositions()
 //---------------------------------------------------------------------------
 void GameScreen::injectKeyDown(const OIS::KeyEvent &arg)
 {
-	
-	if (arg.key == OIS::KC_SPACE){
-		if (motorRight)
-			paddleHinge->enableAngularMotor(true, -100, 1000);
-		else
-			paddleHinge->enableAngularMotor(true, 100, 1000);
-		motorRight = !motorRight;
-		soundPlayer->playPaddleSwing();
-	}
 	if (arg.key == OIS::KC_M){
 		soundPlayer->soundOff();
 	}
 	if (arg.key == OIS::KC_N){
 		soundPlayer->soundOn();
 	}
-	
 
 	ship->injectKeyDown(arg);
-	paddle->injectKeyDown(arg);
 	if (singlePlayer) alien->injectKeyDown(arg);
 }
 //---------------------------------------------------------------------------
 void GameScreen::injectKeyUp(const OIS::KeyEvent &arg)
 {
 	ship->injectKeyUp(arg);
-	paddle->injectKeyUp(arg);
 	if (singlePlayer) alien->injectKeyUp(arg);
 }
 //---------------------------------------------------------------------------
@@ -314,7 +281,6 @@ void GameScreen::setDeetsPan(OgreBites::ParamsPanel*mDeetsPan)
 {
 	//mDetailsPanel = mDeetsPan;
 	ship->setDeetsPan(mDeetsPan);
-	paddle->setDeetsPan(mDeetsPan);
 	alien->setDeetsPan(mDeetsPan);
 }
 //---------------------------------------------------------------------------

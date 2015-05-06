@@ -46,14 +46,9 @@ protected:
 
 	Simulator* sim;
 	Ship* ship;
-	Paddle* paddle;
-	btHingeConstraint* paddleHinge;
-	btHingeConstraint* paddleHingeAI;
 	AsteroidSys* ast1;
 	Alien * alien;
 	ShipAI * shipAI;
-	Paddle* paddleAI;
-	bool motorRight;
 	int score;
 	int scoreAI;
 	int alienHealth;
