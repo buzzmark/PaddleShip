@@ -19,8 +19,8 @@ class NetManager
 
         std::unordered_map<int, TCPsocket>::iterator messageSingleClient(std::unordered_map<int, TCPsocket>::iterator iter, const Packet &p);
 
-        std::unordered_map<int, Packet> serverGetData();
-        std::unordered_map<int, Packet> clientGetData();
+        void serverGetData(NetUpdate& update);
+        void clientGetData(NetUpdate& update);
 
     public:
         NetManager();

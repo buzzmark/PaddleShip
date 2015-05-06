@@ -148,9 +148,9 @@ NetUpdate NetManager::checkForUpdates() {
             }
         }
 
-        update.data = serverGetData();
+        serverGetData(update);
     } else {
-        update.data = clientGetData();
+        clientGetData(update);
     }
 
     return update;
@@ -174,8 +174,8 @@ bool read_buffer(TCPsocket socket, void* vbuf, int len) {
     return true;
 }
 
-std::unordered_map<int, Packet> NetManager::serverGetData() {
-    std::unordered_map<int, Packet> data;
+void NetManager::serverGetData(NetUpdate& update) {
+    std::unordered_map<int, Packet>& data = update.data;
 
     // check for client messages
     auto iter = clients.begin();
@@ -192,6 +192,8 @@ std::unordered_map<int, Packet> NetManager::serverGetData() {
                     data[iter->first] = Packet(buf, len);
                     ++iter;
                 } else {
+                    update.disconnects.push_back(iter->first);
+
                     SDLNet_TCP_Close(client);
                     SDLNet_DelSocket(socket_set, (SDLNet_GenericSocket) client);
                     iter = clients.erase(iter);
@@ -199,6 +201,8 @@ std::unordered_map<int, Packet> NetManager::serverGetData() {
 
                 delete[] buf;
             } else {
+                update.disconnects.push_back(iter->first);
+
                 SDLNet_TCP_Close(client);
                 SDLNet_DelSocket(socket_set, (SDLNet_GenericSocket) client);
                 iter = clients.erase(iter);
@@ -207,12 +211,10 @@ std::unordered_map<int, Packet> NetManager::serverGetData() {
             ++iter;
         }
     }
-
-    return data;
 }
 
-std::unordered_map<int, Packet> NetManager::clientGetData() {
-    std::unordered_map<int, Packet> data;
+void NetManager::clientGetData(NetUpdate& update) {
+    std::unordered_map<int, Packet>& data = update.data;
 
     if (SDLNet_SocketReady(server)) {
         int len;
@@ -223,12 +225,12 @@ std::unordered_map<int, Packet> NetManager::clientGetData() {
                 data[0] = Packet(buf, len);
             } else {
                 // lost connection (server probably quit)?
+                update.disconnects.push_back(0);
             }
             delete[] buf;
         } else {
             // lost connection (server probably quit)?
+            update.disconnects.push_back(0);
         }
     }
-
-    return data;
 }

@@ -8,6 +8,7 @@ struct NetUpdate {
     std::unordered_map<int, Packet> data;
     bool newConnection;
     int connectionId;
+    std::vector<int> disconnects;
 
     NetUpdate();
 
