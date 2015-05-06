@@ -12,6 +12,7 @@
 #include "ShipAI.h"
 #include "Packet.h"
 #include <vector>
+#include <unordered_map>
 
 //---------------------------------------------------------------------------
 
@@ -32,22 +33,24 @@ public:
 	void setDeetsPan(OgreBites::ParamsPanel*mDeetsPan);
 	void injectKeyDown(const OIS::KeyEvent &arg);
 	void injectKeyUp(const OIS::KeyEvent &arg);
-	void clientKey(int key);
+	void clientKey(int id, int key);
 	void injectMouseMove(const OIS::MouseEvent &arg);
 	void injectMouseDown(const OIS::MouseEvent &arg, OIS::MouseButtonID id);
 	void injectMouseUp(const OIS::MouseEvent &arg, OIS::MouseButtonID id);
+    Alien* createClientAlien(int id);
+    void setClientId(int id);
 
     std::vector<Asteroid*> getAsteroids();
     std::vector<GameObject*> getPlayers();
 
 protected:
 	Ogre::SceneManager* mSceneMgr;
+    Ogre::SceneNode* mCameraNode;
 	SoundPlayer* soundPlayer;
 
 	Simulator* sim;
 	Ship* ship;
 	AsteroidSys* ast1;
-	Alien * alien;
 	ShipAI * shipAI;
 	int score;
 	int scoreAI;
@@ -56,6 +59,11 @@ protected:
 	bool singlePlayer;
 	Ogre::OverlayContainer* mmBackground;
 	std::vector<Ogre::OverlayElement*> mmPlayerIcons;
+
+    int clientId;
+
+    // TODO: replace Alien* with a generic PlayerObject
+    std::unordered_map<int, Alien*> clientObjects;
 };
 
 //---------------------------------------------------------------------------

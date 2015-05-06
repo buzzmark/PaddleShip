@@ -7,26 +7,30 @@ GameScreen::GameScreen(Ogre::SceneManager* sceneMgr, Ogre::SceneNode* cameraNode
 	scoreAI = 0;
 	alienHealth = 100;
 	mSceneMgr = sceneMgr;
+    mCameraNode = cameraNode;
 	soundPlayer = sPlayer;
 	sim = new Simulator(sceneMgr);
 	std::deque<GameObject*>* objList = sim -> getObjList();
 	ship = new Ship("Ship", sceneMgr, sim, cameraNode, score, sPlayer, shipLt);
 	ship->setPaddle(new Paddle("paddle", sceneMgr, sim, ship -> getNode(), score, sPlayer));
-	alien = new Alien("Alien", sceneMgr, sim, cameraNode, alienHealth, objList, sPlayer, alienLt);
 	shipAI = new ShipAI("ShipAI",sceneMgr, sim, cameraNode, scoreAI, sPlayer, objList, 0);
 	shipAI->setPaddle(new Paddle("paddleAI", sceneMgr, sim, ship -> getNode(), score, sPlayer));
 	ast1 = new AsteroidSys(sceneMgr, sim, ship);
 	isClient = false;
 	singlePlayer = false;
+    clientId = -1;
 }
 //---------------------------------------------------------------------------
 GameScreen::~GameScreen(void)
 {
 	delete ship;
-	delete alien;
     delete shipAI;
 	delete ast1;
 	delete sim;
+
+    for (auto client : clientObjects) {
+        delete client.second;
+    }
 }
 //---------------------------------------------------------------------------
 void GameScreen::createScene(void)
@@ -36,10 +40,6 @@ void GameScreen::createScene(void)
 	//ship
 	ship->addToScene();
 	ship->addToSimulator();
-
-	//alien
-	alien->addToScene();
-	alien->addToSimulator();
 
     //asteroid particle system
     ast1->addToScene();
@@ -61,8 +61,6 @@ void GameScreen::createScene(void)
     minimap->add2D(mmBackground);
 
     //will probably have to change this later, based on what players exist when the game starts
-    addPlayerToMinimap(ship);
-    addEnemyToMinimap(alien);
     addEnemyToMinimap(shipAI);
 
     minimap->show();
@@ -95,10 +93,11 @@ void GameScreen::addEnemyToMinimap(GameObject* enemy){
 }
 //---------------------------------------------------------------------------
 void GameScreen::setClient(bool client){
-    if (client) {
-        alien->grabCamera();
-    } else {
+    if (!client) {
         ship->grabCamera();
+        addPlayerToMinimap(ship);
+    } else {
+        addEnemyToMinimap(ship);
     }
 
 	isClient = client;
@@ -107,6 +106,7 @@ void GameScreen::setClient(bool client){
 void GameScreen::setSinglePlayer(bool single){
     if (single) {
         ship->grabCamera();
+        addPlayerToMinimap(ship);
     }
 
 	singlePlayer = single;
@@ -130,13 +130,6 @@ void GameScreen::updateClient(const Ogre::FrameEvent &evt, Packet& p)
 
 	p >> pos >> rot;
 
-	alien->setPosition(pos.x, pos.y, pos.z);
-	alien->getNode()->setOrientation(rot);
-	//alien->setCam(pos.x, pos.y + 25, pos.z + 40, pos.x, pos.y, pos.z - 25);
-	alien->setLight(pos.x, pos.y + 500, pos.z + 250);
-
-	p >> pos >> rot;
-
     Paddle* paddle = ship->getPaddle();
 	paddle->setPosition(pos.x, pos.y, pos.z);
 	paddle->getNode()->setOrientation(rot);
@@ -151,6 +144,28 @@ void GameScreen::updateClient(const Ogre::FrameEvent &evt, Packet& p)
     Paddle* paddleAI = shipAI->getPaddle();
 	paddleAI->setPosition(pos.x, pos.y, pos.z);
 	paddleAI->getNode()->setOrientation(rot);
+
+    int id;
+    p >> id;
+
+    while (id != -1) {
+        Alien* alien;
+        auto iter = clientObjects.find(id);
+
+        if (iter == clientObjects.end()) {
+            alien = createClientAlien(id);
+        } else {
+            alien = iter->second;
+        }
+
+        p >> pos >> rot;
+
+        alien->setPosition(pos.x, pos.y, pos.z);
+        alien->getNode()->setOrientation(rot);
+        alien->setLight(pos.x, pos.y + 500, pos.z + 250);
+
+        p >> id;
+    }
 
     int numAsteroids;
     p >> numAsteroids;
@@ -199,13 +214,10 @@ Packet GameScreen::getPositions()
 {
 	Packet p;
 
+    p << PT_POSITIONS;
+
 	Ogre::Vector3 pos = ship->getPos();
 	Ogre::Quaternion rot = ship->getNode()->getOrientation();
-
-	p << pos << rot;
-
-	pos = alien->getPos();
-	rot = alien->getNode()->getOrientation();
 
 	p << pos << rot;
 
@@ -225,6 +237,18 @@ Packet GameScreen::getPositions()
 	rot = paddleAI->getNode()->getOrientation();
 
 	p << pos << rot;
+
+    for (auto client : clientObjects) {
+        p << client.first;
+
+        Alien* alien = client.second;
+
+        pos = alien->getPos();
+        rot = alien->getNode()->getOrientation();
+        p << pos << rot;
+    }
+
+    p << (int) -1;
 
     std::vector<Asteroid*> asteroids = getAsteroids();
     p << (int) asteroids.size();
@@ -249,16 +273,15 @@ void GameScreen::injectKeyDown(const OIS::KeyEvent &arg)
 	}
 
 	ship->injectKeyDown(arg);
-	if (singlePlayer) alien->injectKeyDown(arg);
 }
 //---------------------------------------------------------------------------
 void GameScreen::injectKeyUp(const OIS::KeyEvent &arg)
 {
 	ship->injectKeyUp(arg);
-	if (singlePlayer) alien->injectKeyUp(arg);
 }
 //---------------------------------------------------------------------------
-void GameScreen::clientKey(int key){
+void GameScreen::clientKey(int id, int key){
+    Alien* alien = clientObjects[id];
 	if(key<=10) alien->injectKeyDown(key);
 	else alien->injectKeyUp(key-10);
 }
@@ -279,7 +302,6 @@ void GameScreen::setDeetsPan(OgreBites::ParamsPanel*mDeetsPan)
 {
 	//mDetailsPanel = mDeetsPan;
 	ship->setDeetsPan(mDeetsPan);
-	alien->setDeetsPan(mDeetsPan);
 }
 //---------------------------------------------------------------------------
 std::vector<Asteroid*> GameScreen::getAsteroids() {
@@ -287,5 +309,33 @@ std::vector<Asteroid*> GameScreen::getAsteroids() {
 }
 //---------------------------------------------------------------------------
 std::vector<GameObject*> GameScreen::getPlayers() {
-    return std::vector<GameObject*>({ship, alien, shipAI});
+    std::vector<GameObject*> list({ship, shipAI});
+
+    for (auto client : clientObjects) {
+        list.push_back(client.second);
+    }
+
+    return list;
+}
+//---------------------------------------------------------------------------
+Alien* GameScreen::createClientAlien(int id) {
+    Alien* alien = new Alien("Alien" + std::to_string(id), mSceneMgr, sim, mCameraNode, alienHealth, sim->getObjList(), soundPlayer, NULL);
+
+	alien->addToScene();
+	alien->addToSimulator();
+
+    if (id == clientId) {
+        addPlayerToMinimap(alien);
+        alien->grabCamera();
+    } else {
+        addEnemyToMinimap(alien);
+    }
+
+    clientObjects[id] = alien;
+
+    return alien;
+}
+
+void GameScreen::setClientId(int id) {
+    clientId = id;
 }

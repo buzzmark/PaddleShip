@@ -150,15 +150,43 @@ bool Game::frameRenderingQueued(const Ogre::FrameEvent &evt){
             NetUpdate serverUpdate = netMgr->checkForUpdates();
 
             if (serverUpdate.hasServerUpdate()) {
-                gameScreen->updateClient(evt, serverUpdate.getServerUpdate());
+                // TODO: refactor by moving out to separate method
+                Packet& p = serverUpdate.getServerUpdate();
+
+                int packetType;
+                p >> packetType;
+
+                switch (packetType) {
+                    case PT_POSITIONS:
+                        gameScreen->updateClient(evt, p);
+                        break;
+                    case PT_CLIENTID:
+                        int id;
+                        p >> id;
+                        gameScreen->setClientId(id);
+                        break;
+                    default:
+                        std::cerr << "Warning: unrecognized packet type " << packetType;
+                        break;
+                }
             }
         } else if (isServer){
             NetUpdate clientUpdate = netMgr->checkForUpdates();
+
+            if (clientUpdate.newConnection) {
+                int id = clientUpdate.connectionId;
+
+                Packet p;
+                p << PT_CLIENTID << id;
+                netMgr->messageClient(id, p);
+
+                gameScreen->createClientAlien(id);
+            }
+
             auto& clientData = clientUpdate.data;
 
-            auto iter = clientData.begin();
-            if (iter != clientData.end()) {
-                gameScreen->clientKey(iter->second.data()[0]);
+            for (auto data : clientData) {
+                gameScreen->clientKey(data.first, data.second.data()[0]);
             }
 
             gameScreen->update(evt);

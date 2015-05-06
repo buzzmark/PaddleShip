@@ -34,11 +34,11 @@ Alien::~Alien(void)
 //---------------------------------------------------------------------------
 void Alien::addToScene(void)
 {
-	geom = sceneMgr->createEntity("AlienEnt", "alien.mesh");
+	geom = sceneMgr->createEntity(name + "Ent", "alien.mesh");
 	geom->setCastShadows(true);
 	rootNode->attachObject(geom);
 
-	alienLight = sceneMgr->createLight("alienLight");
+	alienLight = sceneMgr->createLight(name + "Light");
     alienLight->setType(Ogre::Light::LT_POINT);
     alienLight->setPosition(Ogre::Vector3(getPos().x + 0,getPos().y + 500,getPos().z + 250));
  
