@@ -3,7 +3,7 @@
 
 #include <vector>
 #include "Asteroid.h"
-#define NUM_ASTEROIDS 250
+#define NUM_ASTEROIDS 100
 
 //---------------------------------------------------------------------------
 
