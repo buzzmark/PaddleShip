@@ -174,7 +174,7 @@ bool Game::frameRenderingQueued(const Ogre::FrameEvent &evt){
                         break;
                     case SPT_DISCONNECT:
                         p >> id;
-                        gameScreen->removeClientAlien(id);
+                        gameScreen->removeClientObject(id);
                         break;
                     default:
                         std::cerr << "Warning: unrecognized server packet type " << packetType;
@@ -189,7 +189,7 @@ bool Game::frameRenderingQueued(const Ogre::FrameEvent &evt){
                 p << SPT_DISCONNECT << id;
                 netMgr->messageClients(p);
 
-                gameScreen->removeClientAlien(id);
+                gameScreen->removeClientObject(id);
             }
 
             if (clientUpdate.newConnection) {
@@ -213,13 +213,11 @@ bool Game::frameRenderingQueued(const Ogre::FrameEvent &evt){
 
                 switch (packetType) {
                     case CPT_SHIPTYPE:
-                        // TODO: create ship here instead if data is PADDLE_SHIP
-                        gameScreen->createClientAlien(id);
+                        gameScreen->createClientObject(id, value);
                         break;
                     case CPT_KEYPRESS:
                     case CPT_KEYRELEASE:
-                        // TODO: differentiate between press and release?
-                        gameScreen->clientKey(id, value);
+                        gameScreen->clientKey(id, packetType == CPT_KEYPRESS, value);
                         break;
                     default:
                         std::cerr << "Warning: unrecognized client packet type " << packetType;
@@ -260,44 +258,9 @@ bool Game::keyPressed(const OIS::KeyEvent &arg){
     if(singlePlayer || isServer)
         gameScreen->injectKeyDown(arg);
     else {
-        int message = -1;
-        
-        if (arg.key == OIS::KC_J){
-            message = 1;
-        }
-        else if (arg.key == OIS::KC_L){
-            message = 2;
-        }
-        else if (arg.key == OIS::KC_I){
-            message = 3;
-        }
-        else if (arg.key == OIS::KC_K){
-            message = 4;
-        }
-        else if (arg.key == OIS::KC_G){
-            message = 5;
-        }
-        else if (arg.key == OIS::KC_P){
-            message = 6;
-        }
-        else if (arg.key == OIS::KC_LEFT){
-            message = 7;
-        }
-        else if (arg.key == OIS::KC_RIGHT){
-            message = 8;
-        }
-        else if (arg.key == OIS::KC_UP){
-            message = 9;
-        }
-        else if (arg.key == OIS::KC_DOWN){
-            message = 10;
-        }
-
-        if (message != -1) {
-            Packet p;
-            p << CPT_KEYPRESS << (char) message;
-            netMgr->messageServer(p);
-        }
+        Packet p;
+        p << CPT_KEYPRESS << (char) arg.key;
+        netMgr->messageServer(p);
     }
 
     return BaseApplication::keyPressed(arg);
@@ -311,44 +274,9 @@ bool Game::keyReleased(const OIS::KeyEvent &arg)
     if(singlePlayer || isServer)
         gameScreen->injectKeyUp(arg);
     else {
-        int message = -1;
-        
-        if (arg.key == OIS::KC_J){
-            message = 11;
-        }
-        else if (arg.key == OIS::KC_L){
-            message = 12;
-        }
-        else if (arg.key == OIS::KC_I){
-            message = 13;
-        }
-        else if (arg.key == OIS::KC_K){
-            message = 14;
-        }
-        else if (arg.key == OIS::KC_G){
-            message = 15;
-        }
-        else if (arg.key == OIS::KC_P){
-            message = 16;
-        }
-        else if (arg.key == OIS::KC_LEFT){
-            message = 17;
-        }
-        else if (arg.key == OIS::KC_RIGHT){
-            message = 18;
-        }
-        else if (arg.key == OIS::KC_UP){
-            message = 19;
-        }
-        else if (arg.key == OIS::KC_DOWN){
-            message = 20;
-        }
-
-        if (message != -1) {
-            Packet p;
-            p << CPT_KEYRELEASE << (char) message;
-            netMgr->messageServer(p);
-        }
+        Packet p;
+        p << CPT_KEYRELEASE << (char) arg.key;
+        netMgr->messageServer(p);
     }
 
     //mCameraMan->injectKeyUp(arg);
@@ -463,7 +391,7 @@ bool Game::joinGame(const CEGUI::EventArgs &e)
     gameStarted = true;
 
     Packet p;
-    p << CPT_SHIPTYPE << shipType;
+    p << CPT_SHIPTYPE << (char) shipType;
     netMgr->messageServer(p);
 
     guiRoot->getChild("mainMenu")->setVisible(false);

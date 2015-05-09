@@ -48,7 +48,7 @@ void Alien::addToScene(void)
 //---------------------------------------------------------------------------
 void Alien::addToSimulator(void)
 {
-	GameObject::addToSimulator();
+	PlayerObject::addToSimulator();
 
 	body->setLinearFactor(btVector3(1,0,1));
 	body->setAngularFactor(btVector3(0,0,0));
@@ -149,52 +149,6 @@ void Alien::injectKeyDown(const OIS::KeyEvent &arg)
 	}
 }
 //---------------------------------------------------------------------------
-void Alien::injectKeyDown(int key)
-{
-	if (key == 1){
-		left = true;
-	}
-	if (key == 2){
-		right = true;
-	}
-	if (key == 3){
-		forward = true;
-	}
-	if (key == 4){
-		back = true;
-	}
-	if (key == 5){
-		if (!hasAsteroid) {
-			grabAsteroid(true);	
-		}
-	}
-	/*
-	if (key == 6){
-		rearView = true;
-	}
-	*/
-	if (key == 7){
-		if (hasAsteroid) {
-			aimAsteroid(7);	
-		}
-	}
-	if (key == 8){
-		if (hasAsteroid) {
-			aimAsteroid(8);	
-		}
-	}
-	if (key == 9){
-		if (hasAsteroid) {
-			aimAsteroid(9);	
-		}
-	}
-	if (key == 10){
-		if (hasAsteroid) {
-			aimAsteroid(10);	
-		}
-	}
-}
-//---------------------------------------------------------------------------
 void Alien::injectKeyUp(const OIS::KeyEvent &arg)
 {
 	if (arg.key == OIS::KC_J){
@@ -231,47 +185,6 @@ void Alien::injectKeyUp(const OIS::KeyEvent &arg)
 		}
 	}
 	if (arg.key == OIS::KC_DOWN){
-		if (hasAsteroid) {
-			shootAsteroid(10);	
-		}
-	}
-}
-//---------------------------------------------------------------------------
-void Alien::injectKeyUp(int key)
-{
-	if (key == 1){
-		left = false;
-	}
-	if (key == 2){
-		right = false;
-	}
-	if (key == 3){
-		forward = false;
-	}
-	if (key == 4){
-		back = false;
-	}
-	/*
-	if (key == 6){
-		rearView = false;
-	}
-	*/
-	if (key == 7){
-		if (hasAsteroid) {
-			shootAsteroid(7);	
-		}
-	}
-	if (key == 8){
-		if (hasAsteroid) {
-			shootAsteroid(8);	
-		}
-	}
-	if (key == 9){
-		if (hasAsteroid) {
-			shootAsteroid(9);	
-		}
-	}
-	if (key == 10){
 		if (hasAsteroid) {
 			shootAsteroid(10);	
 		}

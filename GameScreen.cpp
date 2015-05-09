@@ -2,6 +2,7 @@
 #include "Ship.h"
 #include "ShipAI.h"
 #include "Alien.h"
+#include "Game.h"
 
 //---------------------------------------------------------------------------
 GameScreen::GameScreen(Ogre::SceneManager* sceneMgr, Ogre::SceneNode* cameraNode, SoundPlayer* sPlayer, Ogre::Light* shipLt, Ogre::Light* alienLt)
@@ -151,20 +152,35 @@ void GameScreen::updateClient(const Ogre::FrameEvent &evt, Packet& p)
     p >> id;
 
     while (id != -1) {
-        Alien* alien;
+        char type;
+        p >> type;
+
+        PlayerObject* player;
         auto iter = clientObjects.find(id);
 
         if (iter == clientObjects.end()) {
-            alien = createClientAlien(id);
+            player = createClientObject(id, type);
         } else {
-            alien = iter->second;
+            player = iter->second;
         }
 
         p >> pos >> rot;
 
-        alien->setPosition(pos.x, pos.y, pos.z);
-        alien->getNode()->setOrientation(rot);
-        alien->setLight(pos.x, pos.y + 500, pos.z + 250);
+        player->setPosition(pos.x, pos.y, pos.z);
+        player->getNode()->setOrientation(rot);
+
+        if (type == ALIEN_SHIP) {
+            Alien* alien = dynamic_cast<Alien*>(player);
+            alien->setLight(pos.x, pos.y + 500, pos.z + 250);
+        } else {
+            Ship* playerShip = dynamic_cast<Ship*>(player);
+
+            p >> pos >> rot;
+
+            paddle = playerShip->getPaddle();
+            paddle->setPosition(pos.x, pos.y, pos.z);
+            paddle->getNode()->setOrientation(rot);
+        }
 
         p >> id;
     }
@@ -255,11 +271,28 @@ Packet GameScreen::getPositions()
     for (auto client : clientObjects) {
         p << client.first;
 
-        Alien* alien = client.second;
+        PlayerObject* player = client.second;
+        Ship* playerShip = dynamic_cast<Ship*>(player);
 
-        pos = alien->getPos();
-        rot = alien->getNode()->getOrientation();
-        p << pos << rot;
+        if (playerShip != nullptr) {
+            p << (char) PADDLE_SHIP;
+
+            pos = player->getPos();
+            rot = player->getNode()->getOrientation();
+            p << pos << rot;
+
+            paddle = playerShip->getPaddle();
+            pos = paddle->getPos();
+            rot = paddle->getNode()->getOrientation();
+
+            p << pos << rot;
+        } else {
+            p << (char) ALIEN_SHIP;
+
+            pos = player->getPos();
+            rot = player->getNode()->getOrientation();
+            p << pos << rot;
+        }
     }
 
     p << (int) -1;
@@ -294,10 +327,15 @@ void GameScreen::injectKeyUp(const OIS::KeyEvent &arg)
 	ship->injectKeyUp(arg);
 }
 //---------------------------------------------------------------------------
-void GameScreen::clientKey(int id, int key){
-    Alien* alien = clientObjects[id];
-	if(key<=10) alien->injectKeyDown(key);
-	else alien->injectKeyUp(key-10);
+void GameScreen::clientKey(int id, bool isDown, int key){
+    PlayerObject* player = clientObjects[id];
+    OIS::KeyEvent event(nullptr, (OIS::KeyCode) key, 0);
+
+    if (isDown) {
+        player->injectKeyDown(event);
+    } else {
+        player->injectKeyUp(event);
+    }
 }
 //---------------------------------------------------------------------------
 void GameScreen::injectMouseMove(const OIS::MouseEvent &arg)
@@ -332,35 +370,43 @@ std::vector<GameObject*> GameScreen::getPlayers() {
     return list;
 }
 //---------------------------------------------------------------------------
-Alien* GameScreen::createClientAlien(int id) {
-    Alien* alien = new Alien("Alien" + std::to_string(id), mSceneMgr, sim, this, mCameraNode, alienHealth, sim->getObjList(), soundPlayer, NULL);
-
-	alien->addToScene();
-	alien->addToSimulator();
-
-    if (id == clientId) {
-        addPlayerToMinimap(alien);
-        alien->grabCamera();
+PlayerObject* GameScreen::createClientObject(int id, int type) {
+    PlayerObject* player;
+    if (type == ALIEN_SHIP) {
+        player = new Alien("Alien" + std::to_string(id), mSceneMgr, sim, this, mCameraNode, alienHealth, sim->getObjList(), soundPlayer, NULL);
     } else {
-        addEnemyToMinimap(alien);
+        std::string name = "Ship" + std::to_string(id);
+        Ship* playerShip = new Ship(name, mSceneMgr, sim, this, mCameraNode, score, soundPlayer, NULL);
+        playerShip->setPaddle(new Paddle(name + "Paddle", mSceneMgr, sim, playerShip->getNode(), score, soundPlayer));
+        player = playerShip;
     }
 
-    clientObjects[id] = alien;
+	player->addToScene();
+	player->addToSimulator();
 
-    return alien;
+    if (id == clientId) {
+        addPlayerToMinimap(player);
+        player->grabCamera();
+    } else {
+        addEnemyToMinimap(player);
+    }
+
+    clientObjects[id] = player;
+
+    return player;
 }
 
-void GameScreen::removeClientAlien(int id) {
-    Alien* alien = clientObjects[id];
+void GameScreen::removeClientObject(int id) {
+    PlayerObject* player = clientObjects[id];
     clientObjects.erase(id);
 
-    Ogre::OverlayElement* icon = mmPlayerIcons[alien];
-    mmPlayerIcons.erase(alien);
+    Ogre::OverlayElement* icon = mmPlayerIcons[player];
+    mmPlayerIcons.erase(player);
     mmBackground->removeChild(icon->getName());
 
-    sim->removeObject(alien);
-    alien->removeFromScene();
-    delete alien;
+    player->removeFromSimulator();
+    player->removeFromScene();
+    delete player;
 }
 
 void GameScreen::setClientId(int id) {
