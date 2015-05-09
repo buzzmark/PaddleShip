@@ -193,7 +193,13 @@ void GameScreen::updateMinimap()
     GameObject* myPlayerObj;
 
     if (!singlePlayer && isClient) {
-        myPlayerObj = clientObjects[clientId];
+        auto iter = clientObjects.find(clientId);
+
+        if (iter != clientObjects.end()) {
+            myPlayerObj = iter->second;
+        } else {
+            myPlayerObj = nullptr;
+        }
     } else {
         myPlayerObj = ship;
     }
