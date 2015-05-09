@@ -6,6 +6,7 @@ NetManager::NetManager(){
     SDLNet_Init();
     socket_set = SDLNet_AllocSocketSet(16);
     nextClientId = 1;
+    isRunning = false;
 }
 
 NetManager::~NetManager(){
