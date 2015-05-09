@@ -116,8 +116,8 @@ void Ship::update(void)
 	}
 	if (!hasDecr && context->hit){
 		//lose health
-		if (score > 0) {
-			score-=1;
+		if (hp > 0) {
+			hp-=20;
 		}
 		std::stringstream scoreVal;
  		scoreVal << "" << score;

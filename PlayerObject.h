@@ -27,6 +27,7 @@ class PlayerObject : public GameObject {
         Ogre::Camera* cam;
         OgreBites::ParamsPanel* mDetailsPanel;
         SoundPlayer* soundPlayer;
+        int hp;
 
     public:
 	    PlayerObject(Ogre::String nym, Ogre::SceneManager* mgr, Simulator* sim, GameScreen* gs, Ogre::SceneNode* cm, SoundPlayer* sPlayer, Ogre::Light* lt);
@@ -37,6 +38,7 @@ class PlayerObject : public GameObject {
         virtual void update(void) = 0;
         virtual void grabCamera() = 0;
         virtual void setDeetsPan(OgreBites::ParamsPanel* mDeetsPan);
+        virtual int getHealth();
 };
 
 //---------------------------------------------------------------------------
