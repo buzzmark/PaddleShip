@@ -5,10 +5,8 @@
 #include <CEGUI/RendererModules/Ogre/Renderer.h>
 
 //---------------------------------------------------------------------------
-Ship::Ship(Ogre::String nym, Ogre::SceneManager* mgr, Simulator* sim, Ogre::SceneNode* cm, int &sc, SoundPlayer* sPlayer, Ogre::Light* shipLt) : GameObject(nym, mgr, sim), score(sc)
+Ship::Ship(Ogre::String nym, Ogre::SceneManager* mgr, Simulator* sim, Ogre::SceneNode* cm, int &sc, SoundPlayer* sPlayer, Ogre::Light* shipLt) : PlayerObject(nym, mgr, sim, cm, sPlayer, shipLt), score(sc)
 {
-	cameraNode = cm;
-	shipLight = shipLt;
 	//cam = (Ogre::Camera*) cameraNode -> getAttachedObject("PlayerCam");
 	//cam = (Ogre::Camera*) cameraNode -> detachObject("PlayerCam");
 	//rootNode -> attachObject(cam);
@@ -27,7 +25,6 @@ Ship::Ship(Ogre::String nym, Ogre::SceneManager* mgr, Simulator* sim, Ogre::Scen
 	back = false;
 	turnRight = false;
 	turnLeft = false;
-	soundPlayer = sPlayer;
 	outOfBounds = false;
 	/*
 	deltDirection = Ogre::Vector3(0,0,0);
@@ -51,12 +48,12 @@ void Ship::addToScene(void)
 	geom->setCastShadows(true);
 	rootNode->attachObject(geom);
 
-	shipLight = sceneMgr->createLight("shipLight");
-    shipLight->setType(Ogre::Light::LT_POINT);
-    shipLight->setPosition(Ogre::Vector3(0, 500, -250));
+	light = sceneMgr->createLight("light");
+    light->setType(Ogre::Light::LT_POINT);
+    light->setPosition(Ogre::Vector3(0, 500, -250));
  
-    shipLight->setDiffuseColour(0.7, 0.7, 0.7);
-    shipLight->setSpecularColour(0.7, 0.7, 0.7);
+    light->setDiffuseColour(0.7, 0.7, 0.7);
+    light->setSpecularColour(0.7, 0.7, 0.7);
 
 	mass = 10.0f;
 	shape = new btCapsuleShapeZ(3.0f, 15.0f);
@@ -132,7 +129,7 @@ void Ship::update(void)
 		hasDecr = true;
 	}
 
-	shipLight->setPosition(Ogre::Vector3(getPos().x + 0,getPos().y + 500,getPos().z - 250));
+	light->setPosition(Ogre::Vector3(getPos().x + 0,getPos().y + 500,getPos().z - 250));
 	/*
 	if (rearView) {
 		//changedView = true;
@@ -245,7 +242,7 @@ void Ship::injectKeyUp(const OIS::KeyEvent &arg)
 //---------------------------------------------------------------------------
 void Ship::setDeetsPan(OgreBites::ParamsPanel*mDeetsPan)
 {
-	mDetailsPanel = mDeetsPan;
+	PlayerObject::setDeetsPan(mDeetsPan);
 	paddle->setDeetsPan(mDeetsPan);
 }
 //---------------------------------------------------------------------------

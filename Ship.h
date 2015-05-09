@@ -9,7 +9,7 @@
 #  include <OISKeyboard.h>
 #endif
 
-#include "GameObject.h"
+#include "PlayerObject.h"
 #include "SoundPlayer.h"
 #include "Paddle.h"
 #include "Simulator.h"
@@ -17,15 +17,15 @@
 
 //---------------------------------------------------------------------------
 
-class Ship: public GameObject 
+class Ship: public PlayerObject
 {
 public:
 	Ship(Ogre::String nym, Ogre::SceneManager* mgr, Simulator* sim, Ogre::SceneNode* cm, int &sc, SoundPlayer* sPlayer, Ogre::Light* shipLt);
-	~Ship(void);
+	virtual ~Ship(void);
 	virtual void addToScene(void);
 	virtual void addToSimulator(void);
 	virtual void update(void);
-    void grabCamera(void);
+    virtual void grabCamera(void);
 	void setDeetsPan(OgreBites::ParamsPanel*mDeetsPan);
 	void injectKeyDown(const OIS::KeyEvent &arg);
 	void injectKeyUp(const OIS::KeyEvent &arg);
@@ -34,11 +34,6 @@ public:
 	//Ogre::Vector3 getPos();
 
 protected:
-	Ogre::SceneNode* cameraNode;
-	Ogre::Light* shipLight;
-	Ogre::Camera* cam;
-	OgreBites::ParamsPanel* mDetailsPanel;
-	SoundPlayer* soundPlayer;
     bool motorRight;
 	bool hasDecr;
 	bool rearView;

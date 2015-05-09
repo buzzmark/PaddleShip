@@ -2,10 +2,8 @@
 #include "Alien.h"
 #include <iostream>
 //---------------------------------------------------------------------------
-Alien::Alien(Ogre::String nym, Ogre::SceneManager* mgr, Simulator* sim, Ogre::SceneNode* cm, int &ht, std::deque<GameObject*>* oList, SoundPlayer* sPlayer, Ogre::Light* alienLt) : GameObject(nym, mgr, sim), health(ht)
+Alien::Alien(Ogre::String nym, Ogre::SceneManager* mgr, Simulator* sim, Ogre::SceneNode* cm, int &ht, std::deque<GameObject*>* oList, SoundPlayer* sPlayer, Ogre::Light* alienLt) : PlayerObject(nym, mgr, sim, cm, sPlayer, alienLt), health(ht)
 {
-	cameraNode = cm;
-	alienLight = alienLt;
 	objList = oList;
 	//cam = (Ogre::Camera*) cameraNode -> getAttachedObject("PlayerCam");
 	//rootNode->getParent()->removeChild(rootNode);
@@ -18,7 +16,6 @@ Alien::Alien(Ogre::String nym, Ogre::SceneManager* mgr, Simulator* sim, Ogre::Sc
 	right = false;
 	forward = false;
 	back = false;
-	soundPlayer = sPlayer;
 	float minP = 1;
   	float maxP = 5;
   	Ogre::Real xP = minP + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(maxP-minP)));
@@ -38,19 +35,15 @@ void Alien::addToScene(void)
 	geom->setCastShadows(true);
 	rootNode->attachObject(geom);
 
-	alienLight = sceneMgr->createLight(name + "Light");
-    alienLight->setType(Ogre::Light::LT_POINT);
-    alienLight->setPosition(Ogre::Vector3(getPos().x + 0,getPos().y + 500,getPos().z + 250));
+	light = sceneMgr->createLight(name + "Light");
+    light->setType(Ogre::Light::LT_POINT);
+    light->setPosition(Ogre::Vector3(getPos().x + 0,getPos().y + 500,getPos().z + 250));
  
-    alienLight->setDiffuseColour(0.7, 0.7, 0.7);
-    alienLight->setSpecularColour(0.7, 0.7, 0.7);
+    light->setDiffuseColour(0.7, 0.7, 0.7);
+    light->setSpecularColour(0.7, 0.7, 0.7);
 
 	mass = 10.0f;
 	shape = shape = new btSphereShape(5);
-}
-//---------------------------------------------------------------------------
-void Alien::removeFromScene(void) {
-    rootNode->detachObject(geom);
 }
 //---------------------------------------------------------------------------
 void Alien::addToSimulator(void)
@@ -90,7 +83,7 @@ void Alien::update(void)
  	 	mDetailsPanel->setParamValue(2, healthVal.str());
 		soundPlayer->playShipHit();
 	}
-	alienLight->setPosition(Ogre::Vector3(getPos().x + 0,getPos().y + 500,getPos().z + 250));
+	light->setPosition(Ogre::Vector3(getPos().x + 0,getPos().y + 500,getPos().z + 250));
 	/*
 	if (rearView) {
 		//changedView = true;
@@ -285,11 +278,6 @@ void Alien::injectKeyUp(int key)
 	}
 }
 //---------------------------------------------------------------------------
-void Alien::setDeetsPan(OgreBites::ParamsPanel*mDeetsPan)
-{
-	mDetailsPanel = mDeetsPan;
-}
-//---------------------------------------------------------------------------
 
 void Alien::grabAsteroid(bool tryGrab)
 {
@@ -438,7 +426,7 @@ void Alien::setCam(float xP, float yP, float zP, float xD, float yD, float zD) {
 }
 
 void Alien::setLight(float xP, float yP, float zP) {
-	alienLight->setPosition(Ogre::Vector3(xP,yP,zP));
-    //alienLight->setDiffuseColour(1.0, 1.0, 1.0);
-    //alienLight->setSpecularColour(1.0, 1.0, 1.0);
+	light->setPosition(Ogre::Vector3(xP,yP,zP));
+    //light->setDiffuseColour(1.0, 1.0, 1.0);
+    //light->setSpecularColour(1.0, 1.0, 1.0);
 }
