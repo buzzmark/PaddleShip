@@ -15,10 +15,13 @@
 #include "Simulator.h"
 #include <SdkTrays.h>
 
+class GameScreen;
+
 //---------------------------------------------------------------------------
 
 class PlayerObject : public GameObject {
     protected:
+        GameScreen* gameScreen;
         Ogre::SceneNode* cameraNode;
         Ogre::Light* light;
         Ogre::Camera* cam;
@@ -26,7 +29,7 @@ class PlayerObject : public GameObject {
         SoundPlayer* soundPlayer;
 
     public:
-	    PlayerObject(Ogre::String nym, Ogre::SceneManager* mgr, Simulator* sim, Ogre::SceneNode* cm, SoundPlayer* sPlayer, Ogre::Light* lt);
+	    PlayerObject(Ogre::String nym, Ogre::SceneManager* mgr, Simulator* sim, GameScreen* gs, Ogre::SceneNode* cm, SoundPlayer* sPlayer, Ogre::Light* lt);
         virtual ~PlayerObject();
 
         virtual void addToScene(void) = 0;

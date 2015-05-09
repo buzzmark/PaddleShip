@@ -25,13 +25,14 @@
 #include "SoundPlayer.h"
 #include "Alien.h"
 
+class GameScreen;
 
 //---------------------------------------------------------------------------
 
 class Alien: public PlayerObject
 {
 public:
-	Alien(Ogre::String nym, Ogre::SceneManager* mgr, Simulator* sim, Ogre::SceneNode* cm, int &ht, std::deque<GameObject*>* oList, SoundPlayer* sPlayer, Ogre::Light* alienLt);
+	Alien(Ogre::String nym, Ogre::SceneManager* mgr, Simulator* sim, GameScreen* gs, Ogre::SceneNode* cm, int &ht, std::deque<GameObject*>* oList, SoundPlayer* sPlayer, Ogre::Light* alienLt);
 	virtual ~Alien(void);
 	virtual void addToScene(void);
     virtual void grabCamera();

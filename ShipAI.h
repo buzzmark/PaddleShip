@@ -24,11 +24,13 @@
 
 #define NUM_PRIORITIES 4
 
+class GameScreen;
+
 //---------------------------------------------------------------------------
 class ShipAI: public Ship
 {
 public:
-	ShipAI(Ogre::String nym, Ogre::SceneManager* mgr, Simulator* sim, Ogre::SceneNode* sn, int &sc, SoundPlayer* sPlayer, std::deque<GameObject*>* oList,  int ops);
+	ShipAI(Ogre::String nym, Ogre::SceneManager* mgr, Simulator* sim, GameScreen* gs, Ogre::SceneNode* sn, int &sc, SoundPlayer* sPlayer, std::deque<GameObject*>* oList,  int ops);
 	~ShipAI(void);
 	void addToScene(void);
 	void update(void);

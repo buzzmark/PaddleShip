@@ -2,7 +2,7 @@
 #include "Alien.h"
 #include <iostream>
 //---------------------------------------------------------------------------
-Alien::Alien(Ogre::String nym, Ogre::SceneManager* mgr, Simulator* sim, Ogre::SceneNode* cm, int &ht, std::deque<GameObject*>* oList, SoundPlayer* sPlayer, Ogre::Light* alienLt) : PlayerObject(nym, mgr, sim, cm, sPlayer, alienLt), health(ht)
+Alien::Alien(Ogre::String nym, Ogre::SceneManager* mgr, Simulator* sim, GameScreen* gs, Ogre::SceneNode* cm, int &ht, std::deque<GameObject*>* oList, SoundPlayer* sPlayer, Ogre::Light* alienLt) : PlayerObject(nym, mgr, sim, gs, cm, sPlayer, alienLt), health(ht)
 {
 	objList = oList;
 	//cam = (Ogre::Camera*) cameraNode -> getAttachedObject("PlayerCam");

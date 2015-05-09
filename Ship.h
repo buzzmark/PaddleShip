@@ -15,12 +15,14 @@
 #include "Simulator.h"
 #include <SdkTrays.h>
 
+class GameScreen;
+
 //---------------------------------------------------------------------------
 
 class Ship: public PlayerObject
 {
 public:
-	Ship(Ogre::String nym, Ogre::SceneManager* mgr, Simulator* sim, Ogre::SceneNode* cm, int &sc, SoundPlayer* sPlayer, Ogre::Light* shipLt);
+	Ship(Ogre::String nym, Ogre::SceneManager* mgr, Simulator* sim, GameScreen* gs, Ogre::SceneNode* cm, int &sc, SoundPlayer* sPlayer, Ogre::Light* shipLt);
 	virtual ~Ship(void);
 	virtual void addToScene(void);
 	virtual void addToSimulator(void);

@@ -3,16 +3,17 @@
 
 #include <Ogre.h>
 #include "BaseApplication.h" //?
-#include "Ship.h"
 #include "AsteroidSys.h"
 #include "Simulator.h"
 #include "Paddle.h"
 #include "SoundPlayer.h"
-#include "Alien.h"
-#include "ShipAI.h"
 #include "Packet.h"
 #include <vector>
 #include <unordered_map>
+
+class Ship;
+class ShipAI;
+class Alien;
 
 //---------------------------------------------------------------------------
 

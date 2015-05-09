@@ -1,7 +1,7 @@
 #include "ShipAI.h"
 
 //---------------------------------------------------------------------------
-ShipAI::ShipAI(Ogre::String nym, Ogre::SceneManager* mgr, Simulator* sim, Ogre::SceneNode* sn, int &sc, SoundPlayer* sPlayer, std::deque<GameObject*>* oList,  int ops) : Ship(nym, mgr, sim, NULL, sc, sPlayer, NULL)
+ShipAI::ShipAI(Ogre::String nym, Ogre::SceneManager* mgr, Simulator* sim, GameScreen* gs, Ogre::SceneNode* sn, int &sc, SoundPlayer* sPlayer, std::deque<GameObject*>* oList,  int ops) : Ship(nym, mgr, sim, gs, NULL, sc, sPlayer, NULL)
 {
 	sceneNode = sn;
 	numOpponents = ops;

@@ -1,4 +1,7 @@
 #include "GameScreen.h"
+#include "Ship.h"
+#include "ShipAI.h"
+#include "Alien.h"
 
 //---------------------------------------------------------------------------
 GameScreen::GameScreen(Ogre::SceneManager* sceneMgr, Ogre::SceneNode* cameraNode, SoundPlayer* sPlayer, Ogre::Light* shipLt, Ogre::Light* alienLt)
@@ -11,9 +14,9 @@ GameScreen::GameScreen(Ogre::SceneManager* sceneMgr, Ogre::SceneNode* cameraNode
 	soundPlayer = sPlayer;
 	sim = new Simulator(sceneMgr);
 	std::deque<GameObject*>* objList = sim -> getObjList();
-	ship = new Ship("Ship", sceneMgr, sim, cameraNode, score, sPlayer, shipLt);
+	ship = new Ship("Ship", sceneMgr, sim, this, cameraNode, score, sPlayer, shipLt);
 	ship->setPaddle(new Paddle("paddle", sceneMgr, sim, ship -> getNode(), score, sPlayer));
-	shipAI = new ShipAI("ShipAI",sceneMgr, sim, cameraNode, scoreAI, sPlayer, objList, 0);
+	shipAI = new ShipAI("ShipAI",sceneMgr, sim, this, cameraNode, scoreAI, sPlayer, objList, 0);
 	shipAI->setPaddle(new Paddle("paddleAI", sceneMgr, sim, ship -> getNode(), score, sPlayer));
 	ast1 = new AsteroidSys(sceneMgr, sim, ship);
 	isClient = false;
@@ -324,7 +327,7 @@ std::vector<GameObject*> GameScreen::getPlayers() {
 }
 //---------------------------------------------------------------------------
 Alien* GameScreen::createClientAlien(int id) {
-    Alien* alien = new Alien("Alien" + std::to_string(id), mSceneMgr, sim, mCameraNode, alienHealth, sim->getObjList(), soundPlayer, NULL);
+    Alien* alien = new Alien("Alien" + std::to_string(id), mSceneMgr, sim, this, mCameraNode, alienHealth, sim->getObjList(), soundPlayer, NULL);
 
 	alien->addToScene();
 	alien->addToSimulator();
