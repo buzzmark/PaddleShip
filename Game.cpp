@@ -165,19 +165,19 @@ bool Game::frameRenderingQueued(const Ogre::FrameEvent &evt){
                 p >> packetType;
 
                 switch (packetType) {
-                    case PT_POSITIONS:
+                    case SPT_POSITIONS:
                         gameScreen->updateClient(evt, p);
                         break;
-                    case PT_CLIENTID:
+                    case SPT_CLIENTID:
                         p >> id;
                         gameScreen->setClientId(id);
                         break;
-                    case PT_DISCONNECT:
+                    case SPT_DISCONNECT:
                         p >> id;
                         gameScreen->removeClientAlien(id);
                         break;
                     default:
-                        std::cerr << "Warning: unrecognized packet type " << packetType;
+                        std::cerr << "Warning: unrecognized server packet type " << packetType;
                         break;
                 }
             }
@@ -186,7 +186,7 @@ bool Game::frameRenderingQueued(const Ogre::FrameEvent &evt){
 
             for (int id : clientUpdate.disconnects) {
                 Packet p;
-                p << PT_DISCONNECT << id;
+                p << SPT_DISCONNECT << id;
                 netMgr->messageClients(p);
 
                 gameScreen->removeClientAlien(id);
@@ -196,16 +196,35 @@ bool Game::frameRenderingQueued(const Ogre::FrameEvent &evt){
                 int id = clientUpdate.connectionId;
 
                 Packet p;
-                p << PT_CLIENTID << id;
+                p << SPT_CLIENTID << id;
                 netMgr->messageClient(id, p);
-
-                gameScreen->createClientAlien(id);
             }
 
             auto& clientData = clientUpdate.data;
 
             for (auto data : clientData) {
-                gameScreen->clientKey(data.first, data.second.data()[0]);
+                Packet& p = data.second;
+                int id = data.first;
+
+                int packetType;
+                char value;
+
+                p >> packetType >> value;
+
+                switch (packetType) {
+                    case CPT_SHIPTYPE:
+                        // TODO: create ship here instead if data is PADDLE_SHIP
+                        gameScreen->createClientAlien(id);
+                        break;
+                    case CPT_KEYPRESS:
+                    case CPT_KEYRELEASE:
+                        // TODO: differentiate between press and release?
+                        gameScreen->clientKey(id, value);
+                        break;
+                    default:
+                        std::cerr << "Warning: unrecognized client packet type " << packetType;
+                        break;
+                }
             }
 
             gameScreen->update(evt);
@@ -274,8 +293,11 @@ bool Game::keyPressed(const OIS::KeyEvent &arg){
             message = 10;
         }
 
-        if (message != -1)
-            netMgr->messageServer(Packet((char*) &message, sizeof(int)));
+        if (message != -1) {
+            Packet p;
+            p << CPT_KEYPRESS << (char) message;
+            netMgr->messageServer(p);
+        }
     }
 
     return BaseApplication::keyPressed(arg);
@@ -322,8 +344,11 @@ bool Game::keyReleased(const OIS::KeyEvent &arg)
             message = 20;
         }
 
-        if (message != -1)
-            netMgr->messageServer(Packet((char*) &message, sizeof(int)));
+        if (message != -1) {
+            Packet p;
+            p << CPT_KEYRELEASE << (char) message;
+            netMgr->messageServer(p);
+        }
     }
 
     //mCameraMan->injectKeyUp(arg);
@@ -432,10 +457,14 @@ bool Game::joinGame(const CEGUI::EventArgs &e)
     host = (char*)guiRoot->getChild("mainMenu/infoBox")->getText().c_str();
     netMgr->startClient(host);
     std::cout << "connected to " << host << std::endl;
-    
+
     gameScreen->setClient(true);
     gameScreen->setSinglePlayer(false);
     gameStarted = true;
+
+    Packet p;
+    p << CPT_SHIPTYPE << shipType;
+    netMgr->messageServer(p);
 
     guiRoot->getChild("mainMenu")->setVisible(false);
     CEGUI::System::getSingleton().getDefaultGUIContext().getMouseCursor().hide();

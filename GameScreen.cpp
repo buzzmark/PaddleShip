@@ -222,7 +222,7 @@ Packet GameScreen::getPositions()
 {
 	Packet p;
 
-    p << PT_POSITIONS;
+    p << SPT_POSITIONS;
 
 	Ogre::Vector3 pos = ship->getPos();
 	Ogre::Quaternion rot = ship->getNode()->getOrientation();
