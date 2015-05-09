@@ -100,6 +100,8 @@ void Game::createScene(void)
     mainMenu->getChild("sPButton")->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&Game::startSinglePlayer, this));
     mainMenu->getChild("hostButton")->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&Game::startHosting, this));
     mainMenu->getChild("joinButton")->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&Game::joinGame, this));
+    mainMenu->getChild("infoBox")->setText(host ? host : "");
+    ((CEGUI::RadioButton*)mainMenu->getChild("selectPaddleShip"))->setSelected(true);
 
     //warning gui
     CEGUI::Window *warningMessage = wmgr.createWindow("TaharezLook/Button", "warningMessage");
@@ -374,6 +376,7 @@ bool Game::startSinglePlayer(const CEGUI::EventArgs &e)
 {
     singlePlayer = true;
     gameStarted = true;
+    shipType = ((CEGUI::RadioButton*)guiRoot->getChild("mainMenu/selectPaddleShip"))->isSelected() ? PADDLE_SHIP : ALIEN_SHIP;
     guiRoot->getChild("mainMenu")->setVisible(false);
     gameScreen->setSinglePlayer(true);
     CEGUI::System::getSingleton().getDefaultGUIContext().getMouseCursor().hide();
@@ -390,6 +393,7 @@ bool Game::startHosting(const CEGUI::EventArgs &e)
 {
     singlePlayer = false;
     isServer = true;
+    shipType = ((CEGUI::RadioButton*)guiRoot->getChild("mainMenu/selectPaddleShip"))->isSelected() ? PADDLE_SHIP : ALIEN_SHIP;
     guiRoot->getChild("mainMenu/sPButton")->setVisible(false);
     guiRoot->getChild("mainMenu/hostButton")->setVisible(false);
     guiRoot->getChild("mainMenu/joinButton")->setVisible(false);
@@ -402,14 +406,10 @@ bool Game::joinGame(const CEGUI::EventArgs &e)
 {
     singlePlayer = false;
     isServer = false;
+    shipType = ((CEGUI::RadioButton*)guiRoot->getChild("mainMenu/selectPaddleShip"))->isSelected() ? PADDLE_SHIP : ALIEN_SHIP;
 
-    if(!host){
-        guiRoot->getChild("mainMenu/infoBox")->setText("Host must be provided as command line argument");
-        return true;
-    }
-
+    host = (char*)guiRoot->getChild("mainMenu/infoBox")->getText().c_str();
     netMgr->startClient(host);
-
     std::cout << "connected to " << host << std::endl;
     
     gameScreen->setClient(true);

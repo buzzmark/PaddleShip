@@ -11,6 +11,8 @@
 #include "Packet.h"
 
 //---------------------------------------------------------------------------
+enum ShipType {ALIEN_SHIP, PADDLE_SHIP};
+//---------------------------------------------------------------------------
 
 class Game : public BaseApplication
 {
@@ -51,8 +53,9 @@ protected:
   bool test;
   Ogre::Light* shipLight;
   Ogre::Light* alienLight;
+  ShipType shipType;
 
-    std::chrono::time_point<std::chrono::steady_clock> lastNetUpdate;
+  std::chrono::time_point<std::chrono::steady_clock> lastNetUpdate;
 };
 
 //---------------------------------------------------------------------------

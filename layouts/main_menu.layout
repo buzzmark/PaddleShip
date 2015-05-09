@@ -5,7 +5,7 @@
         <Property name="Area" value="{{0,0},{0,0},{1,0},{1,0}}" />
         <Property name="MaxSize" value="{{1,0},{1,0}}" />
         <Window name="mainMenu" type="TaharezLook/FrameWindow">
-            <Property name="Area" value="{{0,0},{0,0},{0,362},{0,492}}" />
+            <Property name="Area" value="{{0,0},{0,0},{0,362},{0,592}}" />
             <Property name="DragMovingEnabled" value="false" />
             <Property name="VerticalAlignment" value="Centre" />
             <Property name="CloseButtonEnabled" value="false" />
@@ -21,15 +21,30 @@
                 <Property name="Text" value="Join Server" />
                 <Property name="HorizontalAlignment" value="Centre" />
             </Window>
+            <Window name="staticText" type="TaharezLook/StaticText">
+                <Property name="Area" value="{{0,0},{0,252},{0,273},{0,302}}" />
+                <Property name="Text" value="Host's Address:" />
+                <Property name="HorizontalAlignment" value="Centre" />
+            </Window>
             <Window name="infoBox" type="TaharezLook/MultiLineEditbox">
-                <Property name="Area" value="{{0,0},{0,242},{0,279},{0,420}}" />
-                <Property name="Text"></Property>
-                <Property name="ReadOnly" value="true" />
+                <Property name="Area" value="{{0,0},{0,302},{0,279},{0,420}}" />
+                <Property name="Text" value="" />
+                <Property name="ReadOnly" value="false" />
                 <Property name="HorizontalAlignment" value="Centre" />
             </Window>
             <Window name="sPButton" type="TaharezLook/Button">
                 <Property name="Area" value="{{0,0},{0,25},{0,273},{0,75}}" />
                 <Property name="Text" value="Single Player" />
+                <Property name="HorizontalAlignment" value="Centre" />
+            </Window>
+            <Window name="selectPaddleShip" type="TaharezLook/RadioButton">
+                <Property name="Area" value="{{0,0},{0,442},{0,273},{0,462}}" />
+                <Property name="Text" value="Use a Paddle Ship" />
+                <Property name="HorizontalAlignment" value="Centre" />
+            </Window>
+            <Window name="selectAlienShip" type="TaharezLook/RadioButton">
+                <Property name="Area" value="{{0,0},{0,482},{0,273},{0,502}}" />
+                <Property name="Text" value="Use an Alien Ship" />
                 <Property name="HorizontalAlignment" value="Centre" />
             </Window>
         </Window>
