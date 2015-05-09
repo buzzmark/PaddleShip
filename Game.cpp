@@ -226,6 +226,18 @@ bool Game::frameRenderingQueued(const Ogre::FrameEvent &evt){
 bool Game::keyPressed(const OIS::KeyEvent &arg){
     if (mTrayMgr->isDialogVisible()) return true;   // don't process any more keys if dialog is up
 
+    CEGUI::GUIContext& context = CEGUI::System::getSingleton().getDefaultGUIContext();
+    context.injectKeyDown((CEGUI::Key::Scan)arg.key);
+    context.injectChar((CEGUI::Key::Scan)arg.text);
+
+    if(arg.key == OIS::KC_ESCAPE){
+        mShutDown = true;
+        return true;
+    }
+
+
+    if(!gameStarted) return true;
+
     if(singlePlayer || isServer)
         gameScreen->injectKeyDown(arg);
     else {
@@ -266,15 +278,14 @@ bool Game::keyPressed(const OIS::KeyEvent &arg){
             netMgr->messageServer(Packet((char*) &message, sizeof(int)));
     }
 
-    CEGUI::GUIContext& context = CEGUI::System::getSingleton().getDefaultGUIContext();
-    context.injectKeyDown((CEGUI::Key::Scan)arg.key);
-    context.injectChar((CEGUI::Key::Scan)arg.text);
-
     return BaseApplication::keyPressed(arg);
 }
 //---------------------------------------------------------------------------
 bool Game::keyReleased(const OIS::KeyEvent &arg)
 {
+    CEGUI::System::getSingleton().getDefaultGUIContext().injectKeyUp((CEGUI::Key::Scan)arg.key);
+    if(!gameStarted) return true;
+
     if(singlePlayer || isServer)
         gameScreen->injectKeyUp(arg);
     else {
@@ -317,8 +328,6 @@ bool Game::keyReleased(const OIS::KeyEvent &arg)
 
     //mCameraMan->injectKeyUp(arg);
 
-    CEGUI::System::getSingleton().getDefaultGUIContext().injectKeyUp((CEGUI::Key::Scan)arg.key);
-
     return true;
 }
 //---------------------------------------------------------------------------
@@ -343,32 +352,44 @@ CEGUI::MouseButton convertButton(OIS::MouseButtonID buttonID)
 bool Game::mouseMoved(const OIS::MouseEvent &arg)
 {
     if (mTrayMgr->injectMouseMove(arg)) return true;
-    gameScreen->injectMouseMove(arg);
-    //mCameraMan->injectMouseMove(arg);
 
     CEGUI::GUIContext& context = CEGUI::System::getSingleton().getDefaultGUIContext();
     context.injectMouseMove(arg.state.X.rel, arg.state.Y.rel);
     // Scroll wheel.
     if (arg.state.Z.rel)
         context.injectMouseWheelChange(arg.state.Z.rel / 120.0f);
+
+    if(!gameStarted) return true;
+
+    gameScreen->injectMouseMove(arg);
+    //mCameraMan->injectMouseMove(arg);
+    
     return true;
 }
 //---------------------------------------------------------------------------
 bool Game::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
 {
     if (mTrayMgr->injectMouseDown(arg, id)) return true;
-    gameScreen->injectMouseDown(arg, id);
+   
     //mCameraMan->injectMouseDown(arg, id);
     CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonDown(convertButton(id));
+
+    if(!gameStarted) return true;
+
+    gameScreen->injectMouseDown(arg, id);
     return true;
 }
 //---------------------------------------------------------------------------
 bool Game::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
 {
     if (mTrayMgr->injectMouseUp(arg, id)) return true;
-    gameScreen->injectMouseUp(arg, id);
+    
     //mCameraMan->injectMouseUp(arg, id);
     CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonUp(convertButton(id));
+
+    if(!gameStarted) return true;
+
+    gameScreen->injectMouseUp(arg, id);
     return true;
 }
 //---------------------------------------------------------------------------
