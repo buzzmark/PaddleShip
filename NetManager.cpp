@@ -91,7 +91,7 @@ void NetManager::messageServer(const Packet &p) {
     SDLNet_TCP_Send(server, &len, sizeof(int));
 
     if (SDLNet_TCP_Send(server, buf, len) < len) {
-        // server probably disconnected; handle
+        queuedDisconnects.push_back(0);
     }
 }
 
@@ -103,7 +103,7 @@ std::unordered_map<int, TCPsocket>::iterator NetManager::messageSingleClient(std
     SDLNet_TCP_Send(client, &len, sizeof(int));
 
     if (SDLNet_TCP_Send(client, buf, len) < len) {
-        // client probably disconnected; handle in game
+        queuedDisconnects.push_back(iter->first);
 
         SDLNet_TCP_Close(client);
         SDLNet_DelSocket(socket_set, (SDLNet_GenericSocket) client);
@@ -133,6 +133,8 @@ NetUpdate NetManager::checkForUpdates() {
     SDLNet_CheckSockets(socket_set, 0);
 
     NetUpdate update;
+    update.disconnects = queuedDisconnects;
+    queuedDisconnects.clear();
 
     if (isServer) {
         // check for new clients
@@ -224,12 +226,10 @@ void NetManager::clientGetData(NetUpdate& update) {
             if (read_buffer(server, buf, len)) {
                 data[0] = Packet(buf, len);
             } else {
-                // lost connection (server probably quit)?
                 update.disconnects.push_back(0);
             }
             delete[] buf;
         } else {
-            // lost connection (server probably quit)?
             update.disconnects.push_back(0);
         }
     }

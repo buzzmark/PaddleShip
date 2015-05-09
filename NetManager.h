@@ -17,6 +17,8 @@ class NetManager
         bool isRunning;
         int nextClientId;
 
+        std::vector<int> queuedDisconnects;
+
         std::unordered_map<int, TCPsocket>::iterator messageSingleClient(std::unordered_map<int, TCPsocket>::iterator iter, const Packet &p);
 
         void serverGetData(NetUpdate& update);
