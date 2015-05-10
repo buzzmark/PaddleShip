@@ -7,7 +7,8 @@ PlayerObject::PlayerObject(Ogre::String nym, Ogre::SceneManager* mgr, Simulator*
     gameScreen(gs),
     cameraNode(cm),
     light(lt),
-    soundPlayer(sPlayer) {}
+    soundPlayer(sPlayer),
+    hp (100) {}
 //---------------------------------------------------------------------------
 PlayerObject::~PlayerObject() {}
 //---------------------------------------------------------------------------
@@ -17,4 +18,8 @@ void PlayerObject::setDeetsPan(OgreBites::ParamsPanel* mDeetsPan) {
 //---------------------------------------------------------------------------
 void PlayerObject::removeFromScene(void) {
     rootNode->detachObject(geom);
+}
+//---------------------------------------------------------------------------
+int PlayerObject::getHealth(){
+	return hp;
 }

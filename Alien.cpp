@@ -72,8 +72,8 @@ void Alien::update(void)
 	body->setLinearVelocity(btVector3(alienVel.getX()*0.99,alienVel.getY()*0.99,alienVel.getZ()*0.99));
 	if (context->hit){
 		//lose health
-		if (health > 0) {
-			health = 0;
+		if (hp > 0) {
+			hp = 0;
 		}
 		std::stringstream healthVal;
  		healthVal << "" << health;
