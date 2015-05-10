@@ -119,6 +119,7 @@ void GameScreen::update(const Ogre::FrameEvent &evt)
 {
 	sim->stepSimulation(evt.timeSinceLastFrame, 1, 1/60.0f);
 	updateMinimap();
+    updateHealthDisplay();
 }
 //---------------------------------------------------------------------------
 void GameScreen::updateClient(const Ogre::FrameEvent &evt, Packet& p)
@@ -196,6 +197,8 @@ void GameScreen::updateClient(const Ogre::FrameEvent &evt, Packet& p)
     }
 
     updateMinimap();
+    
+    //need to update health display with value from server
 }
 //---------------------------------------------------------------------------
 void GameScreen::updateMinimap()
@@ -244,6 +247,12 @@ void GameScreen::updateMinimap()
 	}
 
 
+}
+//---------------------------------------------------------------------------
+void GameScreen::updateHealthDisplay()
+{
+    std::string message = std::string("HP:  ") + std::to_string(ship->getHealth());
+    CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild("healthCounter")->setText((char*)message.c_str()); //change ship to current player
 }
 //---------------------------------------------------------------------------
 Packet GameScreen::getPositions()

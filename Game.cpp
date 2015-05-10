@@ -119,9 +119,12 @@ void Game::createScene(void)
     guiRoot->addChild(deathMessage);
     deathMessage->setVisible(false);
 
-    //minimap
-    //CEGUI::Window *minimap = wmgr.loadLayoutFromFile("minimap.layout");
-    //guiRoot->addChild(minimap);
+    //health gui
+    CEGUI::Window *healthCounter = wmgr.createWindow("TaharezLook/StaticText", "healthCounter");
+    healthCounter->setText("HP:  100");
+    healthCounter->setPosition( CEGUI::UVector2( CEGUI::UDim( 0.0f, 0.0f ), CEGUI::UDim( 0.95f, 0.0f ) ) );
+    healthCounter->setSize(CEGUI::USize(CEGUI::UDim(0.1, 0), CEGUI::UDim(0.05, 0)));
+    guiRoot->addChild(healthCounter);
 
     //sound
     soundPlayer = new SoundPlayer();

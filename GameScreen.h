@@ -31,6 +31,7 @@ public:
 	void update(const Ogre::FrameEvent &evt);
 	void updateClient(const Ogre::FrameEvent &evt, Packet& p);
 	void updateMinimap();
+	void updateHealthDisplay();
 	Packet getPositions();
 	void setDeetsPan(OgreBites::ParamsPanel*mDeetsPan);
 	void injectKeyDown(const OIS::KeyEvent &arg);
