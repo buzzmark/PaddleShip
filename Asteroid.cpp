@@ -3,10 +3,8 @@
 #include <cassert>
 
 //---------------------------------------------------------------------------
-Asteroid::Asteroid(Ogre::String nym, Ogre::SceneManager* mgr, Simulator* sim, Ship* sh) : GameObject(nym, mgr, sim)
+Asteroid::Asteroid(Ogre::String nym, Ogre::SceneManager* mgr, Simulator* sim) : GameObject(nym, mgr, sim)
 {
-  ship = sh;
-
   float minV = -10;
   float maxV = 10;
   Ogre::Real zV = minV + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(maxV-minV)));

@@ -152,6 +152,8 @@ bool Game::frameRenderingQueued(const Ogre::FrameEvent &evt){
             gameStarted = true;
             gameScreen->setClient(false);
             gameScreen->setSinglePlayer(false);
+            gameScreen->setClientId(0);
+            gameScreen->createClientObject(0, shipType);
             CEGUI::System::getSingleton().getDefaultGUIContext().getMouseCursor().hide();
             guiRoot->getChild("mainMenu")->setVisible(false);
         }
@@ -364,6 +366,8 @@ bool Game::startSinglePlayer(const CEGUI::EventArgs &e)
     shipType = ((CEGUI::RadioButton*)guiRoot->getChild("mainMenu/selectPaddleShip"))->isSelected() ? PADDLE_SHIP : ALIEN_SHIP;
     guiRoot->getChild("mainMenu")->setVisible(false);
     gameScreen->setSinglePlayer(true);
+    gameScreen->setClientId(0);
+    gameScreen->createClientObject(0, shipType);
     CEGUI::System::getSingleton().getDefaultGUIContext().getMouseCursor().hide();
     return true;
 }

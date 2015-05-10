@@ -8,11 +8,10 @@
 #include "Paddle.h"
 #include "SoundPlayer.h"
 #include "Packet.h"
-#include "Game.h"
+#include "PlayerObject.h"
 #include <vector>
 #include <unordered_map>
 
-class Ship;
 class ShipAI;
 class Alien;
 
@@ -54,7 +53,6 @@ protected:
 	SoundPlayer* soundPlayer;
 
 	Simulator* sim;
-	Ship* ship;
 	AsteroidSys* ast1;
 	ShipAI * shipAI;
 	int score;

@@ -5,7 +5,6 @@
 #include <stdlib.h>
 #include "GameObject.h"
 #include "Simulator.h"
-#include "Ship.h"
 
 
 //---------------------------------------------------------------------------
@@ -13,7 +12,7 @@
 class Asteroid: public GameObject 
 {
 public:
-	Asteroid(Ogre::String nym, Ogre::SceneManager* mgr, Simulator* sim, Ship* sh);
+	Asteroid(Ogre::String nym, Ogre::SceneManager* mgr, Simulator* sim);
 	~Asteroid(void);
 	void addToScene(int i);
 	void update(void);
@@ -29,7 +28,6 @@ protected:
 	btDiscreteDynamicsWorld* dynamicsWorld;
 	float sphereSize;
 	float massVal;
-	Ship *ship;
 };
 
 //---------------------------------------------------------------------------

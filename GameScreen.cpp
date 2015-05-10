@@ -15,11 +15,9 @@ GameScreen::GameScreen(Ogre::SceneManager* sceneMgr, Ogre::SceneNode* cameraNode
 	soundPlayer = sPlayer;
 	sim = new Simulator(sceneMgr);
 	std::deque<GameObject*>* objList = sim -> getObjList();
-	ship = new Ship("Ship", sceneMgr, sim, this, cameraNode, score, sPlayer, shipLt);
-	ship->setPaddle(new Paddle("paddle", sceneMgr, sim, ship -> getNode(), score, sPlayer));
 	shipAI = new ShipAI("ShipAI",sceneMgr, sim, this, cameraNode, scoreAI, sPlayer, objList, 0);
-	shipAI->setPaddle(new Paddle("paddleAI", sceneMgr, sim, ship -> getNode(), score, sPlayer));
-	ast1 = new AsteroidSys(sceneMgr, sim, ship);
+	shipAI->setPaddle(new Paddle("paddleAI", sceneMgr, sim, shipAI -> getNode(), score, sPlayer));
+	ast1 = new AsteroidSys(sceneMgr, sim);
 	isClient = false;
 	singlePlayer = false;
     clientId = -1;
@@ -27,7 +25,6 @@ GameScreen::GameScreen(Ogre::SceneManager* sceneMgr, Ogre::SceneNode* cameraNode
 //---------------------------------------------------------------------------
 GameScreen::~GameScreen(void)
 {
-	delete ship;
     delete shipAI;
 	delete ast1;
 	delete sim;
@@ -40,10 +37,6 @@ GameScreen::~GameScreen(void)
 void GameScreen::createScene(void)
 {
 	mSceneMgr->setSkyBox(true, "Examples/SpaceSkyBox");
-	
-	//ship
-	ship->addToScene();
-	ship->addToSimulator();
 
     //asteroid particle system
     ast1->addToScene();
@@ -96,22 +89,10 @@ void GameScreen::addEnemyToMinimap(PlayerObject* enemy){
 }
 //---------------------------------------------------------------------------
 void GameScreen::setClient(bool client){
-    if (!client) {
-        ship->grabCamera();
-        addPlayerToMinimap(ship);
-    } else {
-        addEnemyToMinimap(ship);
-    }
-
 	isClient = client;
 }
 //---------------------------------------------------------------------------
 void GameScreen::setSinglePlayer(bool single){
-    if (single) {
-        ship->grabCamera();
-        addPlayerToMinimap(ship);
-    }
-
 	singlePlayer = single;
 }
 //---------------------------------------------------------------------------
@@ -126,17 +107,6 @@ void GameScreen::updateClient(const Ogre::FrameEvent &evt, Packet& p)
 {
 	Ogre::Vector3 pos;
 	Ogre::Quaternion rot;
-
-	p >> pos >> rot;
-
-	ship->setPosition(pos.x, pos.y, pos.z);
-	ship->getNode()->setOrientation(rot);
-
-	p >> pos >> rot;
-
-    Paddle* paddle = ship->getPaddle();
-	paddle->setPosition(pos.x, pos.y, pos.z);
-	paddle->getNode()->setOrientation(rot);
 
 	p >> pos >> rot;
 	
@@ -178,7 +148,7 @@ void GameScreen::updateClient(const Ogre::FrameEvent &evt, Packet& p)
 
             p >> pos >> rot;
 
-            paddle = playerShip->getPaddle();
+            Paddle* paddle = playerShip->getPaddle();
             paddle->setPosition(pos.x, pos.y, pos.z);
             paddle->getNode()->setOrientation(rot);
         }
@@ -209,19 +179,7 @@ void GameScreen::updateMinimap()
 	Ogre::Real playerRelativeZ; //TODO change ship to current player
 
 	std::vector<PlayerObject*> players = getPlayers();
-    PlayerObject* myPlayerObj;
-
-    if (!singlePlayer && isClient) {
-        auto iter = clientObjects.find(clientId);
-
-        if (iter != clientObjects.end()) {
-            myPlayerObj = iter->second;
-        } else {
-            myPlayerObj = nullptr;
-        }
-    } else {
-        myPlayerObj = ship;
-    }
+    PlayerObject* myPlayerObj = getCurrentPlayer();
 
     for (PlayerObject* player : players) {
         if (player != myPlayerObj && ((PlayerObject*)player)->getHealth() <= 0 && mmPlayerIcons[player]->getMaterialName() != "minimap_dead"){
@@ -251,8 +209,12 @@ void GameScreen::updateMinimap()
 //---------------------------------------------------------------------------
 void GameScreen::updateHealthDisplay()
 {
-    std::string message = std::string("HP:  ") + std::to_string(ship->getHealth());
-    CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild("healthCounter")->setText((char*)message.c_str()); //change ship to current player
+    PlayerObject* player = getCurrentPlayer();
+
+    if (player != nullptr) {
+        std::string message = std::string("HP:  ") + std::to_string(getCurrentPlayer()->getHealth());
+        CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild("healthCounter")->setText((char*)message.c_str());
+    }
 }
 //---------------------------------------------------------------------------
 Packet GameScreen::getPositions()
@@ -261,19 +223,8 @@ Packet GameScreen::getPositions()
 
     p << SPT_POSITIONS;
 
-	Ogre::Vector3 pos = ship->getPos();
-	Ogre::Quaternion rot = ship->getNode()->getOrientation();
-
-	p << pos << rot;
-
-    Paddle* paddle = ship->getPaddle();
-	pos = paddle->getPos();
-	rot = paddle->getNode()->getOrientation();
-
-	p << pos << rot;
-
-	pos = shipAI->getPos();
-	rot = shipAI->getNode()->getOrientation();
+	Ogre::Vector3 pos = shipAI->getPos();
+	Ogre::Quaternion rot = shipAI->getNode()->getOrientation();
 
 	p << pos << rot;
 
@@ -296,7 +247,7 @@ Packet GameScreen::getPositions()
             rot = player->getNode()->getOrientation();
             p << pos << rot;
 
-            paddle = playerShip->getPaddle();
+            Paddle* paddle = playerShip->getPaddle();
             pos = paddle->getPos();
             rot = paddle->getNode()->getOrientation();
 
@@ -334,12 +285,18 @@ void GameScreen::injectKeyDown(const OIS::KeyEvent &arg)
 		soundPlayer->soundOn();
 	}
 
-	ship->injectKeyDown(arg);
+    PlayerObject* player = getCurrentPlayer();
+    if (player != nullptr) {
+    	getCurrentPlayer()->injectKeyDown(arg);
+    }
 }
 //---------------------------------------------------------------------------
 void GameScreen::injectKeyUp(const OIS::KeyEvent &arg)
 {
-	ship->injectKeyUp(arg);
+    PlayerObject* player = getCurrentPlayer();
+    if (player != nullptr) {
+        getCurrentPlayer()->injectKeyUp(arg);
+    }
 }
 //---------------------------------------------------------------------------
 void GameScreen::clientKey(int id, bool isDown, unsigned char key){
@@ -367,8 +324,10 @@ void GameScreen::injectMouseUp(const OIS::MouseEvent &arg, OIS::MouseButtonID id
 //---------------------------------------------------------------------------
 void GameScreen::setDeetsPan(OgreBites::ParamsPanel*mDeetsPan)
 {
-	//mDetailsPanel = mDeetsPan;
-	ship->setDeetsPan(mDeetsPan);
+    PlayerObject* player = getCurrentPlayer();
+    if (player != nullptr) {
+        getCurrentPlayer()->setDeetsPan(mDeetsPan);
+    }
 }
 //---------------------------------------------------------------------------
 std::vector<Asteroid*> GameScreen::getAsteroids() {
@@ -376,7 +335,7 @@ std::vector<Asteroid*> GameScreen::getAsteroids() {
 }
 //---------------------------------------------------------------------------
 std::vector<PlayerObject*> GameScreen::getPlayers() {
-    std::vector<PlayerObject*> list({ship, shipAI});
+    std::vector<PlayerObject*> list({shipAI});
 
     for (auto client : clientObjects) {
         list.push_back(client.second);
@@ -386,15 +345,11 @@ std::vector<PlayerObject*> GameScreen::getPlayers() {
 }
 //---------------------------------------------------------------------------
 PlayerObject* GameScreen::getCurrentPlayer() {
-    if (singlePlayer || !isClient) {
-        return ship;
+    auto iter = clientObjects.find(clientId);
+    if (iter != clientObjects.end()) {
+        return iter->second;
     } else {
-        auto iter = clientObjects.find(clientId);
-        if (iter != clientObjects.end()) {
-            return iter->second;
-        } else {
-            return nullptr;
-        }
+        return nullptr;
     }
 }
 //---------------------------------------------------------------------------
