@@ -1,4 +1,5 @@
 #include "ShipAI.h"
+#include "GameScreen.h"
 
 //---------------------------------------------------------------------------
 ShipAI::ShipAI(Ogre::String nym, Ogre::SceneManager* mgr, Simulator* sim, GameScreen* gs, Ogre::SceneNode* sn, int &sc, SoundPlayer* sPlayer, std::deque<GameObject*>* oList,  int ops) : Ship(nym, mgr, sim, gs, NULL, sc, sPlayer, NULL)
@@ -85,10 +86,10 @@ void ShipAI::update(void)
 	}
 	if (!hasDecr && context->hit){
 		//lose health
-		if (score > 0) {
-			score-=10;
+		if (health > 0) {
+			health-=10;
 		}
-		if (score < 30) {
+		if (health < 30) {
 			mustFlee = true;
 		}
 		/*
@@ -198,27 +199,35 @@ void ShipAI::survivalCheck(void)
 	}
 }
 //---------------------------------------------------------------------------
-/*checks if an asteroid might hit self */
+/*checks if an asteroid might hit self and initiates melee move if so */
 void ShipAI::incomingAst(void)
 {
-	/*
-	std::deque<GameObject*> oList = *objList;
-	for (int i = 3; i < oList.size(); i++) {
+	direction = rootNode->getOrientation() * Ogre::Vector3(0,0,1);
+	std::vector<Asteroid*>astList = gameScreen->getAsteroids();
 
+	for (Asteroid* ast : astList) {
+		float dtProd = direction.dotProduct(ast->getPos() - getPos());
+		bool inFront = dtProd > 0;
+		if (inFront && getPos().squaredDistance(ast->getPos()) < 2500) {
+			melee();
+		}
 	}
-	*/
+	
 }
 //---------------------------------------------------------------------------
 /*checks proximity of opponents and chooses target based on health*/
 void ShipAI::opponentProximityCheck(void)
 {
-	/*
-	std::deque<GameObject*> oList = *objList;
-	for (int i = 3; i < oList.size(); i++) {
-		(getPos()).squaredDistance(oList(i) -> getPos());
-
+	direction = rootNode->getOrientation() * Ogre::Vector3(0,0,1);
+	std::vector<GameObject*>playerList = gameScreen->getPlayers();
+	
+	for (GameObject* player : playerList) {
+		float dtProd = direction.dotProduct(player->getPos() - getPos());
+		bool inFront = dtProd > 0;
+		if (inFront && getPos().squaredDistance(player->getPos()) < 2500) {
+			melee();
+		}
 	}
-	*/
 
 }
 //---------------------------------------------------------------------------
