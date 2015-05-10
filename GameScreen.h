@@ -46,6 +46,7 @@ public:
 
     std::vector<Asteroid*> getAsteroids();
     std::vector<PlayerObject*> getPlayers();
+    PlayerObject* getCurrentPlayer();
 
 protected:
 	Ogre::SceneManager* mSceneMgr;

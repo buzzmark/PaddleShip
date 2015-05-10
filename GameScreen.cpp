@@ -385,6 +385,19 @@ std::vector<PlayerObject*> GameScreen::getPlayers() {
     return list;
 }
 //---------------------------------------------------------------------------
+PlayerObject* GameScreen::getCurrentPlayer() {
+    if (singlePlayer || !isClient) {
+        return ship;
+    } else {
+        auto iter = clientObjects.find(clientId);
+        if (iter != clientObjects.end()) {
+            return iter->second;
+        } else {
+            return nullptr;
+        }
+    }
+}
+//---------------------------------------------------------------------------
 PlayerObject* GameScreen::createClientObject(int id, int type) {
     PlayerObject* player;
     if (type == ALIEN_SHIP) {
