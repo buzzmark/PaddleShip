@@ -390,3 +390,11 @@ void GameScreen::removeClientObject(int id) {
 void GameScreen::setClientId(int id) {
     clientId = id;
 }
+
+void GameScreen::setNetManager(NetManager* nm) {
+    netManager = nm;
+}
+
+NetManager* GameScreen::getNetManager() {
+    return netManager;
+}

@@ -9,6 +9,7 @@
 #include "SoundPlayer.h"
 #include "Packet.h"
 #include "PlayerObject.h"
+#include "NetManager.h"
 #include <vector>
 #include <unordered_map>
 
@@ -42,6 +43,8 @@ public:
     PlayerObject* createClientObject(int id, int type);
     void removeClientObject(int id);
     void setClientId(int id);
+    void setNetManager(NetManager* nm);
+    NetManager* getNetManager();
 
     std::vector<Asteroid*> getAsteroids();
     std::vector<PlayerObject*> getPlayers();
@@ -51,6 +54,7 @@ protected:
 	Ogre::SceneManager* mSceneMgr;
     Ogre::SceneNode* mCameraNode;
 	SoundPlayer* soundPlayer;
+    NetManager* netManager;
 
 	Simulator* sim;
 	AsteroidSys* ast1;

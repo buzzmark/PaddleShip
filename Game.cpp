@@ -374,7 +374,7 @@ bool Game::startSinglePlayer(const CEGUI::EventArgs &e)
 void Game::setUpSDL(void)
 {
     netMgr = new NetManager();
-    
+    gameScreen->setNetManager(netMgr);
 }
 //---------------------------------------------------------------------------
 bool Game::startHosting(const CEGUI::EventArgs &e)
