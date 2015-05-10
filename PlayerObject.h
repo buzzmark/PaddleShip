@@ -27,10 +27,11 @@ class PlayerObject : public GameObject {
         Ogre::Camera* cam;
         OgreBites::ParamsPanel* mDetailsPanel;
         SoundPlayer* soundPlayer;
+        int clientId;
         int hp;
 
     public:
-	    PlayerObject(Ogre::String nym, Ogre::SceneManager* mgr, Simulator* sim, GameScreen* gs, Ogre::SceneNode* cm, SoundPlayer* sPlayer, Ogre::Light* lt);
+	    PlayerObject(Ogre::String nym, Ogre::SceneManager* mgr, Simulator* sim, GameScreen* gs, Ogre::SceneNode* cm, SoundPlayer* sPlayer, Ogre::Light* lt, int clId);
         virtual ~PlayerObject();
 
         virtual void update(void) = 0;

@@ -2,7 +2,7 @@
 #include "GameScreen.h"
 
 //---------------------------------------------------------------------------
-ShipAI::ShipAI(Ogre::String nym, Ogre::SceneManager* mgr, Simulator* sim, GameScreen* gs, Ogre::SceneNode* sn, int &sc, SoundPlayer* sPlayer, int ops) : Ship(nym, mgr, sim, gs, NULL, sc, sPlayer, NULL)
+ShipAI::ShipAI(Ogre::String nym, Ogre::SceneManager* mgr, Simulator* sim, GameScreen* gs, Ogre::SceneNode* sn, int &sc, SoundPlayer* sPlayer, int ops) : Ship(nym, mgr, sim, gs, NULL, sc, sPlayer, NULL, -1)
 {
 	sceneNode = sn;
 	numOpponents = ops;

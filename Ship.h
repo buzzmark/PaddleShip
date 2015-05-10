@@ -22,7 +22,7 @@ class GameScreen;
 class Ship: public PlayerObject
 {
 public:
-	Ship(Ogre::String nym, Ogre::SceneManager* mgr, Simulator* sim, GameScreen* gs, Ogre::SceneNode* cm, int &sc, SoundPlayer* sPlayer, Ogre::Light* shipLt);
+	Ship(Ogre::String nym, Ogre::SceneManager* mgr, Simulator* sim, GameScreen* gs, Ogre::SceneNode* cm, int &sc, SoundPlayer* sPlayer, Ogre::Light* shipLt, int clId);
 	virtual ~Ship(void);
 	virtual void addToScene(void);
 	virtual void addToSimulator(void);
@@ -50,6 +50,7 @@ protected:
 	bool turnLeft;
 	int &score;
 	bool outOfBounds;
+    int clientId;
 
     Ogre::Vector3 direction;
     Ogre::Vector3 prevDirection;

@@ -5,7 +5,7 @@
 #include <CEGUI/RendererModules/Ogre/Renderer.h>
 
 //---------------------------------------------------------------------------
-Ship::Ship(Ogre::String nym, Ogre::SceneManager* mgr, Simulator* sim, GameScreen* gs, Ogre::SceneNode* cm, int &sc, SoundPlayer* sPlayer, Ogre::Light* shipLt) : PlayerObject(nym, mgr, sim, gs, cm, sPlayer, shipLt), score(sc)
+Ship::Ship(Ogre::String nym, Ogre::SceneManager* mgr, Simulator* sim, GameScreen* gs, Ogre::SceneNode* cm, int &sc, SoundPlayer* sPlayer, Ogre::Light* shipLt, int clId) : PlayerObject(nym, mgr, sim, gs, cm, sPlayer, shipLt, clId), score(sc), clientId(clId)
 {
 	//cam = (Ogre::Camera*) cameraNode -> getAttachedObject("PlayerCam");
 	//cam = (Ogre::Camera*) cameraNode -> detachObject("PlayerCam");

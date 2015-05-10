@@ -2,7 +2,7 @@
 #include "GameScreen.h"
 
 //---------------------------------------------------------------------------
-PlayerObject::PlayerObject(Ogre::String nym, Ogre::SceneManager* mgr, Simulator* sim, GameScreen* gs, Ogre::SceneNode* cm, SoundPlayer* sPlayer, Ogre::Light* lt) :
+PlayerObject::PlayerObject(Ogre::String nym, Ogre::SceneManager* mgr, Simulator* sim, GameScreen* gs, Ogre::SceneNode* cm, SoundPlayer* sPlayer, Ogre::Light* lt, int clId) :
     GameObject(nym, mgr, sim),
     gameScreen(gs),
     cameraNode(cm),
@@ -10,6 +10,7 @@ PlayerObject::PlayerObject(Ogre::String nym, Ogre::SceneManager* mgr, Simulator*
     cam(nullptr),
     mDetailsPanel(nullptr),
     soundPlayer(sPlayer),
+    clientId(clId),
     hp (100) {}
 //---------------------------------------------------------------------------
 PlayerObject::~PlayerObject() {}

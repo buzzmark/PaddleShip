@@ -351,10 +351,10 @@ PlayerObject* GameScreen::getCurrentPlayer() {
 PlayerObject* GameScreen::createClientObject(int id, int type) {
     PlayerObject* player;
     if (type == ALIEN_SHIP) {
-        player = new Alien("Alien" + std::to_string(id), mSceneMgr, sim, this, mCameraNode, alienHealth, soundPlayer, NULL);
+        player = new Alien("Alien" + std::to_string(id), mSceneMgr, sim, this, mCameraNode, alienHealth, soundPlayer, NULL, id);
     } else {
         std::string name = "Ship" + std::to_string(id);
-        Ship* playerShip = new Ship(name, mSceneMgr, sim, this, mCameraNode, score, soundPlayer, NULL);
+        Ship* playerShip = new Ship(name, mSceneMgr, sim, this, mCameraNode, score, soundPlayer, NULL, id);
         playerShip->setPaddle(new Paddle(name + "Paddle", mSceneMgr, sim, playerShip->getNode(), score, soundPlayer));
         player = playerShip;
     }

@@ -32,7 +32,7 @@ class GameScreen;
 class Alien: public PlayerObject
 {
 public:
-	Alien(Ogre::String nym, Ogre::SceneManager* mgr, Simulator* sim, GameScreen* gs, Ogre::SceneNode* cm, int &ht, SoundPlayer* sPlayer, Ogre::Light* alienLt);
+	Alien(Ogre::String nym, Ogre::SceneManager* mgr, Simulator* sim, GameScreen* gs, Ogre::SceneNode* cm, int &ht, SoundPlayer* sPlayer, Ogre::Light* alienLt, int clId);
 	virtual ~Alien(void);
 	virtual void addToScene(void);
     virtual void grabCamera();
