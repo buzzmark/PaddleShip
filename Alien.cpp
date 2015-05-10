@@ -1,10 +1,10 @@
 #include <OgreMath.h>
 #include "Alien.h"
+#include "GameScreen.h"
 #include <iostream>
 //---------------------------------------------------------------------------
-Alien::Alien(Ogre::String nym, Ogre::SceneManager* mgr, Simulator* sim, GameScreen* gs, Ogre::SceneNode* cm, int &ht, std::deque<GameObject*>* oList, SoundPlayer* sPlayer, Ogre::Light* alienLt) : PlayerObject(nym, mgr, sim, gs, cm, sPlayer, alienLt), health(ht)
+Alien::Alien(Ogre::String nym, Ogre::SceneManager* mgr, Simulator* sim, GameScreen* gs, Ogre::SceneNode* cm, int &ht, SoundPlayer* sPlayer, Ogre::Light* alienLt) : PlayerObject(nym, mgr, sim, gs, cm, sPlayer, alienLt), health(ht)
 {
-	objList = oList;
 	//cam = (Ogre::Camera*) cameraNode -> getAttachedObject("PlayerCam");
 	//rootNode->getParent()->removeChild(rootNode);
 	//cameraNode->addChild(rootNode);
@@ -226,8 +226,8 @@ void Alien::injectKeyUp(const OIS::KeyEvent &arg)
 void Alien::grabAsteroid(bool tryGrab)
 {
 	if (tryGrab) {
-		std::deque<GameObject*> oList = *objList;
-		int i = 5;
+		std::vector<Asteroid*> oList = gameScreen->getAsteroids();
+		int i = 0;
 		while (!hasAsteroid && i < oList.size()) {
 			if ((oList[i] -> getPos()).z >= ((rootNode ->getPosition()).z - 300) && ((oList[i] -> getPos()).z <= (rootNode ->getPosition()).z + 300) && (oList[i] -> getPos()).x <= ((rootNode ->getPosition()).x + 300) && (oList[i] -> getPos()).x >= ((rootNode ->getPosition()).x - 300)) {
 				hasAsteroid = true;

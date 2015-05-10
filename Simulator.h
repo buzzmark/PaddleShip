@@ -25,7 +25,6 @@ public:
 	Simulator(Ogre::SceneManager* mgr, GameScreen* gs);
 	~Simulator();
 
-	std::deque<GameObject*> * getObjList ();
 	void addObject(GameObject* o);
 	void removeObject(GameObject* o);
 	void stepSimulation(const Ogre::Real elapsedTime, int maxSubSteps = 1, const Ogre::Real fixedTimestep = 1.0f/60.0f);

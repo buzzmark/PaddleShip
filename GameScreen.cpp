@@ -14,8 +14,7 @@ GameScreen::GameScreen(Ogre::SceneManager* sceneMgr, Ogre::SceneNode* cameraNode
     mCameraNode = cameraNode;
 	soundPlayer = sPlayer;
 	sim = new Simulator(sceneMgr, this);
-	std::deque<GameObject*>* objList = sim -> getObjList();
-	shipAI = new ShipAI("ShipAI",sceneMgr, sim, this, cameraNode, scoreAI, sPlayer, objList, 0);
+	shipAI = new ShipAI("ShipAI",sceneMgr, sim, this, cameraNode, scoreAI, sPlayer, 0);
 	shipAI->setPaddle(new Paddle("paddleAI", sceneMgr, sim, shipAI -> getNode(), score, sPlayer));
 	ast1 = new AsteroidSys(sceneMgr, sim);
 	isClient = false;
@@ -356,7 +355,7 @@ PlayerObject* GameScreen::getCurrentPlayer() {
 PlayerObject* GameScreen::createClientObject(int id, int type) {
     PlayerObject* player;
     if (type == ALIEN_SHIP) {
-        player = new Alien("Alien" + std::to_string(id), mSceneMgr, sim, this, mCameraNode, alienHealth, sim->getObjList(), soundPlayer, NULL);
+        player = new Alien("Alien" + std::to_string(id), mSceneMgr, sim, this, mCameraNode, alienHealth, soundPlayer, NULL);
     } else {
         std::string name = "Ship" + std::to_string(id);
         Ship* playerShip = new Ship(name, mSceneMgr, sim, this, mCameraNode, score, soundPlayer, NULL);

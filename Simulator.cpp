@@ -61,7 +61,3 @@ void Simulator::stepSimulation(const Ogre::Real elapsedTime, int maxSubSteps, co
 btDiscreteDynamicsWorld* Simulator::getDynamicsWorld() {
     return dynamicsWorld;
 }
-
-std::deque<GameObject*>* Simulator::getObjList () {
-    return &objList;
-}

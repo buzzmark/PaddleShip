@@ -32,7 +32,7 @@ class GameScreen;
 class Alien: public PlayerObject
 {
 public:
-	Alien(Ogre::String nym, Ogre::SceneManager* mgr, Simulator* sim, GameScreen* gs, Ogre::SceneNode* cm, int &ht, std::deque<GameObject*>* oList, SoundPlayer* sPlayer, Ogre::Light* alienLt);
+	Alien(Ogre::String nym, Ogre::SceneManager* mgr, Simulator* sim, GameScreen* gs, Ogre::SceneNode* cm, int &ht, SoundPlayer* sPlayer, Ogre::Light* alienLt);
 	virtual ~Alien(void);
 	virtual void addToScene(void);
     virtual void grabCamera();
@@ -48,7 +48,6 @@ public:
 	//Ogre::Vector3 getPos();
 
 protected:
-	std::deque<GameObject*>* objList;
 	//int health; 
 	//bool rearView;
 	Ogre::Vector3 direction;

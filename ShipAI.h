@@ -30,7 +30,7 @@ class GameScreen;
 class ShipAI: public Ship
 {
 public:
-	ShipAI(Ogre::String nym, Ogre::SceneManager* mgr, Simulator* sim, GameScreen* gs, Ogre::SceneNode* sn, int &sc, SoundPlayer* sPlayer, std::deque<GameObject*>* oList,  int ops);
+	ShipAI(Ogre::String nym, Ogre::SceneManager* mgr, Simulator* sim, GameScreen* gs, Ogre::SceneNode* sn, int &sc, SoundPlayer* sPlayer, int ops);
 	~ShipAI(void);
 	void addToScene(void);
 	void update(void);
@@ -45,7 +45,6 @@ public:
 
 protected:
 	Ogre::SceneNode* sceneNode;
-	std::deque<GameObject*>* objList;
 	PlayerObject* target;
 	bool gameStarted;
 	float yT;
