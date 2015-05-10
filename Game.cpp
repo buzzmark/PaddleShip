@@ -172,7 +172,7 @@ bool Game::frameRenderingQueued(const Ogre::FrameEvent &evt){
                 // TODO: refactor by moving out to separate method
                 Packet& p = serverUpdate.getServerUpdate();
 
-                int packetType;
+                char packetType;
                 int id;
                 p >> packetType;
 
@@ -189,7 +189,7 @@ bool Game::frameRenderingQueued(const Ogre::FrameEvent &evt){
                         gameScreen->removeClientObject(id);
                         break;
                     default:
-                        std::cerr << "Warning: unrecognized server packet type " << packetType;
+                        std::cerr << "Warning: unrecognized server packet type " << (int) packetType;
                         break;
                 }
             }
@@ -198,7 +198,7 @@ bool Game::frameRenderingQueued(const Ogre::FrameEvent &evt){
 
             for (int id : clientUpdate.disconnects) {
                 Packet p;
-                p << SPT_DISCONNECT << id;
+                p << (char) SPT_DISCONNECT << id;
                 netMgr->messageClients(p);
 
                 gameScreen->removeClientObject(id);
@@ -208,7 +208,7 @@ bool Game::frameRenderingQueued(const Ogre::FrameEvent &evt){
                 int id = clientUpdate.connectionId;
 
                 Packet p;
-                p << SPT_CLIENTID << id;
+                p << (char) SPT_CLIENTID << id;
                 netMgr->messageClient(id, p);
             }
 
@@ -218,7 +218,7 @@ bool Game::frameRenderingQueued(const Ogre::FrameEvent &evt){
                 Packet& p = data.second;
                 int id = data.first;
 
-                int packetType;
+                char packetType;
                 char value;
 
                 p >> packetType >> value;
@@ -232,7 +232,7 @@ bool Game::frameRenderingQueued(const Ogre::FrameEvent &evt){
                         gameScreen->clientKey(id, packetType == CPT_KEYPRESS, value);
                         break;
                     default:
-                        std::cerr << "Warning: unrecognized client packet type " << packetType;
+                        std::cerr << "Warning: unrecognized client packet type " << (int) packetType;
                         break;
                 }
             }
@@ -271,7 +271,7 @@ bool Game::keyPressed(const OIS::KeyEvent &arg){
         gameScreen->injectKeyDown(arg);
     else {
         Packet p;
-        p << CPT_KEYPRESS << (char) arg.key;
+        p << (char) CPT_KEYPRESS << (char) arg.key;
         netMgr->messageServer(p);
     }
 
@@ -287,7 +287,7 @@ bool Game::keyReleased(const OIS::KeyEvent &arg)
         gameScreen->injectKeyUp(arg);
     else {
         Packet p;
-        p << CPT_KEYRELEASE << (char) arg.key;
+        p << (char) CPT_KEYRELEASE << (char) arg.key;
         netMgr->messageServer(p);
     }
 
@@ -405,7 +405,7 @@ bool Game::joinGame(const CEGUI::EventArgs &e)
     gameStarted = true;
 
     Packet p;
-    p << CPT_SHIPTYPE << (char) shipType;
+    p << (char) CPT_SHIPTYPE << (char) shipType;
     netMgr->messageServer(p);
 
     guiRoot->getChild("mainMenu")->setVisible(false);

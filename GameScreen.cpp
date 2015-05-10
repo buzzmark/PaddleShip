@@ -248,7 +248,7 @@ Packet GameScreen::getPositions()
 {
 	Packet p;
 
-    p << SPT_POSITIONS;
+    p << (char) SPT_POSITIONS;
 
     writePlayerObject(p, shipAI);
 
