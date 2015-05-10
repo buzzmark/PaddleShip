@@ -327,7 +327,7 @@ void GameScreen::injectKeyUp(const OIS::KeyEvent &arg)
 	ship->injectKeyUp(arg);
 }
 //---------------------------------------------------------------------------
-void GameScreen::clientKey(int id, bool isDown, int key){
+void GameScreen::clientKey(int id, bool isDown, unsigned char key){
     PlayerObject* player = clientObjects[id];
     OIS::KeyEvent event(nullptr, (OIS::KeyCode) key, 0);
 

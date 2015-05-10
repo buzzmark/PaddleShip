@@ -16,6 +16,8 @@ Alien::Alien(Ogre::String nym, Ogre::SceneManager* mgr, Simulator* sim, GameScre
 	right = false;
 	forward = false;
 	back = false;
+	turnRight = false;
+	turnLeft = false;
 	float minP = 1;
   	float maxP = 5;
   	Ogre::Real xP = minP + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(maxP-minP)));
@@ -57,23 +59,40 @@ void Alien::addToSimulator(void)
 void Alien::update(void)
 {
 	if (left && body->getLinearVelocity().getX() > -50) {
-		body->applyCentralForce(btVector3(-8000,0,0));
+		Ogre::Vector3 pointLeft = rootNode->getOrientation() * Ogre::Vector3(-1,0,0);
+		body->applyCentralForce(btVector3(8000*pointLeft.x, 8000*pointLeft.y, 8000*pointLeft.z));
 	}
 	if (right && body->getLinearVelocity().getX() < 50) {
-		body->applyCentralForce(btVector3(8000,0,0));
+		Ogre::Vector3 pointRight = rootNode->getOrientation() * Ogre::Vector3(1,0,0);
+		body->applyCentralForce(btVector3(8000*pointRight.x, 8000*pointRight.y, 8000*pointRight.z));
 	}
 	if (forward && body->getLinearVelocity().getZ() > -50) {
-		body->applyCentralForce(btVector3(0,0,-8000));
+		direction = rootNode->getOrientation() * Ogre::Vector3(0,0,1);
+		body->applyCentralForce(btVector3(-8000*direction.x, -8000*direction.y, -8000*direction.z));
 	}
 	if (back && body->getLinearVelocity().getZ() < 50) {
-		body->applyCentralForce(btVector3(0,0,8000));
+		direction = rootNode->getOrientation() * Ogre::Vector3(0,0,1);
+		body->applyCentralForce(btVector3(8000*direction.x, 8000*direction.y, 8000*direction.z));
 	}
 	btVector3 alienVel = body->getLinearVelocity();
 	body->setLinearVelocity(btVector3(alienVel.getX()*0.99,alienVel.getY()*0.99,alienVel.getZ()*0.99));
+	if (turnRight) {
+		body->setAngularFactor(btVector3(0,1,0));
+		body->applyTorque(btVector3(0,-800,0));
+		body->setAngularFactor(btVector3(0,0,0));
+	}
+	if (turnLeft) {
+		body->setAngularFactor(btVector3(0,1,0));
+		body->applyTorque(btVector3(0,800,0));
+		body->setAngularFactor(btVector3(0,0,0));
+	} 
+	if (!turnLeft && !turnRight) {
+		body->setAngularVelocity(btVector3(0,((body->getAngularVelocity()).getY())*0.95,0));
+	}
 	if (context->hit){
 		//lose health
-		if (hp > 0) {
-			hp = 0;
+		if (health > 0) {
+			health = 0;
 		}
 		std::stringstream healthVal;
  		healthVal << "" << health;
@@ -105,19 +124,25 @@ void Alien::update(void)
 //---------------------------------------------------------------------------
 void Alien::injectKeyDown(const OIS::KeyEvent &arg)
 {
-	if (arg.key == OIS::KC_J){
-		left = true;
-	}
-	if (arg.key == OIS::KC_L){
-		right = true;
-	}
-	if (arg.key == OIS::KC_I){
+	if (arg.key == OIS::KC_W){
 		forward = true;
 	}
-	if (arg.key == OIS::KC_K){
+	if (arg.key == OIS::KC_S){
 		back = true;
 	}
-	if (arg.key == OIS::KC_G){
+	if (arg.key == OIS::KC_D){
+		turnRight = true;
+	}
+	if (arg.key == OIS::KC_A){
+		turnLeft = true;
+	}
+	if (arg.key == OIS::KC_Q){
+		left = true;
+	}
+	if (arg.key == OIS::KC_E){
+		right = true;
+	}
+	if (arg.key == OIS::KC_SPACE){
 		if (!hasAsteroid) {
 			grabAsteroid(true);	
 		}
@@ -151,17 +176,23 @@ void Alien::injectKeyDown(const OIS::KeyEvent &arg)
 //---------------------------------------------------------------------------
 void Alien::injectKeyUp(const OIS::KeyEvent &arg)
 {
-	if (arg.key == OIS::KC_J){
-		left = false;
-	}
-	if (arg.key == OIS::KC_L){
-		right = false;
-	}
-	if (arg.key == OIS::KC_I){
+	if (arg.key == OIS::KC_W){
 		forward = false;
 	}
-	if (arg.key == OIS::KC_K){
+	if (arg.key == OIS::KC_S){
 		back = false;
+	}
+	if (arg.key == OIS::KC_D){
+		turnRight = false;
+	}
+	if (arg.key == OIS::KC_A){
+		turnLeft = false;
+	}
+	if (arg.key == OIS::KC_Q){
+		left = false;
+	}
+	if (arg.key == OIS::KC_E){
+		right = false;
 	}
 	/*
 	if (arg.key == OIS::KC_P){
@@ -196,31 +227,6 @@ void Alien::grabAsteroid(bool tryGrab)
 {
 	if (tryGrab) {
 		std::deque<GameObject*> oList = *objList;
-		/*
-		for (int i = 5; i < oList.size(); i++) {
-			if (!hasAsteroid && (oList[i] -> getPos()).z <= ((rootNode ->getPosition()).z - 20) && ((oList[i] -> getPos()).z <= (rootNode ->getPosition()).z) && (oList[i] -> getPos()).x <= ((rootNode ->getPosition()).x + 20) && (oList[i] -> getPos()).x >= ((rootNode ->getPosition()).x - 20)) {
-				hasAsteroid = true;
-				currentAsteroid = (Asteroid *) oList[i];
-				currentAsteroid -> getDynamicsWorld() -> removeRigidBody(currentAsteroid -> getBody());
-				delete currentAsteroid -> getBody() -> getMotionState();
-   	 			delete currentAsteroid -> getBody();
-   	 			Ogre::Vector3 alienPos = getPos();
-				currentAsteroid -> getTransform() -> setOrigin(btVector3(alienPos.x, alienPos.y + 17, alienPos.z));
-				Ogre::Quaternion qt = currentAsteroid -> getNode()->getOrientation();
-				currentAsteroid -> getTransform() -> setRotation(btQuaternion(qt.x, qt.y, qt.z, qt.w));
-				currentAsteroid -> setMotionState(new OgreMotionState(*(currentAsteroid -> getTransform()), currentAsteroid -> getNode()));
-				btRigidBody::btRigidBodyConstructionInfo rbInfo(currentAsteroid -> getMass(), currentAsteroid -> getMotionState(), currentAsteroid -> getShape(), currentAsteroid -> getInertia());
-				rbInfo.m_restitution = currentAsteroid -> getRestitution();
-				rbInfo.m_friction = currentAsteroid -> getFriction();
-				currentAsteroid -> setBody(new btRigidBody(rbInfo));
-				currentAsteroid -> getDynamicsWorld() -> addRigidBody(currentAsteroid -> getBody());
-				asteroidBinder = new btHingeConstraint(*body, *currentAsteroid -> getBody(), btVector3(0,0,0), btVector3(0,-17,0), btVector3(0,1,0), btVector3(0,1,0));
-				asteroidBinder->setLimit(M_PI/2, M_PI/2);
-				currentAsteroid -> getDynamicsWorld() ->addConstraint(asteroidBinder, true);
-				isBound = true;
-			}
-		}
-		*/
 		int i = 5;
 		while (!hasAsteroid && i < oList.size()) {
 			if ((oList[i] -> getPos()).z >= ((rootNode ->getPosition()).z - 300) && ((oList[i] -> getPos()).z <= (rootNode ->getPosition()).z + 300) && (oList[i] -> getPos()).x <= ((rootNode ->getPosition()).x + 300) && (oList[i] -> getPos()).x >= ((rootNode ->getPosition()).x - 300)) {

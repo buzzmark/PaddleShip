@@ -51,10 +51,13 @@ protected:
 	std::deque<GameObject*>* objList;
 	//int health; 
 	//bool rearView;
+	Ogre::Vector3 direction;
 	bool left;
 	bool right;
 	bool forward;
 	bool back;
+	bool turnRight;
+	bool turnLeft;
 	int &health;
 	bool hasAsteroid;
 	bool isBound;
