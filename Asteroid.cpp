@@ -3,7 +3,7 @@
 #include <cassert>
 
 //---------------------------------------------------------------------------
-Asteroid::Asteroid(Ogre::String nym, Ogre::SceneManager* mgr, Simulator* sim) : GameObject(nym, mgr, sim)
+Asteroid::Asteroid(Ogre::String nym, Ogre::SceneManager* mgr, Simulator* sim, int i) : GameObject(nym, mgr, sim), asteroidNum(i)
 {
   float minV = -10;
   float maxV = 10;
@@ -39,11 +39,11 @@ Asteroid::~Asteroid(void)
 {
 }
 //---------------------------------------------------------------------------
-void Asteroid::addToScene(int i){
+void Asteroid::addToScene(){
   std::stringstream entName;
-  entName << "asteroidEntity" << i;
+  entName << "asteroidEntity" << asteroidNum;
   std::stringstream meshName;
-  meshName << "asteroid" << (i%3)+1 << ".mesh";
+  meshName << "asteroid" << (asteroidNum%3)+1 << ".mesh";
 
   geom = sceneMgr->createEntity(entName.str(), meshName.str());
   geom->setCastShadows(true);
@@ -53,14 +53,14 @@ void Asteroid::addToScene(int i){
 
   rootNode->setScale(Ogre::Vector3(scale,scale,scale));
 
-  if ((i%3)+1 == 1) //asteroid1.mesh
+  if ((asteroidNum%3)+1 == 1) //asteroid1.mesh
   {
     sphereSize = 2*5;
     massVal = scale;
     mass = massVal;
     shape = new btSphereShape(sphereSize);
   }
-  else if ((i%3)+1 == 2) //asteroid2.mesh
+  else if ((asteroidNum%3)+1 == 2) //asteroid2.mesh
   {
     sphereSize = 2*6;
     massVal = scale * 1.2;

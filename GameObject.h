@@ -13,7 +13,10 @@ public:
     GameObject(Ogre::String nym, Ogre::SceneManager* mgr, Simulator* sim);
     virtual ~GameObject(void);
     void updateTransform();
+    virtual void addToScene() = 0;
     virtual void addToSimulator();
+    virtual void removeFromScene();
+    virtual void removeFromSimulator();
     btRigidBody* getBody();
     virtual void update();
     BulletContactCallback* getCollisionCallback();

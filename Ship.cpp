@@ -78,9 +78,14 @@ void Ship::addToSimulator(void)
 	paddle -> setPaddleHinge(paddleHinge);
 }
 //---------------------------------------------------------------------------
+void Ship::removeFromScene(void) {
+    PlayerObject::removeFromScene();
+    paddle->removeFromScene();
+}
+//---------------------------------------------------------------------------
 void Ship::removeFromSimulator(void) {
     PlayerObject::removeFromSimulator();
-    simulator->removeObject(paddle);
+    paddle->removeFromSimulator();
 }
 //---------------------------------------------------------------------------
 void Ship::update(void)

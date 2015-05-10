@@ -6,7 +6,7 @@ AsteroidSys::AsteroidSys(Ogre::SceneManager* mgr, Simulator* sim)
   for (int i = 0; i < NUM_ASTEROIDS; i++) {
     std::stringstream nodeName;
     nodeName << "asteroidNode" << i;
-    asteroidSystem.push_back(new Asteroid(nodeName.str(), mgr, sim));
+    asteroidSystem.push_back(new Asteroid(nodeName.str(), mgr, sim, i));
   }
 
 }
@@ -26,7 +26,7 @@ void AsteroidSys::update(void){
 //---------------------------------------------------------------------------
 void AsteroidSys::addToScene(void){
   for (int i=0; i < asteroidSystem.size(); i++) {
-    asteroidSystem[i]-> addToScene(i);
+    asteroidSystem[i]-> addToScene();
   }
 }
 //---------------------------------------------------------------------------

@@ -16,14 +16,6 @@ void PlayerObject::setDeetsPan(OgreBites::ParamsPanel* mDeetsPan) {
     mDetailsPanel = mDeetsPan;
 }
 //---------------------------------------------------------------------------
-void PlayerObject::removeFromScene(void) {
-    rootNode->detachObject(geom);
-}
-//---------------------------------------------------------------------------
-void PlayerObject::removeFromSimulator(void) {
-    simulator->removeObject(this);
-}
-//---------------------------------------------------------------------------
 int PlayerObject::getHealth(){
 	return hp;
 }

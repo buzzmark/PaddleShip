@@ -12,9 +12,9 @@
 class Asteroid: public GameObject 
 {
 public:
-	Asteroid(Ogre::String nym, Ogre::SceneManager* mgr, Simulator* sim);
+	Asteroid(Ogre::String nym, Ogre::SceneManager* mgr, Simulator* sim, int i);
 	~Asteroid(void);
-	void addToScene(int i);
+	void addToScene();
 	void update(void);
 	void addToSimulator(void);
 	void setDynamicsWorld( btDiscreteDynamicsWorld* world);
@@ -26,6 +26,7 @@ protected:
 	Ogre::Vector3 asteroidPosition;
 	btVector3 asteroidRotation;
 	btDiscreteDynamicsWorld* dynamicsWorld;
+    int asteroidNum;
 	float sphereSize;
 	float massVal;
 };

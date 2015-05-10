@@ -26,6 +26,7 @@ public:
 	virtual ~Ship(void);
 	virtual void addToScene(void);
 	virtual void addToSimulator(void);
+    virtual void removeFromScene(void);
     virtual void removeFromSimulator(void);
 	virtual void update(void);
     virtual void grabCamera(void);

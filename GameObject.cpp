@@ -57,6 +57,14 @@ void GameObject::addToSimulator()
     
 }
 
+void GameObject::removeFromScene(void) {
+    rootNode->detachObject(geom);
+}
+
+void GameObject::removeFromSimulator(void) {
+    simulator->removeObject(this);
+}
+
 btRigidBody* GameObject::getBody()
 {
     return body;
