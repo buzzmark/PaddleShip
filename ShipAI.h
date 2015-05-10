@@ -46,7 +46,7 @@ public:
 protected:
 	Ogre::SceneNode* sceneNode;
 	std::deque<GameObject*>* objList;
-	GameObject *target;
+	PlayerObject* target;
 	bool gameStarted;
 	float yT;
 

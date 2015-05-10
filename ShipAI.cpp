@@ -155,7 +155,63 @@ void ShipAI::shoot(void)
 void ShipAI::hunt(void) 
 {
 	paces = 0;
+	body->setAngularVelocity(btVector3(0,((body->getAngularVelocity()).getY())*0.95,0));
+	
+	
+	direction = rootNode->getOrientation() * Ogre::Vector3(0,0,1);
+	printf("direction: (%f, %f, %f)\n", direction.x, direction.y, direction.z);
+	printf("AI position: (%f, %f, %f)\n", getPos().x, getPos().y, getPos().z);
+	printf("target position: (%f, %f, %f)\n", target->getPos().x, target->getPos().y, target->getPos().z);
+	Ogre::Vector3 huntPath = (target->getPos() - getPos()).normalisedCopy();
+	printf("huntPath: (%f, %f, %f)\n", huntPath.x, huntPath.y, huntPath.z);
+	//body->setAngularFactor(btVector3(0,1,0));
+	int count = 0;
+	//Ogre::Radian angle = direction.angleBetween(huntPath);
+	Ogre::Quaternion amountRotation = direction.getRotationTo(huntPath);
+	printf("amountRotation: (%f,%f,%f)\n", amountRotation.x, amountRotation.y, amountRotation.z);
+	int turn;
+	if (amountRotation.y < 0) {
+		printf("turn left\n");
+		turn = -1;
+	} else {
+		printf("turn right\n");
+		turn = 1;
+	}
 
+	if (((int)(10*direction.x)) != ((int)(10*huntPath.x)) || ((int)(10*direction.z)) != ((int)(10*huntPath.z))) {
+		count++;
+		printf("direction1: (%f, %f, %f)\n", direction.x, direction.y, direction.z);
+		printf("huntPath1: (%f, %f, %f)\n", huntPath.x, huntPath.y, huntPath.z);
+		//body->setAngularFactor(btVector3(0,1,0));
+		body->setAngularFactor(btVector3(0,1,0));
+		body->applyTorque(btVector3(0,turn*10000,0));
+		body->setAngularFactor(btVector3(0,0,0));
+		//body->setAngularFactor(btVector3(0,0,0));
+		//body->setAngularVelocity(btVector3(0,((body->getAngularVelocity()).getY())*0.95,0));
+		direction = rootNode->getOrientation() * Ogre::Vector3(0,0,1);
+		printf("direction2: (%d, %d, %d)\n", (int)(10*direction.x), (int)(10*direction.y), (int)(10*direction.z));
+		printf("huntPath2: (%d, %d, %d)\n", (int)(10*huntPath.x), (int)(10*huntPath.y), (int)(10*huntPath.z));
+		//printf("num times through loop: %d\n", count);
+	}
+	meleeState = false;
+	if (((int)(10*direction.x)) == ((int)(10*huntPath.x)) && ((int)(10*direction.z)) == ((int)(10*huntPath.z))) {
+		printf("direction3: (%d, %d, %d)\n", (int)(10*direction.x), (int)(10*direction.y), (int)(10*direction.z));
+		printf("huntPath3: (%d, %d, %d)\n", (int)(10*huntPath.x), (int)(10*huntPath.y), (int)(10*huntPath.z));
+		//body->setAngularFactor(btVector3(0,0,0));
+		body->setAngularVelocity(btVector3(0,((body->getAngularVelocity()).getY())*0.95,0));
+		body->applyCentralForce(btVector3(6000*direction.x, 6000*direction.y, 6000*direction.z));
+
+		btVector3 shipVel = body->getLinearVelocity();
+		body->setLinearVelocity(btVector3(shipVel.getX()*0.99,shipVel.getY()*0.99,shipVel.getZ()*0.99));
+
+		float dtProd = direction.dotProduct(target->getPos() - getPos());
+		bool inFront = dtProd > 0;
+		if (inFront && getPos().squaredDistance(target->getPos()) < 2500) {
+			meleeState = true;
+		} else {
+			meleeState = false;
+		}
+	}
 }
 //---------------------------------------------------------------------------
 void ShipAI::melee(void)
@@ -218,16 +274,31 @@ void ShipAI::incomingAst(void)
 /*checks proximity of opponents and chooses target based on health*/
 void ShipAI::opponentProximityCheck(void)
 {
+	
 	direction = rootNode->getOrientation() * Ogre::Vector3(0,0,1);
 	std::vector<PlayerObject*>playerList = gameScreen->getPlayers();
-	
+	int nearbyOps = 0;
 	for (PlayerObject* player : playerList) {
-		float dtProd = direction.dotProduct(player->getPos() - getPos());
-		bool inFront = dtProd > 0;
-		if (inFront && getPos().squaredDistance(player->getPos()) < 2500) {
-			melee();
+		if (player != this && getPos().squaredDistance(player->getPos()) <= 10000) {
+			if (target == NULL || player->getHealth() <= 20 || player->getHealth() > target->getHealth()) {
+				target = player;
+				huntState = true;
+				float minT = -2000;
+				float maxT = 2000;
+				yT = minT + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(maxT-minT)));
+			}
+			nearbyOps++;
+			printf("Incremented nearbyOps\n");
+			//melee();
 		}
 	}
+	/*
+	if (nearbyOps == 0) {
+		printf("No nearby opponents\n");
+		huntState = false;
+		roamState = true;
+	}
+	*/
 
 }
 //---------------------------------------------------------------------------
