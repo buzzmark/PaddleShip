@@ -1,7 +1,8 @@
 #include "Simulator.h"
+#include "GameScreen.h"
 #include <algorithm>
 
-Simulator::Simulator(Ogre::SceneManager* mgr)
+Simulator::Simulator(Ogre::SceneManager* mgr, GameScreen* gs) : gameScreen(gs)
 {
     ///collision configuration contains default setup for memory, collision setup.
     collisionConfiguration = new btDefaultCollisionConfiguration();

@@ -6,6 +6,8 @@
 #include "GameObject.h"
 #include "DebugDraw.hpp"
 
+class GameScreen;
+
 class Simulator {
 protected:
 	btDefaultCollisionConfiguration* collisionConfiguration;
@@ -16,10 +18,11 @@ protected:
 	btConstraintSolver* mConstraintsolver;
 	Ogre::SceneManager* sceneMgr;
 	std::deque<GameObject*> objList;
+    GameScreen* gameScreen;
 
 	CDebugDraw* mDebugDrawer;
 public:
-	Simulator(Ogre::SceneManager* mgr);
+	Simulator(Ogre::SceneManager* mgr, GameScreen* gs);
 	~Simulator();
 
 	std::deque<GameObject*> * getObjList ();

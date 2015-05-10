@@ -13,7 +13,7 @@ GameScreen::GameScreen(Ogre::SceneManager* sceneMgr, Ogre::SceneNode* cameraNode
 	mSceneMgr = sceneMgr;
     mCameraNode = cameraNode;
 	soundPlayer = sPlayer;
-	sim = new Simulator(sceneMgr);
+	sim = new Simulator(sceneMgr, this);
 	std::deque<GameObject*>* objList = sim -> getObjList();
 	shipAI = new ShipAI("ShipAI",sceneMgr, sim, this, cameraNode, scoreAI, sPlayer, objList, 0);
 	shipAI->setPaddle(new Paddle("paddleAI", sceneMgr, sim, shipAI -> getNode(), score, sPlayer));
