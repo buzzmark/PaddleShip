@@ -111,6 +111,14 @@ void Game::createScene(void)
     guiRoot->addChild(warningMessage);
     warningMessage->setVisible(false);
 
+    //death gui
+    CEGUI::Window *deathMessage = wmgr.createWindow("TaharezLook/Button", "deathMessage");
+    deathMessage->setText("You died! You will respawn when the round is over.");
+    deathMessage->setPosition( CEGUI::UVector2( CEGUI::UDim( 0.25f, 0.0f ), CEGUI::UDim( 0.25f, 0.0f ) ) );
+    deathMessage->setSize(CEGUI::USize(CEGUI::UDim(0.50, 0), CEGUI::UDim(0.05, 0)));
+    guiRoot->addChild(deathMessage);
+    deathMessage->setVisible(false);
+
     //minimap
     //CEGUI::Window *minimap = wmgr.loadLayoutFromFile("minimap.layout");
     //guiRoot->addChild(minimap);

@@ -199,6 +199,12 @@ void GameScreen::updateMinimap()
     }
 
     for (GameObject* player : players) {
+        if (player != myPlayerObj && ((PlayerObject*)player)->getHealth() <= 0 && mmPlayerIcons[player]->getMaterialName() != "minimap_dead"){
+            mmPlayerIcons[player]->setMaterialName("minimap_dead");
+        }
+        else if (player != myPlayerObj && ((PlayerObject*)player)->getHealth() > 0 && mmPlayerIcons[player]->getMaterialName() == "minimap_dead"){
+            mmPlayerIcons[player]->setMaterialName("minimap_enemy");
+        }
 		playerRelativeX = player->getPos().x/4000.0;
 		playerRelativeZ = player->getPos().z/4000.0;
 		mmPlayerIcons[player]->setPosition(playerRelativeX*0.15/2.0 - iconWidth/2.0, playerRelativeZ*0.15*19.0/12.0/2.0 - iconHeight/2.0);
