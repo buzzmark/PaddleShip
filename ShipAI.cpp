@@ -42,12 +42,16 @@ ShipAI::~ShipAI(void)
 //---------------------------------------------------------------------------
 void ShipAI::addToScene(void)
 {
-	geom = sceneMgr->createEntity("shipAIEnt", "rocket.mesh");
+	geom = sceneMgr->createEntity(name + "Ent", "rocket.mesh");
 	geom->setCastShadows(true);
 	rootNode->attachObject(geom);
 
 	mass = 10.0f;
 	shape = new btCapsuleShapeZ(3.0f, 15.0f);
+
+    Ogre::ParticleSystem* pSys = sceneMgr->createParticleSystem(name + "PS", "ship_particles");
+    Ogre::SceneNode* pNode = (Ogre::SceneNode*)rootNode->createChild(Ogre::Vector3(0,-1,-8));
+    pNode->attachObject(pSys);
 
     paddle->addToScene();
 }
