@@ -5,6 +5,7 @@
 #include "BulletContactCallback.h"
 #include "GameObject.h"
 #include "DebugDraw.hpp"
+#include <unordered_set>
 
 class GameScreen;
 
@@ -17,7 +18,7 @@ protected:
 	btDiscreteDynamicsWorld* dynamicsWorld; //inherits from CollisionWorld
 	btConstraintSolver* mConstraintsolver;
 	Ogre::SceneManager* sceneMgr;
-	std::deque<GameObject*> objList;
+	std::unordered_set<GameObject*> objList;
     GameScreen* gameScreen;
 
 	CDebugDraw* mDebugDrawer;

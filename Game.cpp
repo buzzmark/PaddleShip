@@ -129,7 +129,7 @@ void Game::createScene(void)
     //sound
     soundPlayer = new SoundPlayer();
     soundPlayer->startBgMusic();
-    gameScreen = new GameScreen(mSceneMgr, mCameraNode, soundPlayer, shipLight, alienLight);
+    gameScreen = new GameScreen(mSceneMgr, mCameraNode, mDetailsPanel, soundPlayer, shipLight, alienLight);
 
     //game screen
     gameScreen->createScene();

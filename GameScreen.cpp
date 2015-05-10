@@ -5,7 +5,7 @@
 #include "Game.h"
 
 //---------------------------------------------------------------------------
-GameScreen::GameScreen(Ogre::SceneManager* sceneMgr, Ogre::SceneNode* cameraNode, SoundPlayer* sPlayer, Ogre::Light* shipLt, Ogre::Light* alienLt)
+GameScreen::GameScreen(Ogre::SceneManager* sceneMgr, Ogre::SceneNode* cameraNode, OgreBites::ParamsPanel* deetsPan, SoundPlayer* sPlayer, Ogre::Light* shipLt, Ogre::Light* alienLt) : mDeetsPan(deetsPan)
 {
 	score = 0;
 	scoreAI = 0;
@@ -321,11 +321,12 @@ void GameScreen::injectMouseUp(const OIS::MouseEvent &arg, OIS::MouseButtonID id
 {
 }
 //---------------------------------------------------------------------------
-void GameScreen::setDeetsPan(OgreBites::ParamsPanel*mDeetsPan)
+void GameScreen::setDeetsPan(OgreBites::ParamsPanel* pan)
 {
+    mDeetsPan = pan;
     PlayerObject* player = getCurrentPlayer();
     if (player != nullptr) {
-        getCurrentPlayer()->setDeetsPan(mDeetsPan);
+        getCurrentPlayer()->setDeetsPan(pan);
     }
 }
 //---------------------------------------------------------------------------
@@ -369,6 +370,7 @@ PlayerObject* GameScreen::createClientObject(int id, int type) {
     if (id == clientId) {
         addPlayerToMinimap(player);
         player->grabCamera();
+        player->setDeetsPan(mDeetsPan);
     } else {
         addEnemyToMinimap(player);
     }

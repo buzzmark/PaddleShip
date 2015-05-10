@@ -1,5 +1,7 @@
 #include "Simulator.h"
 #include "GameScreen.h"
+#include "Ship.h"
+#include "PlayerObject.h"
 #include <algorithm>
 
 Simulator::Simulator(Ogre::SceneManager* mgr, GameScreen* gs) : gameScreen(gs)
@@ -29,32 +31,59 @@ Simulator::~Simulator()
 
 void Simulator::addObject (GameObject* o)
 {
-    objList.push_back(o);
+    objList.insert(o);
     // use default collision group/mask values (dynamic/kinematic/static)
     dynamicsWorld->addRigidBody(o->getBody());
 }
 
 void Simulator::removeObject(GameObject* o)
 {
-    objList.erase(std::remove(objList.begin(), objList.end(), o), objList.end());
+    objList.erase(o);
     dynamicsWorld->removeRigidBody(o->getBody());
 }
 
 void Simulator::stepSimulation(const Ogre::Real elapsedTime, int maxSubSteps, const Ogre::Real fixedTimestep)
 {
     dynamicsWorld->stepSimulation(elapsedTime, maxSubSteps, fixedTimestep);
-    
+
+    std::vector<PlayerObject*> players = gameScreen->getPlayers();
+    std::vector<Asteroid*> asts = gameScreen->getAsteroids();
+
     //collision call back
-    objList[0]->getCollisionCallback()->ctxt.hit = false;
-    objList[1]->getCollisionCallback()->ctxt.hit = false;
-    objList[2]->getCollisionCallback()->ctxt.hit = false;
-    for (int i = 3; i < objList.size(); i++) {
-        dynamicsWorld->contactPairTest(objList[0]->getBody(), objList[i]->getBody(), *(objList[0]->getCollisionCallback()));
-        dynamicsWorld->contactPairTest(objList[1]->getBody(), objList[i]->getBody(), *(objList[1]->getCollisionCallback()));
+    for (PlayerObject* obj : players) {
+        BulletContactCallback* callback = obj->getCollisionCallback();
+        callback->ctxt.hit = false;
+
+        Ship* ship = dynamic_cast<Ship*>(obj);
+
+        if (ship != nullptr) {
+            GameObject* paddle = ship->getPaddle();
+            BulletContactCallback* pCallback = paddle->getCollisionCallback();
+
+            pCallback->ctxt.hit = false;
+
+            for (Asteroid* ast : asts) {
+                btRigidBody* astBody = ast->getBody();
+
+                dynamicsWorld->contactPairTest(ship->getBody(), astBody, *callback);
+                dynamicsWorld->contactPairTest(paddle->getBody(), astBody, *pCallback);
+            }
+
+            for (PlayerObject* targetObj : players) {
+                if (targetObj != obj) {
+                    dynamicsWorld->contactPairTest(targetObj->getBody(), paddle->getBody(), *(targetObj->getCollisionCallback()));
+                }
+            }
+        } else {
+            for (Asteroid* ast : asts) {
+                dynamicsWorld->contactPairTest(obj->getBody(), ast->getBody(), *callback);
+            }
+        }
     }
-    dynamicsWorld->contactPairTest(objList[2]->getBody(), objList[1]->getBody(), *(objList[2]->getCollisionCallback()));
-    for (unsigned int i = 0; i < objList.size(); i++)
-        objList[i]->update();
+
+    for (GameObject* obj : objList) {
+        obj->update();
+    }
     //mDebugDrawer->Update(); //uncomment to see collision shapes
 }
 
