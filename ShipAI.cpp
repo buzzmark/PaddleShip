@@ -219,9 +219,9 @@ void ShipAI::incomingAst(void)
 void ShipAI::opponentProximityCheck(void)
 {
 	direction = rootNode->getOrientation() * Ogre::Vector3(0,0,1);
-	std::vector<GameObject*>playerList = gameScreen->getPlayers();
+	std::vector<PlayerObject*>playerList = gameScreen->getPlayers();
 	
-	for (GameObject* player : playerList) {
+	for (PlayerObject* player : playerList) {
 		float dtProd = direction.dotProduct(player->getPos() - getPos());
 		bool inFront = dtProd > 0;
 		if (inFront && getPos().squaredDistance(player->getPos()) < 2500) {

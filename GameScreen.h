@@ -24,8 +24,8 @@ public:
 	GameScreen(Ogre::SceneManager* sceneMgr, Ogre::SceneNode* cameraNode, SoundPlayer* sPlayer, Ogre::Light* shipLt, Ogre::Light* alienLt);
 	~GameScreen(void);
 	void createScene(void);
-	void addPlayerToMinimap(GameObject* enemy);
-	void addEnemyToMinimap(GameObject* enemy);
+	void addPlayerToMinimap(PlayerObject* enemy);
+	void addEnemyToMinimap(PlayerObject* enemy);
 	void setClient(bool client);
 	void setSinglePlayer(bool single);
 	void update(const Ogre::FrameEvent &evt);
@@ -45,7 +45,7 @@ public:
     void setClientId(int id);
 
     std::vector<Asteroid*> getAsteroids();
-    std::vector<GameObject*> getPlayers();
+    std::vector<PlayerObject*> getPlayers();
 
 protected:
 	Ogre::SceneManager* mSceneMgr;
@@ -62,7 +62,7 @@ protected:
 	bool isClient;
 	bool singlePlayer;
 	Ogre::OverlayContainer* mmBackground;
-	std::unordered_map<GameObject*, Ogre::OverlayElement*> mmPlayerIcons;
+	std::unordered_map<PlayerObject*, Ogre::OverlayElement*> mmPlayerIcons;
 
     int clientId;
 

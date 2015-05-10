@@ -71,7 +71,7 @@ void GameScreen::createScene(void)
 
 }
 //---------------------------------------------------------------------------
-void GameScreen::addPlayerToMinimap(GameObject* player){
+void GameScreen::addPlayerToMinimap(PlayerObject* player){
     Ogre::Real mmWidth = 0.15;
     Ogre::OverlayManager& omgr = Ogre::OverlayManager::getSingleton();
     Ogre::OverlayElement* mmPlayerIcon = omgr.createOverlayElement( "Panel", player->getName() + "_icon");
@@ -83,7 +83,7 @@ void GameScreen::addPlayerToMinimap(GameObject* player){
     mmPlayerIcons[player] = mmPlayerIcon;
 }
 //---------------------------------------------------------------------------
-void GameScreen::addEnemyToMinimap(GameObject* enemy){
+void GameScreen::addEnemyToMinimap(PlayerObject* enemy){
 	Ogre::Real mmWidth = 0.15;
 	Ogre::OverlayManager& omgr = Ogre::OverlayManager::getSingleton();
 	Ogre::OverlayElement* mmEnemyIcon = omgr.createOverlayElement( "Panel", enemy->getName() + "_icon");
@@ -208,8 +208,8 @@ void GameScreen::updateMinimap()
 	Ogre::Real playerRelativeX; //TODO change ship to current player
 	Ogre::Real playerRelativeZ; //TODO change ship to current player
 
-	std::vector<GameObject*> players = getPlayers();
-    GameObject* myPlayerObj;
+	std::vector<PlayerObject*> players = getPlayers();
+    PlayerObject* myPlayerObj;
 
     if (!singlePlayer && isClient) {
         auto iter = clientObjects.find(clientId);
@@ -223,7 +223,7 @@ void GameScreen::updateMinimap()
         myPlayerObj = ship;
     }
 
-    for (GameObject* player : players) {
+    for (PlayerObject* player : players) {
         if (player != myPlayerObj && ((PlayerObject*)player)->getHealth() <= 0 && mmPlayerIcons[player]->getMaterialName() != "minimap_dead"){
             mmPlayerIcons[player]->setMaterialName("minimap_dead");
         }
@@ -375,8 +375,8 @@ std::vector<Asteroid*> GameScreen::getAsteroids() {
     return ast1->getAsteroids();
 }
 //---------------------------------------------------------------------------
-std::vector<GameObject*> GameScreen::getPlayers() {
-    std::vector<GameObject*> list({ship, shipAI});
+std::vector<PlayerObject*> GameScreen::getPlayers() {
+    std::vector<PlayerObject*> list({ship, shipAI});
 
     for (auto client : clientObjects) {
         list.push_back(client.second);
