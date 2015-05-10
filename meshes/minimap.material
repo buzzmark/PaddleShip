@@ -61,3 +61,25 @@ material minimap_enemy
 	}
 
 }
+
+material minimap_dead
+{
+	technique
+	{
+		pass
+		{
+			ambient 0 0 0 1		
+
+			texture_unit
+			{
+				texture "minimap_icon_dead.png"
+				filtering none
+			}
+
+			scene_blend alpha_blend
+			
+		}
+
+	}
+
+}

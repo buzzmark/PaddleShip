@@ -85,6 +85,7 @@ void Ship::removeFromSimulator(void) {
 //---------------------------------------------------------------------------
 void Ship::update(void)
 {
+	if (hp <= 0) return;
 	if (!outOfBounds && sqrt(getPos().x*getPos().x+getPos().z*getPos().z) > 4000){
 		CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild("warningMessage")->setVisible(true);
 		outOfBounds = true;
@@ -123,6 +124,11 @@ void Ship::update(void)
 		//lose health
 		if (hp > 0) {
 			hp-=20;
+			if (hp <= 0){
+				CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild("warningMessage")->setVisible(false);
+				outOfBounds = false;
+				CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild("deathMessage")->setVisible(true);
+			}
 		}
 		std::stringstream scoreVal;
  		scoreVal << "" << score;
