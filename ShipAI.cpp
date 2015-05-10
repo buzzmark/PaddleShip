@@ -61,7 +61,9 @@ void ShipAI::update(void)
 	//processing self and surroundings
 	printf("Starting update\n");
 	survivalCheck();
-	incomingAst();
+	if (health != 0){
+		incomingAst();
+	}
 	opponentProximityCheck();
 
 	//taking action based on state(s)
@@ -238,7 +240,43 @@ void ShipAI::flee(void)
 	//Code to Flee
 	//if enemy is near, begin fleeing and continue fleeing until survival check deems otherwise
 
-	//doneFleeing = true;
+	std::vector<PlayerObject*>playerList = gameScreen->getPlayers();
+	direction = rootNode->getOrientation() * Ogre::Vector3(0,0,1);
+
+	for (PlayerObject* player : playerList) {
+		if (player != this && getPos().squaredDistance(player->getPos()) <= 10000) {
+			Ogre::Vector3 fleePath = (getPos() - player->getPos()).normalisedCopy();
+			Ogre::Quaternion amountRotation = direction.getRotationTo(fleePath);
+			int turn;
+			if (amountRotation.y < 0) {
+				turn = -1;
+			} else {
+				turn = 1;
+			}
+			if (((int)(10*direction.x)) != ((int)(10*fleePath.x)) || ((int)(10*direction.z)) != ((int)(10*fleePath.z))) {
+				body->setAngularFactor(btVector3(0,1,0));
+				body->applyTorque(btVector3(0,turn*10000,0));
+				body->setAngularFactor(btVector3(0,0,0));
+			}
+			btVector3 shipVel = body->getLinearVelocity();
+			body->setLinearVelocity(btVector3(shipVel.getX()*0.99,shipVel.getY()*0.99,shipVel.getZ()*0.99));
+			if (((int)(10*direction.x)) == ((int)(10*fleePath.x)) && ((int)(10*direction.z)) == ((int)(10*fleePath.z))) {
+				//body->setAngularFactor(btVector3(0,0,0));
+				body->setAngularVelocity(btVector3(0,((body->getAngularVelocity()).getY())*0.95,0));
+				body->applyCentralForce(btVector3(6000*direction.x, 6000*direction.y, 6000*direction.z));
+
+				btVector3 shipVel = body->getLinearVelocity();
+				body->setLinearVelocity(btVector3(shipVel.getX()*0.99,shipVel.getY()*0.99,shipVel.getZ()*0.99));
+
+			}
+			float dtProd = direction.dotProduct(player->getPos() - getPos());
+			bool inFront = dtProd > 0;
+			if (inFront && getPos().squaredDistance(player->getPos()) < 2500) {
+				melee();
+			} 
+		}
+	}
+	
 }
 //---------------------------------------------------------------------------
 /*checks self-health*/
@@ -303,7 +341,9 @@ void ShipAI::opponentProximityCheck(void)
 	
 	
 	if (nearbyOps == 0 && health >= 30) {
-		target = NULL;
+		if (health >= 30) {
+			target = NULL;
+		}
 		//paces = 1000;
 		// btVector3 shipVel = body->getLinearVelocity();
 		// body->setLinearVelocity(btVector3(shipVel.getX()*0.99,shipVel.getY()*0.99,shipVel.getZ()*0.99));
