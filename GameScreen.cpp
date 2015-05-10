@@ -5,7 +5,7 @@
 #include "Game.h"
 
 //---------------------------------------------------------------------------
-GameScreen::GameScreen(Ogre::SceneManager* sceneMgr, Ogre::SceneNode* cameraNode, OgreBites::ParamsPanel* deetsPan, SoundPlayer* sPlayer, Ogre::Light* shipLt, Ogre::Light* alienLt) : mDeetsPan(deetsPan)
+GameScreen::GameScreen(Ogre::SceneManager* sceneMgr, Ogre::SceneNode* cameraNode, SoundPlayer* sPlayer, Ogre::Light* shipLt, Ogre::Light* alienLt) : mDeetsPan(NULL)
 {
 	score = 0;
 	scoreAI = 0;

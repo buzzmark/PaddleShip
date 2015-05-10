@@ -7,6 +7,8 @@ PlayerObject::PlayerObject(Ogre::String nym, Ogre::SceneManager* mgr, Simulator*
     gameScreen(gs),
     cameraNode(cm),
     light(lt),
+    cam(nullptr),
+    mDetailsPanel(nullptr),
     soundPlayer(sPlayer),
     hp (100) {}
 //---------------------------------------------------------------------------

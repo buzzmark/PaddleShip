@@ -1,7 +1,7 @@
 #include "Paddle.h"
 #include <iostream>
 //---------------------------------------------------------------------------
-Paddle::Paddle(Ogre::String nym, Ogre::SceneManager* mgr, Simulator* sim, Ogre::SceneNode* shipNode, int &sc, SoundPlayer* sPlayer) : GameObject(nym, mgr, sim), score(sc)
+Paddle::Paddle(Ogre::String nym, Ogre::SceneManager* mgr, Simulator* sim, Ogre::SceneNode* shipNode, int &sc, SoundPlayer* sPlayer) : GameObject(nym, mgr, sim), mDetailsPanel(NULL), score(sc)
 {
 	name = nym;
 	Ogre::Vector3 shipPos = shipNode -> getPosition();

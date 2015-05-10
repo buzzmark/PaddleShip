@@ -20,7 +20,7 @@ class Alien;
 class GameScreen
 {
 public:
-	GameScreen(Ogre::SceneManager* sceneMgr, Ogre::SceneNode* cameraNode, OgreBites::ParamsPanel* deetsPan, SoundPlayer* sPlayer, Ogre::Light* shipLt, Ogre::Light* alienLt);
+	GameScreen(Ogre::SceneManager* sceneMgr, Ogre::SceneNode* cameraNode, SoundPlayer* sPlayer, Ogre::Light* shipLt, Ogre::Light* alienLt);
 	~GameScreen(void);
 	void createScene(void);
 	void addPlayerToMinimap(PlayerObject* enemy);
