@@ -267,13 +267,17 @@ void Alien::shootAsteroid(int arg) {
 
 	//shoot asteroid in direction of choice
 	if (arg == 7){
-		currentAsteroid -> getBody()->setLinearVelocity(btVector3(-200,0,0));
+		Ogre::Vector3 pointLeft = rootNode->getOrientation() * Ogre::Vector3(-1,0,0);
+		currentAsteroid -> getBody()->setLinearVelocity(btVector3(200*pointLeft.x, 200*pointLeft.y, 200*pointLeft.z));
 	} else if (arg == 8){
-		currentAsteroid -> getBody()->setLinearVelocity(btVector3(200,0,0));
+		Ogre::Vector3 pointRight = rootNode->getOrientation() * Ogre::Vector3(1,0,0);
+		currentAsteroid -> getBody()->setLinearVelocity(btVector3(200*pointRight.x, 200*pointRight.y, 200*pointRight.z));
 	} else if (arg == 9){
-		currentAsteroid -> getBody()->setLinearVelocity(btVector3(0,0,-200));
+		direction = rootNode->getOrientation() * Ogre::Vector3(0,0,1);
+		currentAsteroid -> getBody()->setLinearVelocity(btVector3(-200*direction.x, -200*direction.y, -200*direction.z));
 	} else if (arg == 10){
-		currentAsteroid -> getBody()->setLinearVelocity(btVector3(0,0,200));
+		direction = rootNode->getOrientation() * Ogre::Vector3(0,0,1);
+		currentAsteroid -> getBody()->setLinearVelocity(btVector3(200*direction.x, 200*direction.y, 200*direction.z));
 	}
 
 	hasAsteroid = false;
