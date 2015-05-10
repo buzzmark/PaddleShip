@@ -47,8 +47,9 @@ void Paddle::update(void)
  	 	numScore << "" << score;
  	 	if (mDetailsPanel==NULL) {
  	 		printf("mDetailsPanel is null ptr\n");
- 	 	}
- 	 	mDetailsPanel->setParamValue(0, numScore.str());
+ 	 	} else {
+     	 	mDetailsPanel->setParamValue(0, numScore.str());
+        }
 		soundPlayer->playScore();
 		hasIncr = true;
 	}

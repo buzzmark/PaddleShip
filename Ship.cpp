@@ -139,8 +139,9 @@ void Ship::update(void)
  		scoreVal << "" << score;
  		if (mDetailsPanel==NULL) {
  	 		printf("mDetailsPanel is null ptr\n");
- 	 	}
- 	 	mDetailsPanel->setParamValue(0, scoreVal.str());
+        } else {
+     	 	mDetailsPanel->setParamValue(0, scoreVal.str());
+        }
 		soundPlayer->playShipHit();
 		hasDecr = true;
 	}

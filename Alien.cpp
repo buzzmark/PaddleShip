@@ -98,8 +98,9 @@ void Alien::update(void)
  		healthVal << "" << health;
  		if (mDetailsPanel==NULL) {
  	 		printf("mDetailsPanel is null ptr\n");
- 	 	}
- 	 	mDetailsPanel->setParamValue(2, healthVal.str());
+ 	 	} else {
+     	 	mDetailsPanel->setParamValue(2, healthVal.str());
+        }
 		soundPlayer->playShipHit();
 	}
 	light->setPosition(Ogre::Vector3(getPos().x + 0,getPos().y + 500,getPos().z + 250));
