@@ -102,21 +102,35 @@ void GameScreen::update(const Ogre::FrameEvent &evt)
     updateHealthDisplay();
 }
 //---------------------------------------------------------------------------
-void GameScreen::updateClient(const Ogre::FrameEvent &evt, Packet& p)
-{
+void updatePlayerObject(Packet &p, PlayerObject* player, char type) {
 	Ogre::Vector3 pos;
 	Ogre::Quaternion rot;
 
-	p >> pos >> rot;
-	
-    shipAI->setPosition(pos.x, pos.y, pos.z);
-    shipAI->getNode()->setOrientation(rot);
+    p >> pos >> rot;
 
-	p >> pos >> rot;
+    player->setPosition(pos.x, pos.y, pos.z);
+    player->getNode()->setOrientation(rot);
 
-    Paddle* paddleAI = shipAI->getPaddle();
-	paddleAI->setPosition(pos.x, pos.y, pos.z);
-	paddleAI->getNode()->setOrientation(rot);
+    if (type == ALIEN_SHIP) {
+        Alien* alien = static_cast<Alien*>(player);
+        alien->setLight(pos.x, pos.y + 500, pos.z + 250);
+    } else {
+        Ship* playerShip = static_cast<Ship*>(player);
+
+        p >> pos >> rot;
+
+        Paddle *paddle = playerShip->getPaddle();
+        paddle->setPosition(pos.x, pos.y, pos.z);
+        paddle->getNode()->setOrientation(rot);
+    }
+}
+//---------------------------------------------------------------------------
+void GameScreen::updateClient(const Ogre::FrameEvent &evt, Packet& p)
+{
+    char type;
+
+    p >> type;
+    updatePlayerObject(p, shipAI, type);
 
     int id;
     p >> id;
@@ -134,23 +148,7 @@ void GameScreen::updateClient(const Ogre::FrameEvent &evt, Packet& p)
             player = iter->second;
         }
 
-        p >> pos >> rot;
-
-        player->setPosition(pos.x, pos.y, pos.z);
-        player->getNode()->setOrientation(rot);
-
-        if (type == ALIEN_SHIP) {
-            Alien* alien = dynamic_cast<Alien*>(player);
-            alien->setLight(pos.x, pos.y + 500, pos.z + 250);
-        } else {
-            Ship* playerShip = dynamic_cast<Ship*>(player);
-
-            p >> pos >> rot;
-
-            Paddle* paddle = playerShip->getPaddle();
-            paddle->setPosition(pos.x, pos.y, pos.z);
-            paddle->getNode()->setOrientation(rot);
-        }
+        updatePlayerObject(p, player, type);
 
         p >> id;
     }
@@ -158,7 +156,10 @@ void GameScreen::updateClient(const Ogre::FrameEvent &evt, Packet& p)
     int numAsteroids;
     p >> numAsteroids;
 
+	Ogre::Vector3 pos;
+	Ogre::Quaternion rot;
     std::vector<Asteroid*> asteroids = getAsteroids();
+
     for (Asteroid* ast : asteroids) {
         p >> pos >> rot;
 		ast->setPosition(pos.x, pos.y, pos.z);
@@ -216,54 +217,53 @@ void GameScreen::updateHealthDisplay()
     }
 }
 //---------------------------------------------------------------------------
+void writePlayerObject(Packet &p, PlayerObject* player) {
+    Ship* playerShip = dynamic_cast<Ship*>(player);
+
+    Ogre::Vector3 pos;
+    Ogre::Quaternion rot;
+
+    if (playerShip != nullptr) {
+        p << (char) PADDLE_SHIP;
+
+        pos = player->getPos();
+        rot = player->getNode()->getOrientation();
+        p << pos << rot;
+
+        Paddle* paddle = playerShip->getPaddle();
+        pos = paddle->getPos();
+        rot = paddle->getNode()->getOrientation();
+
+        p << pos << rot;
+    } else {
+        p << (char) ALIEN_SHIP;
+
+        pos = player->getPos();
+        rot = player->getNode()->getOrientation();
+        p << pos << rot;
+    }
+}
+//---------------------------------------------------------------------------
 Packet GameScreen::getPositions()
 {
 	Packet p;
 
     p << SPT_POSITIONS;
 
-	Ogre::Vector3 pos = shipAI->getPos();
-	Ogre::Quaternion rot = shipAI->getNode()->getOrientation();
-
-	p << pos << rot;
-
-    Paddle* paddleAI = shipAI->getPaddle();
-	pos = paddleAI->getPos();
-	rot = paddleAI->getNode()->getOrientation();
-
-	p << pos << rot;
+    writePlayerObject(p, shipAI);
 
     for (auto client : clientObjects) {
         p << client.first;
-
-        PlayerObject* player = client.second;
-        Ship* playerShip = dynamic_cast<Ship*>(player);
-
-        if (playerShip != nullptr) {
-            p << (char) PADDLE_SHIP;
-
-            pos = player->getPos();
-            rot = player->getNode()->getOrientation();
-            p << pos << rot;
-
-            Paddle* paddle = playerShip->getPaddle();
-            pos = paddle->getPos();
-            rot = paddle->getNode()->getOrientation();
-
-            p << pos << rot;
-        } else {
-            p << (char) ALIEN_SHIP;
-
-            pos = player->getPos();
-            rot = player->getNode()->getOrientation();
-            p << pos << rot;
-        }
+        writePlayerObject(p, client.second);
     }
 
     p << (int) -1;
 
     std::vector<Asteroid*> asteroids = getAsteroids();
     p << (int) asteroids.size();
+
+    Ogre::Vector3 pos;
+    Ogre::Quaternion rot;
 
     for (Asteroid* ast : asteroids) {
 		pos = ast->getPos();
