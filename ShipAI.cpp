@@ -49,7 +49,7 @@ void ShipAI::addToScene(void)
 	mass = 10.0f;
 	shape = new btCapsuleShapeZ(3.0f, 15.0f);
 
-    Ogre::ParticleSystem* pSys = sceneMgr->createParticleSystem(name + "PS", "ship_particles");
+	Ogre::ParticleSystem* pSys = sceneMgr->createParticleSystem(name + "PS", "ship_particles");
     Ogre::SceneNode* pNode = (Ogre::SceneNode*)rootNode->createChild(Ogre::Vector3(0,-1,-8));
     pNode->attachObject(pSys);
 
@@ -59,6 +59,7 @@ void ShipAI::addToScene(void)
 void ShipAI::update(void)
 {
 	//processing self and surroundings
+	printf("Starting update\n");
 	survivalCheck();
 	incomingAst();
 	opponentProximityCheck();
@@ -91,6 +92,7 @@ void ShipAI::update(void)
 		//lose health
 		if (health > 0) {
 			health-=10;
+			//printf("AI injured\n");
 		}
 		if (health < 30) {
 			mustFlee = true;
@@ -112,12 +114,13 @@ void ShipAI::update(void)
 /* Default state of AI */
 void ShipAI::roam(void) 
 {
-
+  printf("Roam function \n");
   if (sqrt(getPos().x*getPos().x+getPos().z*getPos().z) > 4000){
 		body->applyCentralForce(btVector3(-5*getPos().x,0,-5*getPos().z));
   }
 
   if (paces >= 1000) {
+  	printf("Roam function randomize torque\n");
   	//melee();
   	paces = 0;
 
@@ -131,12 +134,15 @@ void ShipAI::roam(void)
 	doneFleeing = false;
 
   } else if (paces<=500){
+  	printf("Roam function turn\n");
+  	printf("paces: %d", paces);
   	body->setAngularFactor(btVector3(0,1,0));
 	body->applyTorque(btVector3(0, yT,0));
 	body->setAngularFactor(btVector3(0,0,0));
 
 	paces++;
   } else {
+  	printf("Roam function move forward\n");
   	body->setAngularVelocity(btVector3(0,((body->getAngularVelocity()).getY())*0.95,0));
 
   	direction = rootNode->getOrientation() * Ogre::Vector3(0,0,1);
@@ -167,9 +173,8 @@ void ShipAI::hunt(void)
 	printf("target position: (%f, %f, %f)\n", target->getPos().x, target->getPos().y, target->getPos().z);
 	Ogre::Vector3 huntPath = (target->getPos() - getPos()).normalisedCopy();
 	printf("huntPath: (%f, %f, %f)\n", huntPath.x, huntPath.y, huntPath.z);
-	//body->setAngularFactor(btVector3(0,1,0));
 	int count = 0;
-	//Ogre::Radian angle = direction.angleBetween(huntPath);
+
 	Ogre::Quaternion amountRotation = direction.getRotationTo(huntPath);
 	printf("amountRotation: (%f,%f,%f)\n", amountRotation.x, amountRotation.y, amountRotation.z);
 	int turn;
@@ -185,17 +190,16 @@ void ShipAI::hunt(void)
 		count++;
 		printf("direction1: (%f, %f, %f)\n", direction.x, direction.y, direction.z);
 		printf("huntPath1: (%f, %f, %f)\n", huntPath.x, huntPath.y, huntPath.z);
-		//body->setAngularFactor(btVector3(0,1,0));
 		body->setAngularFactor(btVector3(0,1,0));
 		body->applyTorque(btVector3(0,turn*10000,0));
 		body->setAngularFactor(btVector3(0,0,0));
-		//body->setAngularFactor(btVector3(0,0,0));
-		//body->setAngularVelocity(btVector3(0,((body->getAngularVelocity()).getY())*0.95,0));
 		direction = rootNode->getOrientation() * Ogre::Vector3(0,0,1);
 		printf("direction2: (%d, %d, %d)\n", (int)(10*direction.x), (int)(10*direction.y), (int)(10*direction.z));
 		printf("huntPath2: (%d, %d, %d)\n", (int)(10*huntPath.x), (int)(10*huntPath.y), (int)(10*huntPath.z));
 		//printf("num times through loop: %d\n", count);
 	}
+	btVector3 shipVel = body->getLinearVelocity();
+	body->setLinearVelocity(btVector3(shipVel.getX()*0.99,shipVel.getY()*0.99,shipVel.getZ()*0.99));
 	meleeState = false;
 	if (((int)(10*direction.x)) == ((int)(10*huntPath.x)) && ((int)(10*direction.z)) == ((int)(10*huntPath.z))) {
 		printf("direction3: (%d, %d, %d)\n", (int)(10*direction.x), (int)(10*direction.y), (int)(10*direction.z));
@@ -234,7 +238,7 @@ void ShipAI::flee(void)
 	//Code to Flee
 	//if enemy is near, begin fleeing and continue fleeing until survival check deems otherwise
 
-	doneFleeing = true;
+	//doneFleeing = true;
 }
 //---------------------------------------------------------------------------
 /*checks self-health*/
@@ -242,6 +246,7 @@ void ShipAI::survivalCheck(void)
 {
 	if (health < 30 && paces < 100 && (doneRoaming || mustFlee)) {
 		if (mustFlee && paces > 0) {
+			printf("Health is low\n");
 			paces = 0;
 		}
 		fleeState = true;
@@ -281,27 +286,31 @@ void ShipAI::opponentProximityCheck(void)
 	direction = rootNode->getOrientation() * Ogre::Vector3(0,0,1);
 	std::vector<PlayerObject*>playerList = gameScreen->getPlayers();
 	int nearbyOps = 0;
+	float dist;
 	for (PlayerObject* player : playerList) {
+		dist= getPos().squaredDistance(player->getPos());
 		if (player != this && getPos().squaredDistance(player->getPos()) <= 10000) {
 			if (target == NULL || player->getHealth() <= 20 || player->getHealth() > target->getHealth()) {
 				target = player;
 				huntState = true;
-				float minT = -2000;
-				float maxT = 2000;
-				yT = minT + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(maxT-minT)));
+				roamState = false;
 			}
 			nearbyOps++;
 			printf("Incremented nearbyOps\n");
 			//melee();
 		}
 	}
-	/*
-	if (nearbyOps == 0) {
-		printf("No nearby opponents\n");
+	
+	
+	if (nearbyOps == 0 && health >= 30) {
+		target = NULL;
+		//paces = 1000;
+		// btVector3 shipVel = body->getLinearVelocity();
+		// body->setLinearVelocity(btVector3(shipVel.getX()*0.99,shipVel.getY()*0.99,shipVel.getZ()*0.99));
 		huntState = false;
 		roamState = true;
 	}
-	*/
+	
 
 }
 //---------------------------------------------------------------------------
