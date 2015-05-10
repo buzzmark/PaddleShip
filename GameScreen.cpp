@@ -91,6 +91,10 @@ void GameScreen::setClient(bool client){
 	isClient = client;
 }
 //---------------------------------------------------------------------------
+bool GameScreen::getIsClient() const {
+    return isClient;
+}
+//---------------------------------------------------------------------------
 void GameScreen::setSinglePlayer(bool single){
 	singlePlayer = single;
 }

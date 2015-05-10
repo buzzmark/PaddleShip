@@ -26,6 +26,7 @@ public:
 	void addPlayerToMinimap(PlayerObject* enemy);
 	void addEnemyToMinimap(PlayerObject* enemy);
 	void setClient(bool client);
+	bool getIsClient() const;
 	void setSinglePlayer(bool single);
 	void update(const Ogre::FrameEvent &evt);
 	void updateClient(const Ogre::FrameEvent &evt, Packet& p);
