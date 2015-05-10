@@ -5,7 +5,7 @@
 #include <vector>
 
 enum PacketType {
-    PT_POSITIONS, PT_CLIENTID, PT_DISCONNECT
+    SPT_POSITIONS, SPT_CLIENTID, SPT_DISCONNECT, CPT_SHIPTYPE, CPT_KEYPRESS, CPT_KEYRELEASE
 };
 
 class Packet {
@@ -24,11 +24,13 @@ class Packet {
         int size() const;
         const char* data() const;
 
+        Packet& operator<<(const char a);
         Packet& operator<<(const int a);
         Packet& operator<<(const float a);
         Packet& operator<<(const Ogre::Vector3& a);
         Packet& operator<<(const Ogre::Quaternion& a);
 
+        Packet& operator>>(char& a);
         Packet& operator>>(int& a);
         Packet& operator>>(float& a);
         Packet& operator>>(Ogre::Vector3& a);

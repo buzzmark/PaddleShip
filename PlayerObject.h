@@ -35,10 +35,13 @@ class PlayerObject : public GameObject {
 
         virtual void addToScene(void) = 0;
         virtual void removeFromScene(void);
+        virtual void removeFromSimulator(void);
         virtual void update(void) = 0;
         virtual void grabCamera() = 0;
         virtual void setDeetsPan(OgreBites::ParamsPanel* mDeetsPan);
         virtual int getHealth();
+        virtual void injectKeyDown(const OIS::KeyEvent &arg) = 0;
+        virtual void injectKeyUp(const OIS::KeyEvent &arg) = 0;
 };
 
 //---------------------------------------------------------------------------

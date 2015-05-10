@@ -37,6 +37,11 @@ const char* Packet::data() const {
 
 //---------------------------------------------------------------------------
 
+Packet& Packet::operator<<(const char a) {
+    mem_write_to_packet(&a, sizeof(char));
+    return *this;
+}
+
 Packet& Packet::operator<<(const int a) {
     mem_write_to_packet(&a, sizeof(int));
     return *this;
@@ -56,6 +61,11 @@ Packet& Packet::operator<<(const Ogre::Quaternion& a) {
 }
 
 //---------------------------------------------------------------------------
+
+Packet& Packet::operator>>(char &a) {
+    mem_read_from_packet(&a, sizeof(char));
+    return *this;
+}
 
 Packet& Packet::operator>>(int &a) {
     mem_read_from_packet(&a, sizeof(int));

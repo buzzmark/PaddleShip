@@ -26,11 +26,12 @@ public:
 	virtual ~Ship(void);
 	virtual void addToScene(void);
 	virtual void addToSimulator(void);
+    virtual void removeFromSimulator(void);
 	virtual void update(void);
     virtual void grabCamera(void);
-	void setDeetsPan(OgreBites::ParamsPanel*mDeetsPan);
-	void injectKeyDown(const OIS::KeyEvent &arg);
-	void injectKeyUp(const OIS::KeyEvent &arg);
+	virtual void setDeetsPan(OgreBites::ParamsPanel*mDeetsPan);
+	virtual void injectKeyDown(const OIS::KeyEvent &arg);
+	virtual void injectKeyUp(const OIS::KeyEvent &arg);
     void setPaddle(Paddle* p);
     Paddle* getPaddle();
 	//Ogre::Vector3 getPos();

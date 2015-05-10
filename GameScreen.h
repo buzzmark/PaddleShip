@@ -8,6 +8,7 @@
 #include "Paddle.h"
 #include "SoundPlayer.h"
 #include "Packet.h"
+#include "Game.h"
 #include <vector>
 #include <unordered_map>
 
@@ -34,12 +35,12 @@ public:
 	void setDeetsPan(OgreBites::ParamsPanel*mDeetsPan);
 	void injectKeyDown(const OIS::KeyEvent &arg);
 	void injectKeyUp(const OIS::KeyEvent &arg);
-	void clientKey(int id, int key);
+	void clientKey(int id, bool isDown, int key);
 	void injectMouseMove(const OIS::MouseEvent &arg);
 	void injectMouseDown(const OIS::MouseEvent &arg, OIS::MouseButtonID id);
 	void injectMouseUp(const OIS::MouseEvent &arg, OIS::MouseButtonID id);
-    Alien* createClientAlien(int id);
-    void removeClientAlien(int id);
+    PlayerObject* createClientObject(int id, int type);
+    void removeClientObject(int id);
     void setClientId(int id);
 
     std::vector<Asteroid*> getAsteroids();
@@ -64,8 +65,7 @@ protected:
 
     int clientId;
 
-    // TODO: replace Alien* with a generic PlayerObject
-    std::unordered_map<int, Alien*> clientObjects;
+    std::unordered_map<int, PlayerObject*> clientObjects;
 };
 
 //---------------------------------------------------------------------------

@@ -44,11 +44,11 @@ Ship::~Ship(void)
 //---------------------------------------------------------------------------
 void Ship::addToScene(void)
 {
-	geom = sceneMgr->createEntity("shipEnt", "rocket.mesh");
+	geom = sceneMgr->createEntity(name + "Ent", "rocket.mesh");
 	geom->setCastShadows(true);
 	rootNode->attachObject(geom);
 
-	light = sceneMgr->createLight("light");
+	light = sceneMgr->createLight(name + "Light");
     light->setType(Ogre::Light::LT_POINT);
     light->setPosition(Ogre::Vector3(0, 500, -250));
  
@@ -63,7 +63,7 @@ void Ship::addToScene(void)
 //---------------------------------------------------------------------------
 void Ship::addToSimulator(void)
 {
-	GameObject::addToSimulator();
+	PlayerObject::addToSimulator();
 
 	body->setLinearFactor(btVector3(1,0,1));
 	body->setAngularFactor(btVector3(0,0,0));
@@ -76,6 +76,11 @@ void Ship::addToSimulator(void)
 
 	simulator->getDynamicsWorld()->addConstraint(paddleHinge, true);
 	paddle -> setPaddleHinge(paddleHinge);
+}
+//---------------------------------------------------------------------------
+void Ship::removeFromSimulator(void) {
+    PlayerObject::removeFromSimulator();
+    simulator->removeObject(paddle);
 }
 //---------------------------------------------------------------------------
 void Ship::update(void)
