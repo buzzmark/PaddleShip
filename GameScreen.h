@@ -32,7 +32,6 @@ public:
 	void updateMinimap();
 	void updateHealthDisplay();
 	Packet getPositions();
-	void setDeetsPan(OgreBites::ParamsPanel*mDeetsPan);
 	void injectKeyDown(const OIS::KeyEvent &arg);
 	void injectKeyUp(const OIS::KeyEvent &arg);
 	void clientKey(int id, bool isDown, unsigned char key);
@@ -50,7 +49,6 @@ public:
 protected:
 	Ogre::SceneManager* mSceneMgr;
     Ogre::SceneNode* mCameraNode;
-    OgreBites::ParamsPanel* mDeetsPan;
 	SoundPlayer* soundPlayer;
 
 	Simulator* sim;

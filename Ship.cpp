@@ -261,12 +261,6 @@ void Ship::injectKeyUp(const OIS::KeyEvent &arg)
     paddle->injectKeyUp(arg);
 }
 //---------------------------------------------------------------------------
-void Ship::setDeetsPan(OgreBites::ParamsPanel*mDeetsPan)
-{
-	PlayerObject::setDeetsPan(mDeetsPan);
-	paddle->setDeetsPan(mDeetsPan);
-}
-//---------------------------------------------------------------------------
 void Ship::setPaddle(Paddle* p)
 {
     paddle = p;

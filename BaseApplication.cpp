@@ -151,16 +151,16 @@ void BaseApplication::createFrameListener(void)
     // items.push_back("");
     // items.push_back("Filtering");
     // items.push_back("Poly Mode");
-    items.push_back("Score");
-    items.push_back("");
-    items.push_back("Alien Health");
+    //items.push_back("Score");
+    //items.push_back("");
+    //items.push_back("Alien Health");
 
     mDetailsPanel = mTrayMgr->createParamsPanel(OgreBites::TL_NONE, 
         "DetailsPanel", 200, items);
-    mDetailsPanel->setParamValue(0, "0");
-    mDetailsPanel->setParamValue(2, "100");
+    //mDetailsPanel->setParamValue(0, "0");
+    //mDetailsPanel->setParamValue(2, "100");
     // mDetailsPanel->setParamValue(10, "Solid");
-    //mDetailsPanel->hide();
+    mDetailsPanel->hide();
 
     mRoot->addFrameListener(this);
 }

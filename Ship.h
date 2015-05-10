@@ -30,7 +30,6 @@ public:
     virtual void removeFromSimulator(void);
 	virtual void update(void);
     virtual void grabCamera(void);
-	virtual void setDeetsPan(OgreBites::ParamsPanel*mDeetsPan);
 	virtual void injectKeyDown(const OIS::KeyEvent &arg);
 	virtual void injectKeyUp(const OIS::KeyEvent &arg);
     void setPaddle(Paddle* p);
