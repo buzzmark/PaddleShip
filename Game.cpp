@@ -192,6 +192,7 @@ bool Game::frameRenderingQueued(const Ogre::FrameEvent &evt){
                     case SPT_HEALTH:
                         p >> id;
                         gameScreen->updateHealthDisplay(id);
+                        break;
                     default:
                         std::cerr << "Warning: unrecognized server packet type " << (int) packetType;
                         break;
