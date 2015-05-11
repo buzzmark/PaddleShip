@@ -73,6 +73,10 @@ void GameScreen::addPlayerToMinimap(PlayerObject* player){
     mmPlayerIcon->setHorizontalAlignment(Ogre::GHA_CENTER);
     mmPlayerIcon->setVerticalAlignment(Ogre::GVA_CENTER);
     mmPlayerIcons[player] = mmPlayerIcon;
+    if(dynamic_cast<Alien*>(player) != nullptr)
+        reverseSymbol = true;
+    else
+        reverseSymbol = false;
 }
 //---------------------------------------------------------------------------
 void GameScreen::addEnemyToMinimap(PlayerObject* enemy){
@@ -207,7 +211,7 @@ void GameScreen::updateMinimap()
 			Ogre::Vector3 dir = player->getNode()->getOrientation() * Ogre::Vector3(0,0,1);
 			double rot = atan(dir.x/dir.z);
 			int neg = dir.z < 0 ? 0 : M_PI;
-			texture->setTextureRotate(Ogre::Radian(rot+neg));
+			texture->setTextureRotate(Ogre::Radian(rot+neg+reverseSymbol*M_PI));
 		} 
 
 	}
