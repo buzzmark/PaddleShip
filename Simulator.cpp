@@ -49,24 +49,26 @@ void Simulator::stepSimulation(const Ogre::Real elapsedTime, int maxSubSteps, co
     std::vector<PlayerObject*> players = gameScreen->getPlayers();
     std::vector<Asteroid*> asts = gameScreen->getAsteroids();
 
+    for (PlayerObject* obj : players) {
+        obj->getCollisionCallback()->ctxt.hit = false;
+        Ship* ship = dynamic_cast<Ship*>(obj);
+        if (ship != nullptr) {
+            ship->getPaddle()->getCollisionCallback()->ctxt.hit = false;
+        }
+    }
+
     //collision call back
     for (PlayerObject* obj : players) {
-        BulletContactCallback* callback = obj->getCollisionCallback();
-        callback->ctxt.hit = false;
-
         Ship* ship = dynamic_cast<Ship*>(obj);
 
         if (ship != nullptr) {
             GameObject* paddle = ship->getPaddle();
-            BulletContactCallback* pCallback = paddle->getCollisionCallback();
-
-            pCallback->ctxt.hit = false;
 
             for (Asteroid* ast : asts) {
                 btRigidBody* astBody = ast->getBody();
 
-                dynamicsWorld->contactPairTest(ship->getBody(), astBody, *callback);
-                dynamicsWorld->contactPairTest(paddle->getBody(), astBody, *pCallback);
+                dynamicsWorld->contactPairTest(ship->getBody(), astBody, *(ship->getCollisionCallback()));
+                dynamicsWorld->contactPairTest(paddle->getBody(), astBody, *(paddle->getCollisionCallback()));
             }
 
             for (PlayerObject* targetObj : players) {
@@ -76,7 +78,7 @@ void Simulator::stepSimulation(const Ogre::Real elapsedTime, int maxSubSteps, co
             }
         } else {
             for (Asteroid* ast : asts) {
-                dynamicsWorld->contactPairTest(obj->getBody(), ast->getBody(), *callback);
+                dynamicsWorld->contactPairTest(obj->getBody(), ast->getBody(), *(obj->getCollisionCallback()));
             }
         }
     }
