@@ -59,7 +59,7 @@ void ShipAI::addToScene(void)
 void ShipAI::update(void)
 {
 	//processing self and surroundings
-	printf("Starting update\n");
+	//printf("Starting update\n");
 	survivalCheck();
 	if (health != 0){
 		incomingAst();
@@ -116,13 +116,13 @@ void ShipAI::update(void)
 /* Default state of AI */
 void ShipAI::roam(void) 
 {
-  printf("Roam function \n");
+  // printf("Roam function \n");
   if (sqrt(getPos().x*getPos().x+getPos().z*getPos().z) > 4000){
 		body->applyCentralForce(btVector3(-5*getPos().x,0,-5*getPos().z));
   }
 
   if (paces >= 1000) {
-  	printf("Roam function randomize torque\n");
+  	//printf("Roam function randomize torque\n");
   	//melee();
   	paces = 0;
 
@@ -136,15 +136,15 @@ void ShipAI::roam(void)
 	doneFleeing = false;
 
   } else if (paces<=500){
-  	printf("Roam function turn\n");
-  	printf("paces: %d", paces);
+  	// printf("Roam function turn\n");
+  	// printf("paces: %d", paces);
   	body->setAngularFactor(btVector3(0,1,0));
 	body->applyTorque(btVector3(0, yT,0));
 	body->setAngularFactor(btVector3(0,0,0));
 
 	paces++;
   } else {
-  	printf("Roam function move forward\n");
+  	//printf("Roam function move forward\n");
   	body->setAngularVelocity(btVector3(0,((body->getAngularVelocity()).getY())*0.95,0));
 
   	direction = rootNode->getOrientation() * Ogre::Vector3(0,0,1);
@@ -170,42 +170,42 @@ void ShipAI::hunt(void)
 	
 	
 	direction = rootNode->getOrientation() * Ogre::Vector3(0,0,1);
-	printf("direction: (%f, %f, %f)\n", direction.x, direction.y, direction.z);
-	printf("AI position: (%f, %f, %f)\n", getPos().x, getPos().y, getPos().z);
-	printf("target position: (%f, %f, %f)\n", target->getPos().x, target->getPos().y, target->getPos().z);
+	// printf("direction: (%f, %f, %f)\n", direction.x, direction.y, direction.z);
+	// printf("AI position: (%f, %f, %f)\n", getPos().x, getPos().y, getPos().z);
+	// printf("target position: (%f, %f, %f)\n", target->getPos().x, target->getPos().y, target->getPos().z);
 	Ogre::Vector3 huntPath = (target->getPos() - getPos()).normalisedCopy();
-	printf("huntPath: (%f, %f, %f)\n", huntPath.x, huntPath.y, huntPath.z);
+	//printf("huntPath: (%f, %f, %f)\n", huntPath.x, huntPath.y, huntPath.z);
 	int count = 0;
 
 	Ogre::Quaternion amountRotation = direction.getRotationTo(huntPath);
-	printf("amountRotation: (%f,%f,%f)\n", amountRotation.x, amountRotation.y, amountRotation.z);
+	//printf("amountRotation: (%f,%f,%f)\n", amountRotation.x, amountRotation.y, amountRotation.z);
 	int turn;
 	if (amountRotation.y < 0) {
-		printf("turn left\n");
+		//printf("turn left\n");
 		turn = -1;
 	} else {
-		printf("turn right\n");
+		//printf("turn right\n");
 		turn = 1;
 	}
 
 	if (((int)(10*direction.x)) != ((int)(10*huntPath.x)) || ((int)(10*direction.z)) != ((int)(10*huntPath.z))) {
 		count++;
-		printf("direction1: (%f, %f, %f)\n", direction.x, direction.y, direction.z);
-		printf("huntPath1: (%f, %f, %f)\n", huntPath.x, huntPath.y, huntPath.z);
+		// printf("direction1: (%f, %f, %f)\n", direction.x, direction.y, direction.z);
+		// printf("huntPath1: (%f, %f, %f)\n", huntPath.x, huntPath.y, huntPath.z);
 		body->setAngularFactor(btVector3(0,1,0));
 		body->applyTorque(btVector3(0,turn*10000,0));
 		body->setAngularFactor(btVector3(0,0,0));
 		direction = rootNode->getOrientation() * Ogre::Vector3(0,0,1);
-		printf("direction2: (%d, %d, %d)\n", (int)(10*direction.x), (int)(10*direction.y), (int)(10*direction.z));
-		printf("huntPath2: (%d, %d, %d)\n", (int)(10*huntPath.x), (int)(10*huntPath.y), (int)(10*huntPath.z));
+		// printf("direction2: (%d, %d, %d)\n", (int)(10*direction.x), (int)(10*direction.y), (int)(10*direction.z));
+		// printf("huntPath2: (%d, %d, %d)\n", (int)(10*huntPath.x), (int)(10*huntPath.y), (int)(10*huntPath.z));
 		//printf("num times through loop: %d\n", count);
 	}
 	btVector3 shipVel = body->getLinearVelocity();
 	body->setLinearVelocity(btVector3(shipVel.getX()*0.99,shipVel.getY()*0.99,shipVel.getZ()*0.99));
 	meleeState = false;
 	if (((int)(10*direction.x)) == ((int)(10*huntPath.x)) && ((int)(10*direction.z)) == ((int)(10*huntPath.z))) {
-		printf("direction3: (%d, %d, %d)\n", (int)(10*direction.x), (int)(10*direction.y), (int)(10*direction.z));
-		printf("huntPath3: (%d, %d, %d)\n", (int)(10*huntPath.x), (int)(10*huntPath.y), (int)(10*huntPath.z));
+		// printf("direction3: (%d, %d, %d)\n", (int)(10*direction.x), (int)(10*direction.y), (int)(10*direction.z));
+		// printf("huntPath3: (%d, %d, %d)\n", (int)(10*huntPath.x), (int)(10*huntPath.y), (int)(10*huntPath.z));
 		//body->setAngularFactor(btVector3(0,0,0));
 		body->setAngularVelocity(btVector3(0,((body->getAngularVelocity()).getY())*0.95,0));
 		body->applyCentralForce(btVector3(6000*direction.x, 6000*direction.y, 6000*direction.z));
@@ -284,7 +284,7 @@ void ShipAI::survivalCheck(void)
 {
 	if (health < 30 && paces < 100 && (doneRoaming || mustFlee)) {
 		if (mustFlee && paces > 0) {
-			printf("Health is low\n");
+			//printf("Health is low\n");
 			paces = 0;
 		}
 		fleeState = true;
@@ -334,7 +334,7 @@ void ShipAI::opponentProximityCheck(void)
 				roamState = false;
 			}
 			nearbyOps++;
-			printf("Incremented nearbyOps\n");
+			//printf("Incremented nearbyOps\n");
 			//melee();
 		}
 	}
