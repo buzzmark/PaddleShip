@@ -68,6 +68,7 @@ protected:
 	bool singlePlayer;
 	Ogre::OverlayContainer* mmBackground;
 	std::unordered_map<PlayerObject*, Ogre::OverlayElement*> mmPlayerIcons;
+	bool reverseSymbol;
 
     int clientId;
 
