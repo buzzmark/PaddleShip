@@ -1,6 +1,9 @@
 #include <OgreMath.h>
 #include "Ship.h"
 #include <iostream>
+#include "GameScreen.h"
+#include "Packet.h"
+#include "NetManager.h"
 #include <CEGUI/CEGUI.h>
 #include <CEGUI/RendererModules/Ogre/Renderer.h>
 
@@ -138,6 +141,12 @@ void Ship::update(void)
 				outOfBounds = false;
 				CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild("deathMessage")->setVisible(true);
 			}
+
+            if (!gameScreen->getIsClient() && !gameScreen->isSinglePlayer() && clientId != 0) {
+                Packet p;
+                p << (char) SPT_HEALTH << hp;
+                gameScreen->getNetManager()->messageClient(clientId, p);
+            }
 		}
 		std::stringstream scoreVal;
  		scoreVal << "" << score;

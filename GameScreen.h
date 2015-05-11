@@ -29,10 +29,12 @@ public:
 	void setClient(bool client);
 	bool getIsClient() const;
 	void setSinglePlayer(bool single);
+	bool isSinglePlayer() const;
 	void update(const Ogre::FrameEvent &evt);
 	void updateClient(const Ogre::FrameEvent &evt, Packet& p);
 	void updateMinimap();
 	void updateHealthDisplay();
+	void updateHealthDisplay(int hp);
 	Packet getPositions();
 	void injectKeyDown(const OIS::KeyEvent &arg);
 	void injectKeyUp(const OIS::KeyEvent &arg);

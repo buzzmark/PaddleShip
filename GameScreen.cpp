@@ -99,6 +99,10 @@ void GameScreen::setSinglePlayer(bool single){
 	singlePlayer = single;
 }
 //---------------------------------------------------------------------------
+bool GameScreen::isSinglePlayer() const {
+    return singlePlayer;
+}
+//---------------------------------------------------------------------------
 void GameScreen::update(const Ogre::FrameEvent &evt)
 {
 	sim->stepSimulation(evt.timeSinceLastFrame, 1, 1/60.0f);
@@ -218,6 +222,17 @@ void GameScreen::updateHealthDisplay()
     if (player != nullptr) {
         std::string message = std::string("HP:  ") + std::to_string(getCurrentPlayer()->getHealth());
         CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild("healthCounter")->setText((char*)message.c_str());
+    }
+}
+//---------------------------------------------------------------------------
+void GameScreen::updateHealthDisplay(int hp)
+{
+    std::string message = std::string("HP:  ") + std::to_string(hp);
+    CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild("healthCounter")->setText((char*)message.c_str());
+
+    if (hp == 0) {
+        CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild("warningMessage")->setVisible(false);
+        CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild("deathMessage")->setVisible(true);
     }
 }
 //---------------------------------------------------------------------------
