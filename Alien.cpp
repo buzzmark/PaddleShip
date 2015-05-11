@@ -91,7 +91,7 @@ void Alien::update(void)
 	if (!turnLeft && !turnRight) {
 		body->setAngularVelocity(btVector3(0,((body->getAngularVelocity()).getY())*0.95,0));
 	}
-	if (context->hit){
+	if (context->hit && dynamic_cast<Asteroid*>(context->theObject) == nullptr){
 		//lose health
 		if (hp > 0) {
 			hp -= 35;

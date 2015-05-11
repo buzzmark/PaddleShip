@@ -49,6 +49,7 @@ void GameObject::addToSimulator()
     rbInfo.m_restitution = restitution;
     rbInfo.m_friction = friction;
     body = new btRigidBody(rbInfo);
+    body->setUserPointer(this);
     
     context = new CollisionContext();
     cCallBack = new BulletContactCallback(*body, *context);
@@ -123,6 +124,7 @@ void GameObject::setMotionState(OgreMotionState* newState) {
 
 void GameObject::setBody(btRigidBody* newBody) {
     body = newBody;
+    newBody->setUserPointer(this);
 }
 
 void GameObject::setPosition(float x, float y, float z){
