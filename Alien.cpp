@@ -91,6 +91,16 @@ void Alien::update(void)
 	if (!turnLeft && !turnRight) {
 		body->setAngularVelocity(btVector3(0,((body->getAngularVelocity()).getY())*0.95,0));
 	}
+
+	//counteracts inertia when changing direction
+	if (turnRight && body->getAngularVelocity().getY() > 0) {
+		body->setAngularVelocity(btVector3(0,((body->getAngularVelocity()).getY())*0.95,0));
+	}
+
+	if (turnLeft && body->getAngularVelocity().getY() < 0) {
+		body->setAngularVelocity(btVector3(0,((body->getAngularVelocity()).getY())*0.95,0));
+	}
+	
 	if (context->hit && dynamic_cast<Asteroid*>(context->theObject) == nullptr){
 		//lose health
 		if (hp > 0) {

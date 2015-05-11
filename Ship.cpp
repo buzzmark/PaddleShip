@@ -116,19 +116,31 @@ void Ship::update(void)
 	}
 	btVector3 shipVel = body->getLinearVelocity();
 	body->setLinearVelocity(btVector3(shipVel.getX()*0.99,shipVel.getY()*0.99,shipVel.getZ()*0.99));
-	if (turnRight) {
+	if (turnRight && body->getAngularVelocity().getY() > -5) {
 		body->setAngularFactor(btVector3(0,1,0));
 		body->applyTorque(btVector3(0,-1000,0));
 		body->setAngularFactor(btVector3(0,0,0));
 	}
-	if (turnLeft) {
+
+	if (turnLeft && body->getAngularVelocity().getY() < 5) {
 		body->setAngularFactor(btVector3(0,1,0));
 		body->applyTorque(btVector3(0,1000,0));
 		body->setAngularFactor(btVector3(0,0,0));
 	} 
+
 	if (!turnLeft && !turnRight) {
 		body->setAngularVelocity(btVector3(0,((body->getAngularVelocity()).getY())*0.95,0));
 	}
+
+	//counteracts inertia when changing direction
+	if (turnRight && body->getAngularVelocity().getY() > 0) {
+		body->setAngularVelocity(btVector3(0,((body->getAngularVelocity()).getY())*0.95,0));
+	}
+
+	if (turnLeft && body->getAngularVelocity().getY() < 0) {
+		body->setAngularVelocity(btVector3(0,((body->getAngularVelocity()).getY())*0.95,0));
+	}
+
 	if(!context->hit) {
 		hasDecr = false;
 	}
@@ -148,13 +160,6 @@ void Ship::update(void)
                 gameScreen->getNetManager()->messageClient(clientId, p);
             }
 		}
-		std::stringstream scoreVal;
- 		scoreVal << "" << score;
- 		if (mDetailsPanel==NULL) {
- 	 		printf("mDetailsPanel is null ptr\n");
-        } else {
-     	 	mDetailsPanel->setParamValue(0, scoreVal.str());
-        }
 		soundPlayer->playShipHit();
 		hasDecr = true;
 	}
