@@ -126,8 +126,8 @@ void ShipAI::roam(void)
   	//melee();
   	paces = 0;
 
-	float minT = -2000;
-	float maxT = 2000;
+	float minT = -1500;
+	float maxT = 1500;
 	yT = minT + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(maxT-minT)));
 
 	if (!doneFleeing) {
