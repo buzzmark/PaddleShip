@@ -129,6 +129,7 @@ void Game::createScene(void)
     soundPlayer = new SoundPlayer();
     soundPlayer->startBgMusic();
     gameScreen = new GameScreen(mSceneMgr, mCameraNode, soundPlayer, shipLight, alienLight);
+    gameScreen->setNetManager(netMgr);
 
     //game screen
     gameScreen->createScene();
@@ -377,7 +378,6 @@ bool Game::startSinglePlayer(const CEGUI::EventArgs &e)
 void Game::setUpSDL(void)
 {
     netMgr = new NetManager();
-    gameScreen->setNetManager(netMgr);
 }
 //---------------------------------------------------------------------------
 bool Game::startHosting(const CEGUI::EventArgs &e)
