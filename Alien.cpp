@@ -2,6 +2,8 @@
 #include "Alien.h"
 #include "GameScreen.h"
 #include <iostream>
+#include <CEGUI/CEGUI.h>
+#include <CEGUI/RendererModules/Ogre/Renderer.h>
 //---------------------------------------------------------------------------
 Alien::Alien(Ogre::String nym, Ogre::SceneManager* mgr, Simulator* sim, GameScreen* gs, Ogre::SceneNode* cm, int &ht, SoundPlayer* sPlayer, Ogre::Light* alienLt, int clId) : PlayerObject(nym, mgr, sim, gs, cm, sPlayer, alienLt, clId), health(ht)
 {
@@ -91,8 +93,18 @@ void Alien::update(void)
 	}
 	if (context->hit){
 		//lose health
-		if (health > 0) {
-			health = 0;
+		if (hp > 0) {
+			hp -= 35;
+			if (gameScreen->getCurrentPlayer() == this && hp <= 0){
+                hp = 0;
+				CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild("deathMessage")->setVisible(true);
+			}
+
+            if (!gameScreen->getIsClient() && !gameScreen->isSinglePlayer() && clientId != 0) {
+                Packet p;
+                p << (char) SPT_HEALTH << hp;
+                gameScreen->getNetManager()->messageClient(clientId, p);
+            }
 		}
 		std::stringstream healthVal;
  		healthVal << "" << health;
