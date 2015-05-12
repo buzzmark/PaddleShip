@@ -35,7 +35,7 @@ public:
 	void updateMinimap();
 	void updateHealthDisplay();
 	void updateHealthDisplay(int hp);
-	Packet getPositions();
+	std::vector<Packet> getPositions();
 	void injectKeyDown(const OIS::KeyEvent &arg);
 	void injectKeyUp(const OIS::KeyEvent &arg);
 	void clientKey(int id, bool isDown, unsigned char key);

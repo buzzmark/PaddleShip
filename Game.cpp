@@ -178,7 +178,9 @@ bool Game::frameRenderingQueued(const Ogre::FrameEvent &evt){
                 p >> packetType;
 
                 switch (packetType) {
-                    case SPT_POSITIONS:
+                    case SPT_AIPOS:
+                    case SPT_PLAYERPOS:
+                    case SPT_ASTPOS:
                         gameScreen->updateClient(evt, p);
                         break;
                     case SPT_CLIENTID:
@@ -246,8 +248,10 @@ bool Game::frameRenderingQueued(const Ogre::FrameEvent &evt){
 
             auto now = std::chrono::steady_clock::now();
             if (now - lastNetUpdate > std::chrono::milliseconds(16)) {
-                Packet p = gameScreen->getPositions();
-                netMgr->messageClientsTCP(p);
+                std::vector<Packet> packets = gameScreen->getPositions();
+                for (Packet p : packets) {
+                    netMgr->messageClientsUDP(p);
+                }
             }
         }
     }

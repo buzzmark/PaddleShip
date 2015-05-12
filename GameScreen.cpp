@@ -140,42 +140,38 @@ void updatePlayerObject(Packet &p, PlayerObject* player, char type) {
 void GameScreen::updateClient(const Ogre::FrameEvent &evt, Packet& p)
 {
     char type;
-
     p >> type;
-    updatePlayerObject(p, shipAI, type);
 
-    int id;
-    p >> id;
+    if (type == SPT_AIPOS) {
+        updatePlayerObject(p, shipAI, PADDLE_SHIP);
+    } else if (type == SPT_PLAYERPOS) {
+        int id;
+        p >> id;
 
-    while (id != -1) {
-        char type;
-        p >> type;
+        char ptype;
+        p >> ptype;
 
         PlayerObject* player;
         auto iter = clientObjects.find(id);
 
         if (iter == clientObjects.end()) {
-            player = createClientObject(id, type);
+            player = createClientObject(id, ptype);
         } else {
             player = iter->second;
         }
-
         updatePlayerObject(p, player, type);
-
+    } else if (type == SPT_ASTPOS) {
+        int id;
         p >> id;
-    }
 
-    int numAsteroids;
-    p >> numAsteroids;
+        Ogre::Vector3 pos;
+        Ogre::Quaternion rot;
 
-	Ogre::Vector3 pos;
-	Ogre::Quaternion rot;
-    std::vector<Asteroid*> asteroids = getAsteroids();
-
-    for (Asteroid* ast : asteroids) {
         p >> pos >> rot;
-		ast->setPosition(pos.x, pos.y, pos.z);
-		ast->getNode()->setOrientation(rot);
+
+        Asteroid* ast = getAsteroids()[id];
+        ast->setPosition(pos.x, pos.y, pos.z);
+        ast->getNode()->setOrientation(rot);
     }
 
     updateMinimap();
@@ -267,35 +263,35 @@ void writePlayerObject(Packet &p, PlayerObject* player) {
     }
 }
 //---------------------------------------------------------------------------
-Packet GameScreen::getPositions()
+std::vector<Packet> GameScreen::getPositions()
 {
-	Packet p;
+    std::vector<Packet> packets;
 
-    p << (char) SPT_POSITIONS;
-
-    writePlayerObject(p, shipAI);
+	Packet ai_packet;
+    ai_packet << (char) SPT_AIPOS;
+    writePlayerObject(ai_packet, shipAI);
+    packets.push_back(ai_packet);
 
     for (auto client : clientObjects) {
-        p << client.first;
+        Packet p;
+        p << (char) SPT_PLAYERPOS << client.first;
         writePlayerObject(p, client.second);
+        packets.push_back(p);
     }
 
-    p << (int) -1;
-
     std::vector<Asteroid*> asteroids = getAsteroids();
-    p << (int) asteroids.size();
-
     Ogre::Vector3 pos;
     Ogre::Quaternion rot;
 
-    for (Asteroid* ast : asteroids) {
-		pos = ast->getPos();
-		rot = ast->getNode()->getOrientation();
+    for (int i = 0; i < asteroids.size(); ++i) {
+        Asteroid* ast = asteroids[i];
 
-		p << pos << rot;
+        Packet p;
+        p << (char) SPT_ASTPOS << i << ast->getPos() << ast->getNode()->getOrientation();
+        packets.push_back(p);
     }
 
-	return p;
+	return packets;
 }
 //---------------------------------------------------------------------------
 void GameScreen::injectKeyDown(const OIS::KeyEvent &arg)
