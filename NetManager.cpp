@@ -139,8 +139,12 @@ std::unordered_map<int, TCPsocket>::iterator NetManager::messageSingleClientTCP(
         queuedDisconnects.push_back(iter->first);
 
         SDLNet_UDP_Unbind(server_udp, clients_udp[iter->first]);
+        udp_channels.erase(clients_udp[iter->first]);
+        clients_udp.erase(iter->first);
+
         SDLNet_TCP_Close(client);
         SDLNet_DelSocket(socket_set, (SDLNet_GenericSocket) client);
+
         return clients_tcp.erase(iter);
     } else {
         return ++iter;
@@ -280,8 +284,12 @@ void NetManager::serverGetData(NetUpdate& update) {
                     update.disconnects.push_back(iter->first);
 
                     SDLNet_UDP_Unbind(server_udp, clients_udp[iter->first]);
+                    udp_channels.erase(clients_udp[iter->first]);
+                    clients_udp.erase(iter->first);
+
                     SDLNet_TCP_Close(client);
                     SDLNet_DelSocket(socket_set, (SDLNet_GenericSocket) client);
+
                     iter = clients_tcp.erase(iter);
                 }
 
@@ -290,8 +298,12 @@ void NetManager::serverGetData(NetUpdate& update) {
                 update.disconnects.push_back(iter->first);
 
                 SDLNet_UDP_Unbind(server_udp, clients_udp[iter->first]);
+                udp_channels.erase(clients_udp[iter->first]);
+                clients_udp.erase(iter->first);
+
                 SDLNet_TCP_Close(client);
                 SDLNet_DelSocket(socket_set, (SDLNet_GenericSocket) client);
+
                 iter = clients_tcp.erase(iter);
             }
         } else {
