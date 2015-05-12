@@ -87,6 +87,7 @@ void Ship::addToSimulator(void)
 //---------------------------------------------------------------------------
 void Ship::removeFromScene(void) {
     PlayerObject::removeFromScene();
+    rootNode->removeAllChildren();
     paddle->removeFromScene();
 }
 //---------------------------------------------------------------------------
