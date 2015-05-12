@@ -397,13 +397,15 @@ void GameScreen::removeClientObject(int id) {
     PlayerObject* player = clientObjects[id];
     clientObjects.erase(id);
 
-    Ogre::OverlayElement* icon = mmPlayerIcons[player];
-    mmPlayerIcons.erase(player);
-    mmBackground->removeChild(icon->getName());
+    if (player != nullptr) {
+        Ogre::OverlayElement* icon = mmPlayerIcons[player];
+        mmPlayerIcons.erase(player);
+        mmBackground->removeChild(icon->getName());
 
-    player->removeFromSimulator();
-    player->removeFromScene();
-    delete player;
+        player->removeFromSimulator();
+        player->removeFromScene();
+        delete player;
+    }
 }
 
 void GameScreen::setClientId(int id) {
