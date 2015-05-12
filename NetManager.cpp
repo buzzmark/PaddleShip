@@ -13,9 +13,9 @@ NetManager::~NetManager(){
     SDLNet_FreeSocketSet(socket_set);
 
     if (isRunning) {
-        SDLNet_TCP_Close(server);
+        SDLNet_TCP_Close(server_tcp);
 
-        for (auto client : clients) {
+        for (auto client : clients_tcp) {
             TCPsocket& socket = client.second;
             SDLNet_TCP_Close(socket);
         }
@@ -38,13 +38,13 @@ void NetManager::startServer(){
     }
 
     /* Open a connection with the IP provided (listen on the host's port) */
-    if (!(server = SDLNet_TCP_Open(&ip)))
+    if (!(server_tcp = SDLNet_TCP_Open(&ip)))
     {
         fprintf(stderr, "SDLNet_TCP_Open: %s\n", SDLNet_GetError());
         exit(EXIT_FAILURE);
     }
 
-    if (SDLNet_AddSocket(socket_set, (SDLNet_GenericSocket) server) < 0)
+    if (SDLNet_AddSocket(socket_set, (SDLNet_GenericSocket) server_tcp) < 0)
     {
         fprintf(stderr, "SDLNet_AddSocket: %s\n", SDLNet_GetError());
         exit(EXIT_FAILURE);
@@ -62,13 +62,13 @@ void NetManager::startClient(char* host) {
         exit(EXIT_FAILURE);
     }
 
-    if (!(server = SDLNet_TCP_Open(&ip)))
+    if (!(server_tcp = SDLNet_TCP_Open(&ip)))
     {
         fprintf(stderr, "SDLNet_TCP_Open: %s\n", SDLNet_GetError());
         exit(EXIT_FAILURE);
     }
 
-    if (SDLNet_AddSocket(socket_set, (SDLNet_GenericSocket) server) < 0)
+    if (SDLNet_AddSocket(socket_set, (SDLNet_GenericSocket) server_tcp) < 0)
     {
         fprintf(stderr, "SDLNet_AddSocket: %s\n", SDLNet_GetError());
         exit(EXIT_FAILURE);
@@ -78,25 +78,25 @@ void NetManager::startClient(char* host) {
 }
 
 int NetManager::numClients() const {
-    return clients.size();
+    return clients_tcp.size();
 }
 
 //------------------------------------------------------------
 // Message fuctions
 //------------------------------------------------------------
 
-void NetManager::messageServer(const Packet &p) {
+void NetManager::messageServerTCP(const Packet &p) {
     const char* buf = p.data();
     const int len = p.size();
 
-    SDLNet_TCP_Send(server, &len, sizeof(int));
+    SDLNet_TCP_Send(server_tcp, &len, sizeof(int));
 
-    if (SDLNet_TCP_Send(server, buf, len) < len) {
+    if (SDLNet_TCP_Send(server_tcp, buf, len) < len) {
         queuedDisconnects.push_back(0);
     }
 }
 
-std::unordered_map<int, TCPsocket>::iterator NetManager::messageSingleClient(std::unordered_map<int, TCPsocket>::iterator iter, const Packet &p) {
+std::unordered_map<int, TCPsocket>::iterator NetManager::messageSingleClientTCP(std::unordered_map<int, TCPsocket>::iterator iter, const Packet &p) {
     const char* buf = p.data();
     const int len = p.size();
 
@@ -108,25 +108,25 @@ std::unordered_map<int, TCPsocket>::iterator NetManager::messageSingleClient(std
 
         SDLNet_TCP_Close(client);
         SDLNet_DelSocket(socket_set, (SDLNet_GenericSocket) client);
-        return clients.erase(iter);
+        return clients_tcp.erase(iter);
     } else {
         return ++iter;
     }
 }
 
-void NetManager::messageClients(const Packet &p) {
-    auto iter = clients.begin();
+void NetManager::messageClientsTCP(const Packet &p) {
+    auto iter = clients_tcp.begin();
 
-    while (iter != clients.end()) {
-        iter = messageSingleClient(iter, p);
+    while (iter != clients_tcp.end()) {
+        iter = messageSingleClientTCP(iter, p);
     }
 }
 
-void NetManager::messageClient(int clientId, const Packet &p) {
-    auto iter = clients.find(clientId);
+void NetManager::messageClientTCP(int clientId, const Packet &p) {
+    auto iter = clients_tcp.find(clientId);
 
-    if (iter != clients.end()) {
-        messageSingleClient(iter, p);
+    if (iter != clients_tcp.end()) {
+        messageSingleClientTCP(iter, p);
     }
 }
 
@@ -139,13 +139,13 @@ NetUpdate NetManager::checkForUpdates() {
 
     if (isServer) {
         // check for new clients
-        if (SDLNet_SocketReady(server)) {
-            TCPsocket connection = SDLNet_TCP_Accept(server);
+        if (SDLNet_SocketReady(server_tcp)) {
+            TCPsocket connection = SDLNet_TCP_Accept(server_tcp);
             if (connection != nullptr) {
                 update.newConnection = true;
                 update.connectionId = nextClientId;
 
-                clients[nextClientId] = connection;
+                clients_tcp[nextClientId] = connection;
                 SDLNet_AddSocket(socket_set, (SDLNet_GenericSocket) connection);
                 nextClientId++;
             }
@@ -181,9 +181,9 @@ void NetManager::serverGetData(NetUpdate& update) {
     std::unordered_map<int, Packet>& data = update.data;
 
     // check for client messages
-    auto iter = clients.begin();
+    auto iter = clients_tcp.begin();
 
-    while (iter != clients.end()) {
+    while (iter != clients_tcp.end()) {
         TCPsocket client = iter->second;
         if (SDLNet_SocketReady(client)) {
             int len;
@@ -199,7 +199,7 @@ void NetManager::serverGetData(NetUpdate& update) {
 
                     SDLNet_TCP_Close(client);
                     SDLNet_DelSocket(socket_set, (SDLNet_GenericSocket) client);
-                    iter = clients.erase(iter);
+                    iter = clients_tcp.erase(iter);
                 }
 
                 delete[] buf;
@@ -208,7 +208,7 @@ void NetManager::serverGetData(NetUpdate& update) {
 
                 SDLNet_TCP_Close(client);
                 SDLNet_DelSocket(socket_set, (SDLNet_GenericSocket) client);
-                iter = clients.erase(iter);
+                iter = clients_tcp.erase(iter);
             }
         } else {
             ++iter;
@@ -219,12 +219,12 @@ void NetManager::serverGetData(NetUpdate& update) {
 void NetManager::clientGetData(NetUpdate& update) {
     std::unordered_map<int, Packet>& data = update.data;
 
-    if (SDLNet_SocketReady(server)) {
+    if (SDLNet_SocketReady(server_tcp)) {
         int len;
 
-        if (read_buffer(server, &len, sizeof(int))) {
+        if (read_buffer(server_tcp, &len, sizeof(int))) {
             char* buf = new char[len];
-            if (read_buffer(server, buf, len)) {
+            if (read_buffer(server_tcp, buf, len)) {
                 data[0] = Packet(buf, len);
             } else {
                 update.disconnects.push_back(0);

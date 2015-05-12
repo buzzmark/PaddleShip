@@ -204,7 +204,7 @@ bool Game::frameRenderingQueued(const Ogre::FrameEvent &evt){
             for (int id : clientUpdate.disconnects) {
                 Packet p;
                 p << (char) SPT_DISCONNECT << id;
-                netMgr->messageClients(p);
+                netMgr->messageClientsTCP(p);
 
                 gameScreen->removeClientObject(id);
             }
@@ -214,7 +214,7 @@ bool Game::frameRenderingQueued(const Ogre::FrameEvent &evt){
 
                 Packet p;
                 p << (char) SPT_CLIENTID << id;
-                netMgr->messageClient(id, p);
+                netMgr->messageClientTCP(id, p);
             }
 
             auto& clientData = clientUpdate.data;
@@ -247,7 +247,7 @@ bool Game::frameRenderingQueued(const Ogre::FrameEvent &evt){
             auto now = std::chrono::steady_clock::now();
             if (now - lastNetUpdate > std::chrono::milliseconds(16)) {
                 Packet p = gameScreen->getPositions();
-                netMgr->messageClients(p);
+                netMgr->messageClientsTCP(p);
             }
         }
     }
@@ -277,7 +277,7 @@ bool Game::keyPressed(const OIS::KeyEvent &arg){
     else {
         Packet p;
         p << (char) CPT_KEYPRESS << (char) arg.key;
-        netMgr->messageServer(p);
+        netMgr->messageServerTCP(p);
     }
 
     return BaseApplication::keyPressed(arg);
@@ -293,7 +293,7 @@ bool Game::keyReleased(const OIS::KeyEvent &arg)
     else {
         Packet p;
         p << (char) CPT_KEYRELEASE << (char) arg.key;
-        netMgr->messageServer(p);
+        netMgr->messageServerTCP(p);
     }
 
     //mCameraMan->injectKeyUp(arg);
@@ -410,7 +410,7 @@ bool Game::joinGame(const CEGUI::EventArgs &e)
 
     Packet p;
     p << (char) CPT_SHIPTYPE << (char) shipType;
-    netMgr->messageServer(p);
+    netMgr->messageServerTCP(p);
 
     guiRoot->getChild("mainMenu")->setVisible(false);
     CEGUI::System::getSingleton().getDefaultGUIContext().getMouseCursor().hide();

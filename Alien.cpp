@@ -113,7 +113,7 @@ void Alien::update(void)
             if (!gameScreen->getIsClient() && !gameScreen->isSinglePlayer() && clientId != 0) {
                 Packet p;
                 p << (char) SPT_HEALTH << hp;
-                gameScreen->getNetManager()->messageClient(clientId, p);
+                gameScreen->getNetManager()->messageClientTCP(clientId, p);
             }
 		}
 		std::stringstream healthVal;

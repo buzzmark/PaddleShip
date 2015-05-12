@@ -10,8 +10,8 @@ class NetManager
 {
     private:
         IPaddress ip;
-        TCPsocket server;
-        std::unordered_map<int, TCPsocket> clients;
+        TCPsocket server_tcp;
+        std::unordered_map<int, TCPsocket> clients_tcp;
         SDLNet_SocketSet socket_set;
         bool isServer;
         bool isRunning;
@@ -19,7 +19,7 @@ class NetManager
 
         std::vector<int> queuedDisconnects;
 
-        std::unordered_map<int, TCPsocket>::iterator messageSingleClient(std::unordered_map<int, TCPsocket>::iterator iter, const Packet &p);
+        std::unordered_map<int, TCPsocket>::iterator messageSingleClientTCP(std::unordered_map<int, TCPsocket>::iterator iter, const Packet &p);
 
         void serverGetData(NetUpdate& update);
         void clientGetData(NetUpdate& update);
@@ -32,9 +32,9 @@ class NetManager
         void startClient(char* host);
         int numClients() const;
 
-        void messageServer(const Packet& p);
-        void messageClients(const Packet& p);
-        void messageClient(int clientId, const Packet& p);
+        void messageServerTCP(const Packet& p);
+        void messageClientsTCP(const Packet& p);
+        void messageClientTCP(int clientId, const Packet& p);
         NetUpdate checkForUpdates();
 };
 
