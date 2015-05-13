@@ -5,7 +5,6 @@
 #include "BaseApplication.h" //?
 #include "AsteroidSys.h"
 #include "Simulator.h"
-#include "Paddle.h"
 #include "SoundPlayer.h"
 #include "Packet.h"
 #include "PlayerObject.h"
