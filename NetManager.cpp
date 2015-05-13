@@ -15,15 +15,6 @@ NetManager::~NetManager(){
     SDLNet_FreePacket(udp_recv_packet);
 
     if (isRunning) {
-        if (isServer) {
-            for (auto client : clients_udp) {
-                int channel = client.second;
-                SDLNet_UDP_Unbind(server_udp, channel);
-            }
-        } else {
-            SDLNet_UDP_Unbind(server_udp, 0);
-        }
-
         for (auto client : clients_tcp) {
             TCPsocket& socket = client.second;
             SDLNet_TCP_Close(socket);
@@ -69,12 +60,6 @@ void NetManager::startServer(){
         exit(EXIT_FAILURE);
     }
 
-    if (SDLNet_AddSocket(socket_set, (SDLNet_GenericSocket) server_udp) < 0)
-    {
-        fprintf(stderr, "SDLNet_AddSocket: %s\n", SDLNet_GetError());
-        exit(EXIT_FAILURE);
-    }
-
     isRunning = true;
 }
 
@@ -100,21 +85,10 @@ void NetManager::startClient(char* host) {
         exit(EXIT_FAILURE);
     }
 
-    /* Bind UDP channel to server */
+    /* Open UDP socket */
     if (!(server_udp = SDLNet_UDP_Open(PORT)))
     {
         fprintf(stderr, "SDLNet_UDP_Open: %s\n", SDLNet_GetError());
-        exit(EXIT_FAILURE);
-    }
-
-    if (SDLNet_AddSocket(socket_set, (SDLNet_GenericSocket) server_udp) < 0)
-    {
-        fprintf(stderr, "SDLNet_AddSocket: %s\n", SDLNet_GetError());
-        exit(EXIT_FAILURE);
-    }
-
-    if (SDLNet_UDP_Bind(server_udp, 0, &ip) == -1) {
-        fprintf(stderr, "SDLNet_UDP_Bind: %s\n", SDLNet_GetError());
         exit(EXIT_FAILURE);
     }
 
@@ -150,8 +124,6 @@ std::unordered_map<int, TCPsocket>::iterator NetManager::messageSingleClientTCP(
     if (SDLNet_TCP_Send(client, buf, len) < len) {
         queuedDisconnects.push_back(iter->first);
 
-        SDLNet_UDP_Unbind(server_udp, clients_udp[iter->first]);
-        udp_channels.erase(clients_udp[iter->first]);
         clients_udp.erase(iter->first);
 
         SDLNet_TCP_Close(client);
@@ -190,17 +162,12 @@ UDPpacket* createUdpPacket(const Packet& p) {
     return send_packet;
 }
 
-void NetManager::messageServerUDP(const Packet &p) {
-    UDPpacket* send_packet = createUdpPacket(p);
-    SDLNet_UDP_Send(server_udp, 0, send_packet);
-    SDLNet_FreePacket(send_packet);
-}
-
 void NetManager::messageClientsUDP(const Packet& p) {
     UDPpacket* send_packet = createUdpPacket(p);
 
     for (auto client : clients_udp) {
-        SDLNet_UDP_Send(server_udp, client.second, send_packet);
+        send_packet->address = clients_udp[client.first];
+        SDLNet_UDP_Send(server_udp, -1, send_packet);
     }
 
     SDLNet_FreePacket(send_packet);
@@ -211,7 +178,8 @@ void NetManager::messageClientUDP(int clientId, const Packet& p) {
 
     if (iter != clients_udp.end()) {
         UDPpacket* send_packet = createUdpPacket(p);
-        SDLNet_UDP_Send(server_udp, iter->second, send_packet);
+        send_packet->address = clients_udp[iter->first];
+        SDLNet_UDP_Send(server_udp, -1, send_packet);
         SDLNet_FreePacket(send_packet);
     }
 }
@@ -241,14 +209,8 @@ NetUpdate NetManager::checkForUpdates() {
                 IPaddress* client_ip = SDLNet_TCP_GetPeerAddress(connection);
                 IPaddress udp_ip;
                 udp_ip.host = client_ip->host;
-                udp_ip.port = ip.port;
-
-                int channel = SDLNet_UDP_Bind(server_udp, -1, &udp_ip);
-
-                if (channel != -1) {
-                    clients_udp[nextClientId] = channel;
-                    udp_channels[channel] = nextClientId;
-                }
+                udp_ip.port = PORT;
+                clients_udp[nextClientId] = udp_ip;
 
                 nextClientId++;
             }
@@ -300,8 +262,6 @@ void NetManager::serverGetData(NetUpdate& update) {
                 } else {
                     update.disconnects.push_back(iter->first);
 
-                    SDLNet_UDP_Unbind(server_udp, clients_udp[iter->first]);
-                    udp_channels.erase(clients_udp[iter->first]);
                     clients_udp.erase(iter->first);
 
                     SDLNet_TCP_Close(client);
@@ -314,8 +274,6 @@ void NetManager::serverGetData(NetUpdate& update) {
             } else {
                 update.disconnects.push_back(iter->first);
 
-                SDLNet_UDP_Unbind(server_udp, clients_udp[iter->first]);
-                udp_channels.erase(clients_udp[iter->first]);
                 clients_udp.erase(iter->first);
 
                 SDLNet_TCP_Close(client);
@@ -325,34 +283,6 @@ void NetManager::serverGetData(NetUpdate& update) {
             }
         } else {
             ++iter;
-        }
-    }
-
-    // check for client messages (UDP)
-    if (SDLNet_SocketReady(server_udp)) {
-        if (SDLNet_UDP_Recv(server_udp, udp_recv_packet) == 1) {
-            int channel = udp_recv_packet->channel;
-            if (channel != -1) {
-                int clientId = udp_channels[channel];
-                Packet p((char*) udp_recv_packet->data, udp_recv_packet->len);
-
-                if (data.find(clientId) != data.end()) {
-                    queuedUdpUpdates[clientId].push(p);
-                } else {
-                    data[clientId] = p;
-                }
-            }
-        }
-    }
-
-    // check for queued client messages from UDP
-    for (auto client : queuedUdpUpdates) {
-        int clientId = client.first;
-        std::queue<Packet>& udp_queue = client.second;
-
-        if (!udp_queue.empty() && data.find(clientId) == data.end()) {
-            data[clientId] = udp_queue.front();
-            udp_queue.pop();
         }
     }
 }
@@ -375,12 +305,10 @@ void NetManager::clientGetData(NetUpdate& update) {
         } else {
             update.disconnects.push_back(0);
         }
-    } else if (SDLNet_SocketReady(server_udp)) {
+    } else {
         // check for server message (UDP)
         if (SDLNet_UDP_Recv(server_udp, udp_recv_packet) == 1) {
-            if (udp_recv_packet->channel != -1) {
-                data[0] = Packet((char*) udp_recv_packet->data, udp_recv_packet->len);
-            }
+            data[0] = Packet((char*) udp_recv_packet->data, udp_recv_packet->len);
         }
     }
 }
