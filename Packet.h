@@ -4,6 +4,7 @@
 #ifndef DISABLE_OGRE
 #include <Ogre.h>
 #endif
+#include <string>
 #include <vector>
 
 enum PacketType {
@@ -29,10 +30,12 @@ class Packet {
         Packet& operator<<(const char a);
         Packet& operator<<(const int a);
         Packet& operator<<(const float a);
+        Packet& operator<<(const std::string& a);
 
         Packet& operator>>(char& a);
         Packet& operator>>(int& a);
         Packet& operator>>(float& a);
+        Packet& operator>>(std::string& a);
 
 #ifndef DISABLE_OGRE
         Packet& operator<<(const Ogre::Vector3& a);

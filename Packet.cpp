@@ -1,4 +1,5 @@
 #include <cstring>
+#include <algorithm>
 #include "Packet.h"
 
 //---------------------------------------------------------------------------
@@ -52,6 +53,13 @@ Packet& Packet::operator<<(const float a) {
     return *this;
 }
 
+Packet& Packet::operator<<(const std::string& a) {
+    buffer.insert(buffer.end(), a.begin(), a.end());
+    buffer.push_back(0);
+    length += a.size() + 1;
+    return *this;
+}
+
 //---------------------------------------------------------------------------
 
 Packet& Packet::operator>>(char &a) {
@@ -66,6 +74,12 @@ Packet& Packet::operator>>(int &a) {
 
 Packet& Packet::operator>>(float &a) {
     mem_read_from_packet(&a, sizeof(float));
+    return *this;
+}
+
+Packet& Packet::operator>>(std::string& a) {
+    a = std::string(&buffer[position]);
+    position = find(buffer.begin() + position, buffer.end(), (char) 0) - buffer.begin();
     return *this;
 }
 
