@@ -209,7 +209,7 @@ NetUpdate NetManager::checkForUpdates() {
                 IPaddress* client_ip = SDLNet_TCP_GetPeerAddress(connection);
                 IPaddress udp_ip;
                 udp_ip.host = client_ip->host;
-                udp_ip.port = ((PORT & 0x0000ff00) >> 8) || ((PORT & 0x00000ff) << 8);
+                udp_ip.port = ip.port;
                 clients_udp[nextClientId] = udp_ip;
 
                 nextClientId++;
