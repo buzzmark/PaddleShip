@@ -69,6 +69,12 @@ void NetManager::startServer(){
         exit(EXIT_FAILURE);
     }
 
+    if (SDLNet_AddSocket(socket_set, (SDLNet_GenericSocket) server_udp) < 0)
+    {
+        fprintf(stderr, "SDLNet_AddSocket: %s\n", SDLNet_GetError());
+        exit(EXIT_FAILURE);
+    }
+
     isRunning = true;
 }
 
@@ -98,6 +104,12 @@ void NetManager::startClient(char* host) {
     if (!(server_udp = SDLNet_UDP_Open(49152)))
     {
         fprintf(stderr, "SDLNet_UDP_Open: %s\n", SDLNet_GetError());
+        exit(EXIT_FAILURE);
+    }
+
+    if (SDLNet_AddSocket(socket_set, (SDLNet_GenericSocket) server_udp) < 0)
+    {
+        fprintf(stderr, "SDLNet_AddSocket: %s\n", SDLNet_GetError());
         exit(EXIT_FAILURE);
     }
 
@@ -312,16 +324,18 @@ void NetManager::serverGetData(NetUpdate& update) {
     }
 
     // check for client messages (UDP)
-    if (SDLNet_UDP_Recv(server_udp, udp_recv_packet) == 1) {
-        int channel = udp_recv_packet->channel;
-        if (channel != -1) {
-            int clientId = udp_channels[channel];
-            Packet p((char*) udp_recv_packet->data, udp_recv_packet->len);
+    if (SDLNet_SocketReady(server_udp)) {
+        if (SDLNet_UDP_Recv(server_udp, udp_recv_packet) == 1) {
+            int channel = udp_recv_packet->channel;
+            if (channel != -1) {
+                int clientId = udp_channels[channel];
+                Packet p((char*) udp_recv_packet->data, udp_recv_packet->len);
 
-            if (data.find(clientId) != data.end()) {
-                queuedUdpUpdates[clientId].push(p);
-            } else {
-                data[clientId] = p;
+                if (data.find(clientId) != data.end()) {
+                    queuedUdpUpdates[clientId].push(p);
+                } else {
+                    data[clientId] = p;
+                }
             }
         }
     }
@@ -356,7 +370,7 @@ void NetManager::clientGetData(NetUpdate& update) {
         } else {
             update.disconnects.push_back(0);
         }
-    } else {
+    } else if (SDLNet_SocketReady(server_udp)) {
         // check for server message (UDP)
         if (SDLNet_UDP_Recv(server_udp, udp_recv_packet) == 1) {
             if (udp_recv_packet->channel != -1) {
