@@ -17,6 +17,7 @@ Game::Game(char *hostIP)
     host = hostIP;
     test = true;
     lastNetUpdate = std::chrono::steady_clock::now();
+    netFrameCount = 0;
 }
 //---------------------------------------------------------------------------
 Game::~Game(void)
@@ -181,6 +182,12 @@ bool Game::frameRenderingQueued(const Ogre::FrameEvent &evt){
                     case SPT_POSITIONS:
                         gameScreen->updateClient(evt, p);
                         break;
+                    case SPT_PLAYERPOS:
+                        gameScreen->updateClientPlayers(p);
+                        break;
+                    case SPT_ASTPOS:
+                        gameScreen->updateClientAsteroids(p);
+                        break;
                     case SPT_CLIENTID:
                         p >> id;
                         gameScreen->setClientId(id);
@@ -250,9 +257,22 @@ bool Game::frameRenderingQueued(const Ogre::FrameEvent &evt){
 
             auto now = std::chrono::steady_clock::now();
             if (now - lastNetUpdate > std::chrono::milliseconds(16)) {
-                Packet p = gameScreen->getPositions();
+                Packet p;
+                p << (char) SPT_PLAYERPOS;
+                gameScreen->writePlayerPositions(p);
                 netMgr->messageClientsUDP(p);
+
                 lastNetUpdate = now;
+                netFrameCount++;
+
+                if (netFrameCount == 2) {
+                    Packet p2;
+                    p2 << (char) SPT_ASTPOS;
+                    gameScreen->writeAsteroidPositions(p2);
+                    netMgr->messageClientsUDP(p2);
+
+                    netFrameCount = 0;
+                }
             }
         }
     }

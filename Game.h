@@ -56,6 +56,7 @@ protected:
   ShipType shipType;
 
   std::chrono::time_point<std::chrono::steady_clock> lastNetUpdate;
+  int netFrameCount;
 };
 
 //---------------------------------------------------------------------------
