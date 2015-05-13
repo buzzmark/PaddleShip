@@ -1,4 +1,5 @@
 #include <cstring>
+#include <algorithm>
 #include "Packet.h"
 
 //---------------------------------------------------------------------------
@@ -60,6 +61,13 @@ Packet& Packet::operator<<(const Ogre::Quaternion& a) {
     return *this << a.w << a.x << a.y << a.z;
 }
 
+Packet& Packet::operator<<(const std::string& a) {
+    buffer.insert(buffer.end(), a.begin(), a.end());
+    buffer.push_back(0);
+    length += a.size() + 1;
+    return *this;
+}
+
 //---------------------------------------------------------------------------
 
 Packet& Packet::operator>>(char &a) {
@@ -83,6 +91,12 @@ Packet& Packet::operator>>(Ogre::Vector3& a) {
 
 Packet& Packet::operator>>(Ogre::Quaternion& a) {
     return *this >> a.w >> a.x >> a.y >> a.z;
+}
+
+Packet& Packet::operator>>(std::string& a) {
+    a = std::string(&buffer[position]);
+    position = find(buffer.begin() + position, buffer.end(), (char) 0) + 1 - buffer.begin();
+    return *this;
 }
 
 //---------------------------------------------------------------------------

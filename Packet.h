@@ -2,6 +2,7 @@
 #define PACKET_H_
 
 #include <Ogre.h>
+#include <string>
 #include <vector>
 
 enum PacketType {
@@ -29,12 +30,14 @@ class Packet {
         Packet& operator<<(const float a);
         Packet& operator<<(const Ogre::Vector3& a);
         Packet& operator<<(const Ogre::Quaternion& a);
+        Packet& operator<<(const std::string& a);
 
         Packet& operator>>(char& a);
         Packet& operator>>(int& a);
         Packet& operator>>(float& a);
         Packet& operator>>(Ogre::Vector3& a);
         Packet& operator>>(Ogre::Quaternion& a);
+        Packet& operator>>(std::string& a);
 };
 
 #endif /* PACKET_H_ */
