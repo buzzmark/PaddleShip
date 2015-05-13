@@ -248,6 +248,7 @@ bool Game::frameRenderingQueued(const Ogre::FrameEvent &evt){
             if (now - lastNetUpdate > std::chrono::milliseconds(16)) {
                 Packet p = gameScreen->getPositions();
                 netMgr->messageClientsUDP(p);
+                lastNetUpdate = now;
             }
         }
     }
