@@ -138,8 +138,7 @@ void updatePlayerObject(Packet &p, PlayerObject* player, char type) {
     }
 }
 //---------------------------------------------------------------------------
-void GameScreen::updateClient(const Ogre::FrameEvent &evt, Packet& p)
-{
+void GameScreen::updateClientPlayers(Packet& p) {
     char type;
 
     p >> type;
@@ -166,6 +165,11 @@ void GameScreen::updateClient(const Ogre::FrameEvent &evt, Packet& p)
         p >> id;
     }
 
+    updateMinimap();
+    checkBounds();
+}
+//---------------------------------------------------------------------------
+void GameScreen::updateClientAsteroids(Packet& p) {
     int numAsteroids;
     p >> numAsteroids;
 
@@ -178,9 +182,12 @@ void GameScreen::updateClient(const Ogre::FrameEvent &evt, Packet& p)
 		ast->setPosition(pos.x, pos.y, pos.z);
 		ast->getNode()->setOrientation(rot);
     }
-
-    updateMinimap();
-    checkBounds();
+}
+//---------------------------------------------------------------------------
+void GameScreen::updateClient(const Ogre::FrameEvent &evt, Packet& p)
+{
+    updateClientPlayers(p);
+    updateClientAsteroids(p);
 }
 //---------------------------------------------------------------------------
 void GameScreen::updateMinimap()

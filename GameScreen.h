@@ -14,7 +14,6 @@
 #include <unordered_map>
 
 class ShipAI;
-class Alien;
 
 //---------------------------------------------------------------------------
 
@@ -31,6 +30,8 @@ public:
 	void setSinglePlayer(bool single);
 	bool isSinglePlayer() const;
 	void update(const Ogre::FrameEvent &evt);
+    void updateClientPlayers(Packet& p);
+    void updateClientAsteroids(Packet& p);
 	void updateClient(const Ogre::FrameEvent &evt, Packet& p);
 	void updateMinimap();
 	void updateHealthDisplay();
