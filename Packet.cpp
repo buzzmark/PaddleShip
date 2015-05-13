@@ -79,7 +79,7 @@ Packet& Packet::operator>>(float &a) {
 
 Packet& Packet::operator>>(std::string& a) {
     a = std::string(&buffer[position]);
-    position = find(buffer.begin() + position, buffer.end(), (char) 0) - buffer.begin();
+    position = find(buffer.begin() + position, buffer.end(), (char) 0) + 1 - buffer.begin();
     return *this;
 }
 
