@@ -37,6 +37,8 @@ public:
 	void updateHealthDisplay();
 	void updateHealthDisplay(int id, int hp);
 	void checkBounds();
+    void writePlayerPositions(Packet& p);
+    void writeAsteroidPositions(Packet& p);
 	Packet getPositions();
 	void injectKeyDown(const OIS::KeyEvent &arg);
 	void injectKeyUp(const OIS::KeyEvent &arg);

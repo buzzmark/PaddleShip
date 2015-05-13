@@ -299,12 +299,7 @@ void writePlayerObject(Packet &p, PlayerObject* player) {
     }
 }
 //---------------------------------------------------------------------------
-Packet GameScreen::getPositions()
-{
-	Packet p;
-
-    p << (char) SPT_POSITIONS;
-
+void GameScreen::writePlayerPositions(Packet& p) {
     writePlayerObject(p, shipAI);
 
     for (auto client : clientObjects) {
@@ -313,7 +308,9 @@ Packet GameScreen::getPositions()
     }
 
     p << (int) -1;
-
+}
+//---------------------------------------------------------------------------
+void GameScreen::writeAsteroidPositions(Packet& p) {
     std::vector<Asteroid*> asteroids = getAsteroids();
     p << (int) asteroids.size();
 
@@ -326,6 +323,15 @@ Packet GameScreen::getPositions()
 
 		p << pos << rot;
     }
+}
+//---------------------------------------------------------------------------
+Packet GameScreen::getPositions()
+{
+	Packet p;
+
+    p << (char) SPT_POSITIONS;
+    writePlayerPositions(p);
+    writeAsteroidPositions(p);
 
 	return p;
 }
