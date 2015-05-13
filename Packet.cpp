@@ -52,14 +52,6 @@ Packet& Packet::operator<<(const float a) {
     return *this;
 }
 
-Packet& Packet::operator<<(const Ogre::Vector3& a) {
-    return *this << a.x << a.y << a.z;
-}
-
-Packet& Packet::operator<<(const Ogre::Quaternion& a) {
-    return *this << a.w << a.x << a.y << a.z;
-}
-
 //---------------------------------------------------------------------------
 
 Packet& Packet::operator>>(char &a) {
@@ -77,6 +69,17 @@ Packet& Packet::operator>>(float &a) {
     return *this;
 }
 
+//---------------------------------------------------------------------------
+
+#ifndef DISABLE_OGRE
+Packet& Packet::operator<<(const Ogre::Vector3& a) {
+    return *this << a.x << a.y << a.z;
+}
+
+Packet& Packet::operator<<(const Ogre::Quaternion& a) {
+    return *this << a.w << a.x << a.y << a.z;
+}
+
 Packet& Packet::operator>>(Ogre::Vector3& a) {
     return *this >> a.x >> a.y >> a.z;
 }
@@ -84,5 +87,4 @@ Packet& Packet::operator>>(Ogre::Vector3& a) {
 Packet& Packet::operator>>(Ogre::Quaternion& a) {
     return *this >> a.w >> a.x >> a.y >> a.z;
 }
-
-//---------------------------------------------------------------------------
+#endif

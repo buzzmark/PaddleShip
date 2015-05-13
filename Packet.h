@@ -1,7 +1,9 @@
 #ifndef PACKET_H_
 #define PACKET_H_
 
+#ifndef DISABLE_OGRE
 #include <Ogre.h>
+#endif
 #include <vector>
 
 enum PacketType {
@@ -27,14 +29,17 @@ class Packet {
         Packet& operator<<(const char a);
         Packet& operator<<(const int a);
         Packet& operator<<(const float a);
-        Packet& operator<<(const Ogre::Vector3& a);
-        Packet& operator<<(const Ogre::Quaternion& a);
 
         Packet& operator>>(char& a);
         Packet& operator>>(int& a);
         Packet& operator>>(float& a);
+
+#ifndef DISABLE_OGRE
+        Packet& operator<<(const Ogre::Vector3& a);
+        Packet& operator<<(const Ogre::Quaternion& a);
         Packet& operator>>(Ogre::Vector3& a);
         Packet& operator>>(Ogre::Quaternion& a);
+#endif
 };
 
 #endif /* PACKET_H_ */

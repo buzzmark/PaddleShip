@@ -2,6 +2,7 @@
 #define NETMANAGER_H_
 
 #include <unordered_map>
+#include <queue>
 #include <SDL_net.h>
 #include "Packet.h"
 #include "NetUpdate.h"
