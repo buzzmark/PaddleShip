@@ -8,6 +8,7 @@
 #include "NetUpdate.h"
 
 #define MAX_RECV_PACKET_SIZE 8192
+#define PORT 49152
 
 class NetManager
 {

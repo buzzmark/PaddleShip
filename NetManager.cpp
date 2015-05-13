@@ -43,7 +43,7 @@ NetManager::~NetManager(){
 void NetManager::startServer(){
     isServer = true;
 
-    if (SDLNet_ResolveHost(&ip, NULL, 49152) < 0)
+    if (SDLNet_ResolveHost(&ip, NULL, PORT) < 0)
     {
         fprintf(stderr, "SDLNet_ResolveHost: %s\n", SDLNet_GetError());
         exit(EXIT_FAILURE);
@@ -63,7 +63,7 @@ void NetManager::startServer(){
     }
 
     /* Open UDP socket */
-    if (!(server_udp = SDLNet_UDP_Open(49152)))
+    if (!(server_udp = SDLNet_UDP_Open(PORT)))
     {
         fprintf(stderr, "SDLNet_UDP_Open: %s\n", SDLNet_GetError());
         exit(EXIT_FAILURE);
@@ -81,7 +81,7 @@ void NetManager::startServer(){
 void NetManager::startClient(char* host) {
     isServer = false;
 
-    if (SDLNet_ResolveHost(&ip, host, 49152) < 0)
+    if (SDLNet_ResolveHost(&ip, host, PORT) < 0)
     {
         fprintf(stderr, "SDLNet_ResolveHost: %s\n", SDLNet_GetError());
         exit(EXIT_FAILURE);
@@ -101,7 +101,7 @@ void NetManager::startClient(char* host) {
     }
 
     /* Bind UDP channel to server */
-    if (!(server_udp = SDLNet_UDP_Open(49152)))
+    if (!(server_udp = SDLNet_UDP_Open(PORT)))
     {
         fprintf(stderr, "SDLNet_UDP_Open: %s\n", SDLNet_GetError());
         exit(EXIT_FAILURE);
