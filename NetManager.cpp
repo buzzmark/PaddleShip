@@ -239,7 +239,12 @@ NetUpdate NetManager::checkForUpdates() {
                 SDLNet_AddSocket(socket_set, (SDLNet_GenericSocket) connection);
 
                 IPaddress* client_ip = SDLNet_TCP_GetPeerAddress(connection);
-                int channel = SDLNet_UDP_Bind(server_udp, -1, client_ip);
+                IPaddress udp_ip;
+                udp_ip.host = client_ip->host;
+                udp_ip.port = ip.port;
+
+                int channel = SDLNet_UDP_Bind(server_udp, -1, &udp_ip);
+
                 if (channel != -1) {
                     clients_udp[nextClientId] = channel;
                     udp_channels[channel] = nextClientId;
