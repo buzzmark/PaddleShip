@@ -189,13 +189,14 @@ void Ship::damageTaken(void){
 //---------------------------------------------------------------------------
 void Ship::injectKeyDown(const OIS::KeyEvent &arg)
 {
+	if(hp <= 0) return;
 	if (arg.key == OIS::KC_SPACE){
 		if (motorRight)
 			paddleHinge->enableAngularMotor(true, -100, 1000);
 		else
 			paddleHinge->enableAngularMotor(true, 100, 1000);
 		motorRight = !motorRight;
-		soundPlayer->playPaddleSwing();
+		soundPlayer->playPaddleSwing(); //if current player?
 	}
 	if (arg.key == OIS::KC_W){
 		beforeMove = getPos();

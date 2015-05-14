@@ -144,9 +144,18 @@ void Alien::update(void)
 void Alien::damageTaken(void)
 {
 	if (hp < 0) hp = 0;
-	if (gameScreen->getCurrentPlayer() == this && hp == 0){
-		CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild("deathMessage")->setVisible(true);
-	} 
+	if (hp == 0){
+		if (isBound) {
+			currentAsteroid->getDynamicsWorld()->removeConstraint(asteroidBinder);
+			isBound = false;
+		}
+		hasAsteroid = false;
+		
+		if (gameScreen->getCurrentPlayer() == this){
+			CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild("deathMessage")->setVisible(true);
+		} 
+	}
+
 	if (hp > 0 && iframes < IFRAMES_ON_HIT)
 		iframes = IFRAMES_ON_HIT;
 
@@ -159,6 +168,7 @@ void Alien::damageTaken(void)
 //---------------------------------------------------------------------------
 void Alien::injectKeyDown(const OIS::KeyEvent &arg)
 {
+	if (hp<=0) return;
 	if (arg.key == OIS::KC_W){
 		forward = true;
 	}
