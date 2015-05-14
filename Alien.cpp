@@ -283,6 +283,7 @@ void Alien::grabAsteroid(bool tryGrab)
 				asteroidBinder = new btHingeConstraint(*body, *currentAsteroid -> getBody(), btVector3(0,0,0), btVector3(0,-17,0), btVector3(0,1,0), btVector3(0,1,0));
 				asteroidBinder->setLimit(M_PI/2, M_PI/2);
 				currentAsteroid -> getDynamicsWorld() ->addConstraint(asteroidBinder, true);
+                currentAsteroid -> setHeld(true);
 				isBound = true;
 			}
 			i++;
@@ -296,6 +297,7 @@ void Alien::grabAsteroid(bool tryGrab)
 void Alien::shootAsteroid(int arg) {
 	if (isBound) {
 		currentAsteroid -> getDynamicsWorld() ->removeConstraint(asteroidBinder);
+        currentAsteroid -> setHeld(false);
 		isBound = false;
 	}
 

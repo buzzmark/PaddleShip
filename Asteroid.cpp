@@ -36,6 +36,7 @@ Asteroid::Asteroid(Ogre::String nym, Ogre::SceneManager* mgr, Simulator* sim, in
 
   netVel = btVector3(xV, yV, zV);
   netState = false;
+  isHeld = false;
 }
 //---------------------------------------------------------------------------
 Asteroid::~Asteroid(void)
@@ -150,5 +151,10 @@ bool Asteroid::getNetState() const {
 
 void Asteroid::resetNetState() {
     netVel = body->getLinearVelocity();
-    netState = false;
+    netState = isHeld;
+}
+
+void Asteroid::setHeld(bool h) {
+    isHeld = h;
+    netState |= h;
 }

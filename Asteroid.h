@@ -24,6 +24,7 @@ public:
     void readFromPacket(Packet& p);
     bool getNetState() const;
     void resetNetState();
+    void setHeld(bool h);
 
 protected:
 	Ogre::Vector3 asteroidVelocity;
@@ -36,6 +37,7 @@ protected:
 
     btVector3 netVel;
     bool netState;
+    bool isHeld;
 };
 
 //---------------------------------------------------------------------------
