@@ -460,9 +460,12 @@ void GameScreen::reset() {
             player->getBody()->setLinearFactor(btVector3(1,0,1));
             player->getBody()->setAngularFactor(btVector3(0,0,0));
             sim->getDynamicsWorld()->addRigidBody(player->getBody());
-
         }
-
+        if (!singlePlayer){
+            Packet p;
+            p << (char) SPT_RESET;
+            netManager->messageClientsTCP(p);
+        }
     }
     for (auto player : getPlayers()){
         player->setHealth(100);
