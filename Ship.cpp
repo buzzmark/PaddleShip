@@ -148,11 +148,13 @@ void Ship::update(void)
 		//lose health
 		if (hp > 0) {
 			hp-=20;
-			if (gameScreen->getCurrentPlayer() == this && hp <= 0){
-				CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild("warningMessage")->setVisible(false);
-				outOfBounds = false;
-				CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild("deathMessage")->setVisible(true);
+			if (hp <= 0){
 				pSys->setEmitting(false);
+				if (gameScreen->getCurrentPlayer() == this) {
+					CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild("warningMessage")->setVisible(false);
+					outOfBounds = false;
+					CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild("deathMessage")->setVisible(true);
+				}
 			}
             if (!gameScreen->getIsClient() && !gameScreen->isSinglePlayer()) {
                 Packet p;
