@@ -34,7 +34,7 @@ public:
 	void updateClient(const Ogre::FrameEvent &evt, Packet& p);
 	void updateMinimap();
 	void updateHealthDisplay();
-	void updateHealthDisplay(int hp);
+	void updateHealthDisplay(int id, int hp);
 	Packet getPositions();
 	void injectKeyDown(const OIS::KeyEvent &arg);
 	void injectKeyUp(const OIS::KeyEvent &arg);

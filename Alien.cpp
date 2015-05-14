@@ -60,6 +60,8 @@ void Alien::addToSimulator(void)
 //---------------------------------------------------------------------------
 void Alien::update(void)
 {
+	if(hp <= 0) return;
+
 	if (left && body->getLinearVelocity().getX() > -50) {
 		Ogre::Vector3 pointLeft = rootNode->getOrientation() * Ogre::Vector3(-1,0,0);
 		body->applyCentralForce(btVector3(8000*pointLeft.x, 8000*pointLeft.y, 8000*pointLeft.z));
@@ -112,7 +114,7 @@ void Alien::update(void)
 
             if (!gameScreen->getIsClient() && !gameScreen->isSinglePlayer() && clientId != 0) {
                 Packet p;
-                p << (char) SPT_HEALTH << hp;
+                p << (char) SPT_HEALTH << clientId << hp;
                 gameScreen->getNetManager()->messageClientTCP(clientId, p);
             }
 		}

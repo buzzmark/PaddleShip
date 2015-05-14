@@ -187,21 +187,20 @@ void GameScreen::updateMinimap()
 {
 	Ogre::Real iconWidth = 0.15*0.15;
 	Ogre::Real iconHeight= 0.15*0.15*19.0/12.0;
-	Ogre::Real playerRelativeX; //TODO change ship to current player
-	Ogre::Real playerRelativeZ; //TODO change ship to current player
 
 	std::vector<PlayerObject*> players = getPlayers();
     PlayerObject* myPlayerObj = getCurrentPlayer();
 
     for (PlayerObject* player : players) {
         if (player != myPlayerObj && ((PlayerObject*)player)->getHealth() <= 0 && mmPlayerIcons[player]->getMaterialName() != "minimap_dead"){
+            if(player == shipAI) printf("!!!!!!!!!!!!!!!!!!!!!\n");
             mmPlayerIcons[player]->setMaterialName("minimap_dead");
         }
         else if (player != myPlayerObj && ((PlayerObject*)player)->getHealth() > 0 && mmPlayerIcons[player]->getMaterialName() == "minimap_dead"){
             mmPlayerIcons[player]->setMaterialName("minimap_enemy");
         }
-		playerRelativeX = player->getPos().x/4000.0;
-		playerRelativeZ = player->getPos().z/4000.0;
+		Ogre::Real playerRelativeX = player->getPos().x/4000.0;
+		Ogre::Real playerRelativeZ = player->getPos().z/4000.0;
 		mmPlayerIcons[player]->setPosition(playerRelativeX*0.15/2.0 - iconWidth/2.0, playerRelativeZ*0.15*19.0/12.0/2.0 - iconHeight/2.0);
 
 		//rotate texture
@@ -229,15 +228,23 @@ void GameScreen::updateHealthDisplay()
     }
 }
 //---------------------------------------------------------------------------
-void GameScreen::updateHealthDisplay(int hp)
+void GameScreen::updateHealthDisplay(int id, int hp)
 {
-    std::string message = std::string("HP:  ") + std::to_string(hp);
-    CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild("healthCounter")->setText((char*)message.c_str());
+    std::string message = std::string("HP: ") + std::to_string(hp);
 
-    if (hp == 0) {
-        CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild("warningMessage")->setVisible(false);
-        CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild("deathMessage")->setVisible(true);
+    if (id == -1) {
+        shipAI->setHealth(hp);
     }
+    else clientObjects.find(id)->second->setHealth(hp);
+
+    if (id == clientId) {
+        CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild("healthCounter")->setText((char*)message.c_str());
+        if (hp == 0) {
+            CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild("warningMessage")->setVisible(false);
+            CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild("deathMessage")->setVisible(true);
+        }
+    }
+
 }
 //---------------------------------------------------------------------------
 void writePlayerObject(Packet &p, PlayerObject* player) {

@@ -26,7 +26,6 @@ ShipAI::ShipAI(Ogre::String nym, Ogre::SceneManager* mgr, Simulator* sim, GameSc
 	fleeState = false;
 
 	hasDecr = false;
-	health = 100;
 	left = false;
 	right = false;
 	forward = false;
@@ -58,12 +57,12 @@ void ShipAI::addToScene(void)
 //---------------------------------------------------------------------------
 void ShipAI::update(void)
 {
+	if(hp <= 0) return;
+
 	//processing self and surroundings
 	//printf("Starting update\n");
 	survivalCheck();
-	if (health != 0){
-		incomingAst();
-	}
+	incomingAst();
 	opponentProximityCheck();
 
 	//taking action based on state(s)
@@ -92,21 +91,19 @@ void ShipAI::update(void)
 	}
 	if (!hasDecr && context->hit){
 		//lose health
-		if (health > 0) {
-			health-=10;
+		if (hp > 0) {
+			hp-=20;
+			if (hp < 0) hp = 0;
 			//printf("AI injured\n");
 		}
-		if (health < 30) {
+		if (hp < 30) {
 			mustFlee = true;
 		}
-		/*
-		std::stringstream scoreVal;
- 		scoreVal << "" << score;
- 		if (mDetailsPanel==NULL) {
- 	 		printf("mDetailsPanel is null ptr\n");
- 	 	}
- 	 	*/
-		soundPlayer->playShipHit();
+        if (!gameScreen->getIsClient() && !gameScreen->isSinglePlayer()) {
+            Packet p;
+            p << (char) SPT_HEALTH << clientId << hp;
+            gameScreen->getNetManager()->messageClientsTCP(p);
+        }
 		hasDecr = true;
 	}
 	
@@ -282,7 +279,7 @@ void ShipAI::flee(void)
 /*checks self-health*/
 void ShipAI::survivalCheck(void)
 {
-	if (health < 30 && paces < 100 && (doneRoaming || mustFlee)) {
+	if (hp < 30 && paces < 100 && (doneRoaming || mustFlee)) {
 		if (mustFlee && paces > 0) {
 			//printf("Health is low\n");
 			paces = 0;
@@ -340,8 +337,8 @@ void ShipAI::opponentProximityCheck(void)
 	}
 	
 	
-	if (nearbyOps == 0 && health >= 30) {
-		if (health >= 30) {
+	if (nearbyOps == 0 && hp >= 30) {
+		if (hp >= 30) {
 			target = NULL;
 		}
 		//paces = 1000;

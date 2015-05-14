@@ -21,7 +21,6 @@ Ship::Ship(Ogre::String nym, Ogre::SceneManager* mgr, Simulator* sim, GameScreen
 	//changedView = false;
 	rearView = false;
 	//rootNode->addChild(cameraNode);
-	health = 100;
 	left = false;
 	right = false;
 	forward = false;
@@ -154,11 +153,10 @@ void Ship::update(void)
 				outOfBounds = false;
 				CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild("deathMessage")->setVisible(true);
 			}
-
-            if (!gameScreen->getIsClient() && !gameScreen->isSinglePlayer() && clientId != 0) {
+            if (!gameScreen->getIsClient() && !gameScreen->isSinglePlayer()) {
                 Packet p;
-                p << (char) SPT_HEALTH << hp;
-                gameScreen->getNetManager()->messageClientTCP(clientId, p);
+                p << (char) SPT_HEALTH << clientId << hp;
+                gameScreen->getNetManager()->messageClientsTCP(p);
             }
 		}
 		soundPlayer->playShipHit();

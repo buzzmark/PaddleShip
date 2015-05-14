@@ -37,6 +37,7 @@ class PlayerObject : public GameObject {
         virtual void update(void) = 0;
         virtual void grabCamera() = 0;
         virtual void setDeetsPan(OgreBites::ParamsPanel* mDeetsPan);
+        virtual void setHealth(int health);
         virtual int getHealth();
         virtual void injectKeyDown(const OIS::KeyEvent &arg) = 0;
         virtual void injectKeyUp(const OIS::KeyEvent &arg) = 0;

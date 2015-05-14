@@ -19,6 +19,9 @@ void PlayerObject::setDeetsPan(OgreBites::ParamsPanel* mDeetsPan) {
     mDetailsPanel = mDeetsPan;
 }
 //---------------------------------------------------------------------------
+void PlayerObject::setHealth(int health){
+    hp = health;
+}//---------------------------------------------------------------------------
 int PlayerObject::getHealth(){
-	return hp;
+    return hp;
 }

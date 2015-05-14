@@ -41,7 +41,6 @@ protected:
 	bool hasDecr;
 	bool rearView;
 	//bool changedView;
-	int health; 
 	bool forward;
 	bool back;
 	bool left;
