@@ -39,6 +39,7 @@ class PlayerObject : public GameObject {
         int iframes;
         bool outOfBounds;
         int outOfBoundsTimer;
+        Ogre::ParticleSystem* pSys;
 
     public:
 	    PlayerObject(Ogre::String nym, Ogre::SceneManager* mgr, Simulator* sim, GameScreen* gs, Ogre::SceneNode* cm, SoundPlayer* sPlayer, Ogre::Light* lt, int clId);
@@ -50,6 +51,7 @@ class PlayerObject : public GameObject {
         virtual void setDeetsPan(OgreBites::ParamsPanel* mDeetsPan);
         virtual void setHealth(int health);
         virtual int getHealth();
+        virtual Ogre::ParticleSystem* getParticleSystem();
         virtual void injectKeyDown(const OIS::KeyEvent &arg) = 0;
         virtual void injectKeyUp(const OIS::KeyEvent &arg) = 0;
 };

@@ -259,9 +259,7 @@ void GameScreen::updateHealthDisplay(int id, int hp)
     else player = clientObjects.find(id)->second;
 
     player->setHealth(hp);
-    Ship* shipPtr = dynamic_cast<Ship*>(player);
-    if(hp <= 0 &&  shipPtr != nullptr)
-        shipPtr->getParticleSystem()->setEmitting(false);
+    if (hp <= 0) player->getParticleSystem()->setEmitting(false);
 
     if (id == clientId) {
         CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild("healthCounter")->setText((char*)message.c_str());
@@ -518,9 +516,7 @@ void GameScreen::reset() {
     }
     for (auto player : getPlayers()){
         player->setHealth(100);
-        Ship* shipPtr = dynamic_cast<Ship*>(player);
-        if(shipPtr != nullptr)
-            shipPtr->getParticleSystem()->setEmitting(true);
+        player->getParticleSystem()->setEmitting(true);
         
     }
     //reset all messages

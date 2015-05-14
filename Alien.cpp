@@ -46,6 +46,10 @@ void Alien::addToScene(void)
 
 	mass = 10.0f;
 	shape = shape = new btSphereShape(5);
+
+	pSys = sceneMgr->createParticleSystem(name + "PS", "alien_particles");
+    Ogre::SceneNode* pNode = (Ogre::SceneNode*)rootNode->createChild(Ogre::Vector3(0,2,0));
+    pNode->attachObject(pSys);
 }
 //---------------------------------------------------------------------------
 void Alien::addToSimulator(void)
@@ -150,8 +154,10 @@ void Alien::damageTaken(void)
 			isBound = false;
 		}
 		hasAsteroid = false;
-		
+		pSys->setEmitting(false);
 		if (gameScreen->getCurrentPlayer() == this){
+			CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild("warningMessage")->setVisible(false);
+			outOfBounds = false;
 			CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild("deathMessage")->setVisible(true);
 		} 
 	}
@@ -159,10 +165,10 @@ void Alien::damageTaken(void)
 	if (hp > 0 && iframes < IFRAMES_ON_HIT)
 		iframes = IFRAMES_ON_HIT;
 
-    if (!gameScreen->getIsClient() && !gameScreen->isSinglePlayer() && clientId != 0) {
+    if (!gameScreen->getIsClient() && !gameScreen->isSinglePlayer()) {
         Packet p;
         p << (char) SPT_HEALTH << clientId << hp;
-        gameScreen->getNetManager()->messageClientTCP(clientId, p);
+        gameScreen->getNetManager()->messageClientsTCP(p);
     }
 }
 //---------------------------------------------------------------------------

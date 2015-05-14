@@ -168,7 +168,8 @@ void Ship::update(void)
 	light->setPosition(Ogre::Vector3(getPos().x + 0,getPos().y + 500,getPos().z - 250));
 }
 //---------------------------------------------------------------------------
-void Ship::damageTaken(void){
+void Ship::damageTaken(void)
+{
 	if (hp < 0) hp = 0;
 	if (hp == 0){
 		pSys->setEmitting(false);
@@ -269,10 +270,5 @@ void Ship::setPaddle(Paddle* p)
 Paddle* Ship::getPaddle()
 {
     return paddle;
-}
-//---------------------------------------------------------------------------
-Ogre::ParticleSystem* Ship::getParticleSystem()
-{
-    return pSys;
 }
 //---------------------------------------------------------------------------

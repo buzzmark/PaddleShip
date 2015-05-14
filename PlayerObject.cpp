@@ -30,7 +30,13 @@ void PlayerObject::setDeetsPan(OgreBites::ParamsPanel* mDeetsPan) {
 //---------------------------------------------------------------------------
 void PlayerObject::setHealth(int health){
     hp = health;
-}//---------------------------------------------------------------------------
+}
+//---------------------------------------------------------------------------
 int PlayerObject::getHealth(){
     return hp;
+}
+//---------------------------------------------------------------------------
+Ogre::ParticleSystem* PlayerObject::getParticleSystem()
+{
+    return pSys;
 }
