@@ -85,67 +85,9 @@ void Asteroid::update(void){
   asteroidPosition = rootNode->getPosition();
   if (sqrt(asteroidPosition.x*asteroidPosition.x+asteroidPosition.z*asteroidPosition.z) > 4000.0f || abs(asteroidPosition.y) > 100.0f) {
     body->applyCentralForce(btVector3(-0.00125*getPos().x, -0.00125*getPos().y, -0.00125*getPos().z));
-
-    /*//printf("OUT OF BOUNDS\n");
-    float minV = -10;
-    float maxV = 10;
-    Ogre::Real zV = minV + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(maxV-minV)));
-    minV = -1;
-    maxV = 1;
-    Ogre::Real yV = minV + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(maxV-minV)));
-    minV = -10;
-    maxV = 10;
-    Ogre::Real xV = minV + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(maxV-minV)));
-
-    float maxP = 4000;
-    float minP = -maxP;
-    Ogre::Real xP = minP + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(maxP-minP)));
-    Ogre::Real zP = minP + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(maxP-minP)));
-    minP = -25;
-    maxP = 25;
-    Ogre::Real yP = minP + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(maxP-minP)));
-
-    asteroidVelocity = Ogre::Vector3(xV,yV,zV);
-    asteroidPosition = Ogre::Vector3(xP,yP,zP);
-    rootNode->setPosition(asteroidPosition);
-
-    //printf("dynamicsWorld about to remove rigid body\n");
-    dynamicsWorld->removeRigidBody(body);
-    //printf("dynamicsWorld removed rigid body\n");
-    delete body->getMotionState();
-    //printf("deleted motionState\n");
-    delete body;
-    //printf("deleted body\n");
-    tr.setOrigin(btVector3(asteroidPosition.x, asteroidPosition.y, asteroidPosition.z));
-    //printf("set origin\n");
-    Ogre::Quaternion qt = rootNode->getOrientation();
-    //printf("set orientation\n");
-    tr.setRotation(btQuaternion(qt.x, qt.y, qt.z, qt.w));
-    //printf("set rotation\n");
-    motionState = new OgreMotionState(tr,rootNode);
-    //printf("created new motionState\n");
-    //shape = new btSphereShape(sphereSize);
-    //printf("reset shape\n");
-    //printf("mass is %f before reset\n", massVal);  
-    //mass = massVal;
-    //printf("mass is %f\n", massVal);
-    //printf("reset mass\n");
-    btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, motionState, shape, inertia);
-    //printf("constructed rigid body\n");
-    rbInfo.m_restitution = restitution;
-    rbInfo.m_friction = friction;
-    //printf("reassigned restitution and friction\n");
-    body = new btRigidBody(rbInfo);
-    //printf("created new rigid body\n");
-    //printf("Velocity values are now: %f, %f, %f\n", asteroidVelocity.x, asteroidVelocity.y, asteroidVelocity.z);
-    body->setLinearVelocity( btVector3(asteroidVelocity.x, asteroidVelocity.y, asteroidVelocity.z) );
-    dynamicsWorld->addRigidBody(body);
-    //printf("set new linear velocity\n");
-    */
-  } 
-  ////printf("NOT OUT OF BOUNDS\n");
-  //GameObject::updateTransform();
-  GameObject::update();
+  }
+  if (asteroidPosition.y > 40) body->applyCentralForce(btVector3(0,-5,0));
+  if (asteroidPosition.y < -40) body->applyCentralForce(btVector3(0,5,0));
 }
 //---------------------------------------------------------------------------
 void Asteroid::addToSimulator(void){
