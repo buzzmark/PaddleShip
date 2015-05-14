@@ -93,14 +93,16 @@ void ShipAI::update(void)
 	if(!context->hit) {
 		hasDecr = false;
 	}
-	if (!hasDecr && context->hit){
+	if (!hasDecr && context->hit && iframes <= 0){
 		//lose health
 		if (hp > 0) {
 			hp-=20;
 			if (hp <= 0){
 				hp = 0;
 				pSys->setEmitting(false);
-			}
+			} 
+			if (hp > 0 && iframes < IFRAMES_ON_HIT)
+				iframes = IFRAMES_ON_HIT;
 			//printf("AI injured\n");
 		}
 		if (hp < 30) {
@@ -113,6 +115,7 @@ void ShipAI::update(void)
         }
 		hasDecr = true;
 	}
+	if (iframes > 0) iframes--;
 	
 }
 
@@ -235,7 +238,6 @@ void ShipAI::melee(void)
 	else
 		paddleHinge->enableAngularMotor(true, 100, 1000);
 	motorRight = !motorRight;
-	soundPlayer->playPaddleSwing();
 
 }
 //---------------------------------------------------------------------------

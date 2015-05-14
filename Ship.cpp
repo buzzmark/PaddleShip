@@ -150,7 +150,8 @@ void Ship::update(void)
 	if(!context->hit) {
 		hasDecr = false;
 	}
-	if (!hasDecr && context->hit){
+
+	if (!hasDecr && context->hit && iframes <= 0){
 		//lose health
 		if (hp > 0) {
 			hp-=20;
@@ -162,6 +163,8 @@ void Ship::update(void)
 					CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild("deathMessage")->setVisible(true);
 				}
 			}
+			if (hp > 0 && iframes < IFRAMES_ON_HIT)
+				iframes = IFRAMES_ON_HIT;
             if (!gameScreen->getIsClient() && !gameScreen->isSinglePlayer()) {
                 Packet p;
                 p << (char) SPT_HEALTH << clientId << hp;
@@ -171,6 +174,7 @@ void Ship::update(void)
 		soundPlayer->playShipHit();
 		hasDecr = true;
 	}
+	if(iframes > 0) iframes--;
 
 	light->setPosition(Ogre::Vector3(getPos().x + 0,getPos().y + 500,getPos().z - 250));
 	/*

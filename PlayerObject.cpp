@@ -11,7 +11,8 @@ PlayerObject::PlayerObject(Ogre::String nym, Ogre::SceneManager* mgr, Simulator*
     mDetailsPanel(nullptr),
     soundPlayer(sPlayer),
     clientId(clId),
-    hp (100) {}
+    hp (100),
+    iframes (IFRAMES_ON_SPAWN) {}
 //---------------------------------------------------------------------------
 PlayerObject::~PlayerObject() {}
 //---------------------------------------------------------------------------

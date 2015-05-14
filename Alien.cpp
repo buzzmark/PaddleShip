@@ -105,12 +105,14 @@ void Alien::update(void)
 	
 	if (context->hit && dynamic_cast<Asteroid*>(context->theObject) == nullptr){
 		//lose health
-		if (hp > 0) {
+		if (hp > 0 && iframes <= 0) {
 			hp -= 35;
 			if (hp < 0) hp = 0;
 			if (gameScreen->getCurrentPlayer() == this && hp <= 0){
 				CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild("deathMessage")->setVisible(true);
-			}
+			} 
+			if (hp > 0 && iframes < IFRAMES_ON_HIT)
+				iframes = IFRAMES_ON_HIT;
 
             if (!gameScreen->getIsClient() && !gameScreen->isSinglePlayer() && clientId != 0) {
                 Packet p;
@@ -120,6 +122,7 @@ void Alien::update(void)
 		}
 		soundPlayer->playShipHit();
 	}
+	if (iframes > 0) iframes--;
 	light->setPosition(Ogre::Vector3(getPos().x + 0,getPos().y + 500,getPos().z + 250));
 	/*
 	if (rearView) {
