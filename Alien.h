@@ -40,6 +40,7 @@ public:
 	void setLight(float xP, float yP, float zP);
 	virtual void addToSimulator(void);
 	virtual void update(void);
+	virtual void damageTaken(void);
 	virtual void injectKeyDown(const OIS::KeyEvent &arg);
 	virtual void injectKeyUp(const OIS::KeyEvent &arg);
 	void grabAsteroid(bool tryGrab);

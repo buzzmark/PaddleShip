@@ -29,6 +29,7 @@ public:
     virtual void removeFromScene(void);
     virtual void removeFromSimulator(void);
 	virtual void update(void);
+	virtual void damageTaken(void);
     virtual void grabCamera(void);
 	virtual void injectKeyDown(const OIS::KeyEvent &arg);
 	virtual void injectKeyUp(const OIS::KeyEvent &arg);
@@ -49,7 +50,6 @@ protected:
 	bool turnRight;
 	bool turnLeft;
 	int &score;
-	bool outOfBounds;
     int clientId;
 
     Ogre::Vector3 direction;

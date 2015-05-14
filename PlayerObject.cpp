@@ -12,7 +12,9 @@ PlayerObject::PlayerObject(Ogre::String nym, Ogre::SceneManager* mgr, Simulator*
     soundPlayer(sPlayer),
     clientId(clId),
     hp (100),
-    iframes (IFRAMES_ON_SPAWN) {}
+    iframes (IFRAMES_ON_SPAWN),
+    outOfBounds (false),
+    outOfBoundsTimer (FRAMES_PER_OOB_DAMAGE) {}
 //---------------------------------------------------------------------------
 PlayerObject::~PlayerObject() {}
 //---------------------------------------------------------------------------

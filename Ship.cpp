@@ -27,7 +27,6 @@ Ship::Ship(Ogre::String nym, Ogre::SceneManager* mgr, Simulator* sim, GameScreen
 	back = false;
 	turnRight = false;
 	turnLeft = false;
-	outOfBounds = false;
 	/*
 	deltDirection = Ogre::Vector3(0,0,0);
 	prevDirection = rootNode->getOrientation() * Ogre::Vector3(0,0,1);
@@ -106,8 +105,14 @@ void Ship::update(void)
 	if (hp <= 0) return;
 	if (!outOfBounds && sqrt(getPos().x*getPos().x+getPos().z*getPos().z) > 4000){
 		outOfBounds = true;
+		outOfBoundsTimer = FRAMES_PER_OOB_DAMAGE;
 	} else if (outOfBounds && sqrt(getPos().x*getPos().x+getPos().z*getPos().z) <= 4000){
 		outOfBounds = false;
+	}
+	if (outOfBounds && outOfBoundsTimer-- <= 0){
+		outOfBoundsTimer = FRAMES_PER_OOB_DAMAGE;
+		hp -= OOB_DAMAGE;
+		damageTaken();
 	}
 
 	if (forward && body->getLinearVelocity().getZ() < 250) {
@@ -153,21 +158,7 @@ void Ship::update(void)
 		//lose health
 		if (hp > 0) {
 			hp-=20;
-			if (hp <= 0){
-				pSys->setEmitting(false);
-				if (gameScreen->getCurrentPlayer() == this) {
-					CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild("warningMessage")->setVisible(false);
-					outOfBounds = false;
-					CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild("deathMessage")->setVisible(true);
-				}
-			}
-			if (hp > 0 && iframes < IFRAMES_ON_HIT)
-				iframes = IFRAMES_ON_HIT;
-            if (!gameScreen->getIsClient() && !gameScreen->isSinglePlayer()) {
-                Packet p;
-                p << (char) SPT_HEALTH << clientId << hp;
-                gameScreen->getNetManager()->messageClientsTCP(p);
-            }
+			damageTaken();
 		}
 		soundPlayer->playShipHit();
 		hasDecr = true;
@@ -175,41 +166,25 @@ void Ship::update(void)
 	if(iframes > 0) iframes--;
 
 	light->setPosition(Ogre::Vector3(getPos().x + 0,getPos().y + 500,getPos().z - 250));
-	/*
-	if (rearView) {
-		//changedView = true;
-		//Ogre::Camera* cam = (Ogre::Camera*) cameraNode -> getAttachedObject("PlayerCam");
-		//cameraNode->setPosition(Ogre::Vector3(getPos().x + 0,getPos().y + 25,getPos().z + 40));
-		cam -> setPosition(Ogre::Vector3(getPos().x + 0, getPos().y + 25, getPos().z + 40));
-		//printf("KEY PRESSED Camera position is: %f,%f,%f", cam->getPosition().x, cam->getPosition().y, cam->getPosition().z);
-		cam -> lookAt(Ogre::Vector3(getPos().x + 0, getPos().y +0, getPos().z -25));
-	} else {
-		//changedView = false;
-		//Ogre::Camera* cam = (Ogre::Camera*) cameraNode -> getAttachedObject("PlayerCam");
-		//cameraNode->setPosition(Ogre::Vector3(getPos().x + 0,getPos().y + 25,getPos().z - 40));
-		Ogre::Real x = getPos().x - beforeMove.x;
-		Ogre::Real y = getPos().y - beforeMove.y;
-		Ogre::Real z = getPos().z - beforeMove.z;
-		Ogre::Vector3 forwardMove = Ogre::Vector3(x, y, z);
-		camPos = Ogre::Vector3((float)camPos.x + (float)forwardMove.x, (float)camPos.y + (float)forwardMove.y, (float)camPos.z + (float)forwardMove.z);
-		beforeMove = getPos();
-
-		direction = rootNode->getOrientation() * Ogre::Vector3(0,0,1);
-		deltDirection = Ogre::Vector3((float)prevDirection.x - (float)direction.x, (float)prevDirection.y - (float)direction.y, (float)prevDirection.z - (float)direction.z);
-
-		//printf("Direction is: (%f,%f,%f)\n", direction.x, direction.y, direction.z);
-		//printf("prevDirection is: (%f,%f,%f)\n", prevDirection.x, prevDirection.y, prevDirection.z);
-		//printf("deltDirection is: (%f,%f,%f)\n", deltDirection.x, deltDirection.y, deltDirection.z);
-		prevDirection = rootNode->getOrientation() * Ogre::Vector3(0,0,1);
-
-		camPos = Ogre::Vector3((float)camPos.x + (float)deltDirection.x, (float)camPos.y + (float)deltDirection.y, (float)camPos.z + (float)deltDirection.z);
-		//printf("camPos is: (%f,%f,%f)\n", camPos.x, camPos.y, camPos.z);
-		cam -> setPosition(camPos);
-		//cam -> setDirection(Ogre::Vector3(direction.x,direction.y, direction.z));
-		//printf("KEY RELEASED Camera position is: %f,%f,%f", cam->getPosition().x, cam->getPosition().y, cam->getPosition().z);
-		cam-> lookAt(Ogre::Vector3(getPos().x + (direction.x*2), getPos().y + (direction.y*2), getPos().z + (direction.z*2)));
+}
+//---------------------------------------------------------------------------
+void Ship::damageTaken(void){
+	if (hp < 0) hp = 0;
+	if (hp == 0){
+		pSys->setEmitting(false);
+		if (gameScreen->getCurrentPlayer() == this) {
+			CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild("warningMessage")->setVisible(false);
+			outOfBounds = false;
+			CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild("deathMessage")->setVisible(true);
+		}
 	}
-	*/
+	if (hp > 0 && iframes < IFRAMES_ON_HIT)
+		iframes = IFRAMES_ON_HIT;
+    if (!gameScreen->getIsClient() && !gameScreen->isSinglePlayer()) {
+        Packet p;
+        p << (char) SPT_HEALTH << clientId << hp;
+        gameScreen->getNetManager()->messageClientsTCP(p);
+    }
 }
 //---------------------------------------------------------------------------
 void Ship::injectKeyDown(const OIS::KeyEvent &arg)

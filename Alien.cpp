@@ -58,7 +58,18 @@ void Alien::addToSimulator(void)
 //---------------------------------------------------------------------------
 void Alien::update(void)
 {
-	if(hp <= 0) return;
+	if (hp <= 0) return;
+	if (!outOfBounds && sqrt(getPos().x*getPos().x+getPos().z*getPos().z) > 4000){
+		outOfBounds = true;
+		outOfBoundsTimer = FRAMES_PER_OOB_DAMAGE;
+	} else if (outOfBounds && sqrt(getPos().x*getPos().x+getPos().z*getPos().z) <= 4000){
+		outOfBounds = false;
+	}
+	if (outOfBounds && outOfBoundsTimer-- <= 0){
+		outOfBoundsTimer = FRAMES_PER_OOB_DAMAGE;
+		hp -= OOB_DAMAGE;
+		damageTaken();
+	}
 
 	if (left && body->getLinearVelocity().getX() > -50) {
 		Ogre::Vector3 pointLeft = rootNode->getOrientation() * Ogre::Vector3(-1,0,0);
@@ -105,20 +116,9 @@ void Alien::update(void)
 		//lose health
 		if (hp > 0 && iframes <= 0) {
 			hp -= 35;
-			if (hp < 0) hp = 0;
-			if (gameScreen->getCurrentPlayer() == this && hp <= 0){
-				CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild("deathMessage")->setVisible(true);
-			} 
-			if (hp > 0 && iframes < IFRAMES_ON_HIT)
-				iframes = IFRAMES_ON_HIT;
-
-            if (!gameScreen->getIsClient() && !gameScreen->isSinglePlayer() && clientId != 0) {
-                Packet p;
-                p << (char) SPT_HEALTH << clientId << hp;
-                gameScreen->getNetManager()->messageClientTCP(clientId, p);
-            }
+			damageTaken();
 		}
-		soundPlayer->playShipHit();
+		soundPlayer->playShipHit(); //only if current player?
 	}
 	if (iframes > 0) iframes--;
 	light->setPosition(Ogre::Vector3(getPos().x + 0,getPos().y + 500,getPos().z + 250));
@@ -139,6 +139,22 @@ void Alien::update(void)
 		cam-> lookAt(Ogre::Vector3(getPos().x + 0, getPos().y + 0, getPos().z + 25));
 	}
 	*/
+}
+//
+void Alien::damageTaken(void)
+{
+	if (hp < 0) hp = 0;
+	if (gameScreen->getCurrentPlayer() == this && hp == 0){
+		CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild("deathMessage")->setVisible(true);
+	} 
+	if (hp > 0 && iframes < IFRAMES_ON_HIT)
+		iframes = IFRAMES_ON_HIT;
+
+    if (!gameScreen->getIsClient() && !gameScreen->isSinglePlayer() && clientId != 0) {
+        Packet p;
+        p << (char) SPT_HEALTH << clientId << hp;
+        gameScreen->getNetManager()->messageClientTCP(clientId, p);
+    }
 }
 //---------------------------------------------------------------------------
 void Alien::injectKeyDown(const OIS::KeyEvent &arg)

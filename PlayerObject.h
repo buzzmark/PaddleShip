@@ -20,6 +20,8 @@ class GameScreen;
 #define IFRAMES_ON_HIT 180
 #define IFRAMES_ON_SPAWN 180
 #define IFRAMES_ON_DEFEND 90 //TODO use to stop damage when hitting asteroids
+#define FRAMES_PER_OOB_DAMAGE 360
+#define OOB_DAMAGE 1
 
 //---------------------------------------------------------------------------
 
@@ -35,6 +37,8 @@ class PlayerObject : public GameObject {
         int clientId;
         int hp;
         int iframes;
+        bool outOfBounds;
+        int outOfBoundsTimer;
 
     public:
 	    PlayerObject(Ogre::String nym, Ogre::SceneManager* mgr, Simulator* sim, GameScreen* gs, Ogre::SceneNode* cm, SoundPlayer* sPlayer, Ogre::Light* lt, int clId);
