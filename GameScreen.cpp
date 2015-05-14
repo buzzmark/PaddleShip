@@ -467,6 +467,7 @@ void GameScreen::reset() {
             player->setBody(new btRigidBody(rbInfo));
             player->getBody()->setLinearFactor(btVector3(1,0,1));
             player->getBody()->setAngularFactor(btVector3(0,0,0));
+            player->getBody()->forceActivationState(DISABLE_DEACTIVATION);
             sim->getDynamicsWorld()->addRigidBody(player->getBody());
         }
         if (!singlePlayer){
