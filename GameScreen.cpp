@@ -340,7 +340,19 @@ void GameScreen::writeAsteroidPositionsIncremental(Packet& p) {
         if (ast->getNetState()) {
             p << i;
             ast->writeToPacket(p);
+        }
+    }
+
+    for (int i = 0; i < asteroids.size(); ++i) {
+        Asteroid* ast = asteroids[i];
+        if (ast->getNetState()) {
             ast->resetNetState();
+        } else if (p.size() < 56 * 8 + 1 && ast->netLife > 62) {
+            p << i;
+            ast->writeToPacket(p);
+            ast->resetNetState();
+        } else {
+            ast->netLife++;
         }
     }
 

@@ -26,6 +26,8 @@ public:
     void resetNetState();
     void setHeld(bool h);
 
+    int netLife;
+
 protected:
 	Ogre::Vector3 asteroidVelocity;
 	Ogre::Vector3 asteroidPosition;
