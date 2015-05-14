@@ -193,7 +193,6 @@ void GameScreen::updateMinimap()
 
     for (PlayerObject* player : players) {
         if (player != myPlayerObj && ((PlayerObject*)player)->getHealth() <= 0 && mmPlayerIcons[player]->getMaterialName() != "minimap_dead"){
-            if(player == shipAI) printf("!!!!!!!!!!!!!!!!!!!!!\n");
             mmPlayerIcons[player]->setMaterialName("minimap_dead");
         }
         else if (player != myPlayerObj && ((PlayerObject*)player)->getHealth() > 0 && mmPlayerIcons[player]->getMaterialName() == "minimap_dead"){
@@ -239,7 +238,7 @@ void GameScreen::updateHealthDisplay(int id, int hp)
 
     if (id == clientId) {
         CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild("healthCounter")->setText((char*)message.c_str());
-        if (hp == 0) {
+        if (hp <= 0) {
             CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild("warningMessage")->setVisible(false);
             CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild("deathMessage")->setVisible(true);
         }

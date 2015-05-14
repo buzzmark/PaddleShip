@@ -107,8 +107,8 @@ void Alien::update(void)
 		//lose health
 		if (hp > 0) {
 			hp -= 35;
+			if (hp < 0) hp = 0;
 			if (gameScreen->getCurrentPlayer() == this && hp <= 0){
-                hp = 0;
 				CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild("deathMessage")->setVisible(true);
 			}
 
