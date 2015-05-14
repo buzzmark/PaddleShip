@@ -81,7 +81,7 @@ Packet& Packet::operator<<(const btVector3& a) {
 Packet& Packet::operator<<(const btTransform& a) {
     const btQuaternion& r = a.getRotation();
 
-    return *this << a.getOrigin() << r.getAxis() << r.getW();
+    return *this << a.getOrigin() << r.getAxis() << r.getAngle();
 }
 
 //---------------------------------------------------------------------------

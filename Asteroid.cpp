@@ -137,7 +137,7 @@ void Asteroid::readFromPacket(Packet& p) {
     const btVector3& rotAxis = rot.getAxis();
 
     getNode()->setPosition(origin.x(), origin.y(), origin.z());
-    getNode()->setOrientation(Ogre::Quaternion(rot.getW(), rotAxis.x(), rotAxis.y(), rotAxis.z()));
+    getNode()->setOrientation(Ogre::Quaternion(Ogre::Radian(rot.getAngle()), Ogre::Vector3(rotAxis.x(), rotAxis.y(), rotAxis.z())));
 
     getMotionState()->updateTransform(tf);
 
