@@ -35,6 +35,7 @@ public:
 	void updateMinimap();
 	void updateHealthDisplay();
 	void updateHealthDisplay(int id, int hp);
+	void checkBounds();
 	Packet getPositions();
 	void injectKeyDown(const OIS::KeyEvent &arg);
 	void injectKeyUp(const OIS::KeyEvent &arg);
@@ -71,6 +72,7 @@ protected:
 	Ogre::OverlayContainer* mmBackground;
 	std::unordered_map<PlayerObject*, Ogre::OverlayElement*> mmPlayerIcons;
 	bool reverseSymbol;
+	bool warningVisible;
 
     int clientId;
 

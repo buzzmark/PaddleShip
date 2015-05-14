@@ -112,6 +112,7 @@ void GameScreen::update(const Ogre::FrameEvent &evt)
 	sim->stepSimulation(evt.timeSinceLastFrame, 1, 1/60.0f);
 	updateMinimap();
     updateHealthDisplay();
+    checkBounds();
 }
 //---------------------------------------------------------------------------
 void updatePlayerObject(Packet &p, PlayerObject* player, char type) {
@@ -179,8 +180,7 @@ void GameScreen::updateClient(const Ogre::FrameEvent &evt, Packet& p)
     }
 
     updateMinimap();
-    
-    //need to update health display with value from server
+    checkBounds();
 }
 //---------------------------------------------------------------------------
 void GameScreen::updateMinimap()
@@ -249,6 +249,20 @@ void GameScreen::updateHealthDisplay(int id, int hp)
         }
     }
 
+}
+//---------------------------------------------------------------------------
+void GameScreen::checkBounds(){
+    PlayerObject* player = getCurrentPlayer();
+    if (player == nullptr || player->getHealth() <= 0) return;
+    Ogre::Vector3 pos = player->getPos();
+    if (!warningVisible && sqrt(pos.x*pos.x+pos.z*pos.z) > 4000){
+        CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild("warningMessage")->setVisible(true);
+        warningVisible = true;
+    }
+    else if (warningVisible && sqrt(pos.x*pos.x+pos.z*pos.z) <= 4000){
+        CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild("warningMessage")->setVisible(false);
+        warningVisible = false;
+    }
 }
 //---------------------------------------------------------------------------
 void writePlayerObject(Packet &p, PlayerObject* player) {

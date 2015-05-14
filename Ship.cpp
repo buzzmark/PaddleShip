@@ -105,10 +105,8 @@ void Ship::update(void)
 {
 	if (hp <= 0) return;
 	if (!outOfBounds && sqrt(getPos().x*getPos().x+getPos().z*getPos().z) > 4000){
-		CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild("warningMessage")->setVisible(true);
 		outOfBounds = true;
-	} else if (outOfBounds && sqrt(getPos().x*getPos().x+getPos().z*getPos().z) < 4000){
-		CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild("warningMessage")->setVisible(false);
+	} else if (outOfBounds && sqrt(getPos().x*getPos().x+getPos().z*getPos().z) <= 4000){
 		outOfBounds = false;
 	}
 
