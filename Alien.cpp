@@ -20,13 +20,11 @@ Alien::Alien(Ogre::String nym, Ogre::SceneManager* mgr, Simulator* sim, GameScre
 	back = false;
 	turnRight = false;
 	turnLeft = false;
-	float minP = 1;
-  	float maxP = 5;
-  	Ogre::Real xP = minP + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(maxP-minP)));
-  	minP = 30;
-  	maxP = 40;
-  	Ogre::Real zP = minP + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(maxP-minP)));
-	rootNode->setPosition(Ogre::Vector3(xP, 0, 600));
+    float maxP = 2000;
+    float minP = -maxP;
+    Ogre::Real xP = minP + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(maxP-minP)));
+    Ogre::Real zP = minP + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(maxP-minP)));
+	rootNode->setPosition(Ogre::Vector3(xP,0,zP));
 }
 //---------------------------------------------------------------------------
 Alien::~Alien(void)
