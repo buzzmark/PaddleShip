@@ -231,10 +231,15 @@ void GameScreen::updateHealthDisplay(int id, int hp)
 {
     std::string message = std::string("HP: ") + std::to_string(hp);
 
-    if (id == -1) {
-        shipAI->setHealth(hp);
-    }
-    else clientObjects.find(id)->second->setHealth(hp);
+    PlayerObject* player;
+
+    if (id == -1) player = shipAI;
+    else player = clientObjects.find(id)->second;
+
+    player->setHealth(hp);
+    Ship* shipPtr = dynamic_cast<Ship*>(player);
+    if(hp <= 0 &&  shipPtr != nullptr)
+        shipPtr->getParticleSystem()->setEmitting(false);
 
     if (id == clientId) {
         CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild("healthCounter")->setText((char*)message.c_str());

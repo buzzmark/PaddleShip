@@ -48,7 +48,7 @@ void ShipAI::addToScene(void)
 	mass = 10.0f;
 	shape = new btCapsuleShapeZ(3.0f, 15.0f);
 
-	Ogre::ParticleSystem* pSys = sceneMgr->createParticleSystem(name + "PS", "ship_particles");
+	pSys = sceneMgr->createParticleSystem(name + "PS", "ship_particles");
     Ogre::SceneNode* pNode = (Ogre::SceneNode*)rootNode->createChild(Ogre::Vector3(0,-1,-8));
     pNode->attachObject(pSys);
 
@@ -93,7 +93,10 @@ void ShipAI::update(void)
 		//lose health
 		if (hp > 0) {
 			hp-=20;
-			if (hp < 0) hp = 0;
+			if (hp <= 0){
+				hp = 0;
+				pSys->setEmitting(false);
+			}
 			//printf("AI injured\n");
 		}
 		if (hp < 30) {

@@ -34,6 +34,7 @@ public:
 	virtual void injectKeyUp(const OIS::KeyEvent &arg);
     void setPaddle(Paddle* p);
     Paddle* getPaddle();
+    Ogre::ParticleSystem* getParticleSystem();
 	//Ogre::Vector3 getPos();
 
 protected:
@@ -59,6 +60,8 @@ protected:
 
     Paddle* paddle;
 	btHingeConstraint* paddleHinge;
+
+	Ogre::ParticleSystem* pSys;
 };
 
 //---------------------------------------------------------------------------

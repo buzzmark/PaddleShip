@@ -60,7 +60,7 @@ void Ship::addToScene(void)
 	mass = 10.0f;
 	shape = new btCapsuleShapeZ(3.0f, 15.0f);
 
-	Ogre::ParticleSystem* pSys = sceneMgr->createParticleSystem(name + "PS", "ship_particles");
+	pSys = sceneMgr->createParticleSystem(name + "PS", "ship_particles");
     Ogre::SceneNode* pNode = (Ogre::SceneNode*)rootNode->createChild(Ogre::Vector3(0,-1,-8));
     pNode->attachObject(pSys);
 
@@ -152,6 +152,7 @@ void Ship::update(void)
 				CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild("warningMessage")->setVisible(false);
 				outOfBounds = false;
 				CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild("deathMessage")->setVisible(true);
+				pSys->setEmitting(false);
 			}
             if (!gameScreen->getIsClient() && !gameScreen->isSinglePlayer()) {
                 Packet p;
@@ -282,5 +283,10 @@ void Ship::setPaddle(Paddle* p)
 Paddle* Ship::getPaddle()
 {
     return paddle;
+}
+//---------------------------------------------------------------------------
+Ogre::ParticleSystem* Ship::getParticleSystem()
+{
+    return pSys;
 }
 //---------------------------------------------------------------------------
