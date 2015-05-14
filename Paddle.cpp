@@ -32,6 +32,7 @@ void Paddle::addToSimulator(void)
 {
 	GameObject::addToSimulator();
 
+    body->forceActivationState(DISABLE_DEACTIVATION);
 	body->setLinearFactor(btVector3(1,0,1));
 }
 //---------------------------------------------------------------------------

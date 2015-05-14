@@ -34,6 +34,7 @@ class PlayerObject : public GameObject {
 	    PlayerObject(Ogre::String nym, Ogre::SceneManager* mgr, Simulator* sim, GameScreen* gs, Ogre::SceneNode* cm, SoundPlayer* sPlayer, Ogre::Light* lt, int clId);
         virtual ~PlayerObject();
 
+        virtual void addToSimulator(void);
         virtual void update(void) = 0;
         virtual void grabCamera() = 0;
         virtual void setDeetsPan(OgreBites::ParamsPanel* mDeetsPan);

@@ -15,6 +15,12 @@ PlayerObject::PlayerObject(Ogre::String nym, Ogre::SceneManager* mgr, Simulator*
 //---------------------------------------------------------------------------
 PlayerObject::~PlayerObject() {}
 //---------------------------------------------------------------------------
+void PlayerObject::addToSimulator(void) {
+    GameObject::addToSimulator();
+
+    body->forceActivationState(DISABLE_DEACTIVATION);
+}
+//---------------------------------------------------------------------------
 void PlayerObject::setDeetsPan(OgreBites::ParamsPanel* mDeetsPan) {
     mDetailsPanel = mDeetsPan;
 }
