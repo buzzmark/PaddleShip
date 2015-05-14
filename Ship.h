@@ -13,9 +13,8 @@
 #include "SoundPlayer.h"
 #include "Paddle.h"
 #include "Simulator.h"
+#include "GameScreen.h"
 #include <SdkTrays.h>
-
-class GameScreen;
 
 //---------------------------------------------------------------------------
 

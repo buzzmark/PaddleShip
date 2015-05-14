@@ -24,8 +24,7 @@
 #include "Paddle.h"
 #include "SoundPlayer.h"
 #include "Alien.h"
-
-class GameScreen;
+#include "GameScreen.h"
 
 //---------------------------------------------------------------------------
 

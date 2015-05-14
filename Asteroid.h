@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include "GameObject.h"
 #include "Simulator.h"
-
+#include "Packet.h"
 
 //---------------------------------------------------------------------------
 
@@ -19,7 +19,11 @@ public:
 	void addToSimulator(void);
 	void setDynamicsWorld( btDiscreteDynamicsWorld* world);
 	btDiscreteDynamicsWorld* getDynamicsWorld();
-	//Ogre::Vector3 getPos();
+
+    void writeToPacket(Packet& p);
+    void readFromPacket(Packet& p);
+    bool getNetState() const;
+    void resetNetState();
 
 protected:
 	Ogre::Vector3 asteroidVelocity;
@@ -29,6 +33,9 @@ protected:
     int asteroidNum;
 	float sphereSize;
 	float massVal;
+
+    btVector3 netVel;
+    bool netState;
 };
 
 //---------------------------------------------------------------------------

@@ -33,6 +33,9 @@ Asteroid::Asteroid(Ogre::String nym, Ogre::SceneManager* mgr, Simulator* sim, in
   asteroidPosition = Ogre::Vector3(xP,yP,zP);
   asteroidRotation = btVector3(xR, yR, zR);
   rootNode->setPosition(asteroidPosition);
+
+  netVel = btVector3(xV, yV, zV);
+  netState = false;
 }
 //---------------------------------------------------------------------------
 Asteroid::~Asteroid(void)
@@ -88,6 +91,8 @@ void Asteroid::update(void){
   }
   if (asteroidPosition.y > 40) body->applyCentralForce(btVector3(0,-5,0));
   if (asteroidPosition.y < -40) body->applyCentralForce(btVector3(0,5,0));
+
+  netState |= (getBody()->getLinearVelocity().distance2(netVel) > 25);
 }
 //---------------------------------------------------------------------------
 void Asteroid::addToSimulator(void){
@@ -105,9 +110,45 @@ void Asteroid::setDynamicsWorld( btDiscreteDynamicsWorld* world) {
 btDiscreteDynamicsWorld* Asteroid::getDynamicsWorld() {
   return dynamicsWorld;
 }
-/*
-Ogre::Vector3 Asteroid::getPos()
-{
-  return GameObject::getPos();
+//---------------------------------------------------------------------------
+void Asteroid::writeToPacket(Packet& p) {
+    btRigidBody* body = getBody();
+
+    const btTransform& tf = body->getWorldTransform();
+    const btVector3& lv = body->getLinearVelocity();
+    const btVector3& av = body->getAngularVelocity();
+
+    p << tf << lv << av;
 }
-*/
+
+void Asteroid::readFromPacket(Packet& p) {
+    btRigidBody* body = getBody();
+
+    btTransform tf;
+    btVector3 lv, av;
+
+    p >> tf >> lv >> av;
+
+    body->setWorldTransform(tf);
+
+    const btVector3& origin = tf.getOrigin();
+    const btQuaternion& rot = tf.getRotation();
+    const btVector3& rotAxis = rot.getAxis();
+
+    getNode()->setPosition(origin.x(), origin.y(), origin.z());
+    getNode()->setOrientation(Ogre::Quaternion(rot.getW(), rotAxis.x(), rotAxis.y(), rotAxis.z()));
+
+    getMotionState()->updateTransform(tf);
+
+    body->setLinearVelocity(lv);
+    body->setAngularVelocity(av);
+}
+
+bool Asteroid::getNetState() const {
+    return netState;
+}
+
+void Asteroid::resetNetState() {
+    netVel = body->getLinearVelocity();
+    netState = false;
+}

@@ -5,7 +5,6 @@
 #include "BaseApplication.h" //?
 #include "AsteroidSys.h"
 #include "Simulator.h"
-#include "Paddle.h"
 #include "SoundPlayer.h"
 #include "Packet.h"
 #include "PlayerObject.h"
@@ -14,7 +13,6 @@
 #include <unordered_map>
 
 class ShipAI;
-class Alien;
 
 //---------------------------------------------------------------------------
 
@@ -31,11 +29,17 @@ public:
 	void setSinglePlayer(bool single);
 	bool isSinglePlayer() const;
 	void update(const Ogre::FrameEvent &evt);
+    void updateClientPlayers(Packet& p);
+    void updateClientAsteroids(Packet& p);
+    void updateClientAsteroidsIncremental(Packet& p);
 	void updateClient(const Ogre::FrameEvent &evt, Packet& p);
 	void updateMinimap();
 	void updateHealthDisplay();
 	void updateHealthDisplay(int id, int hp);
 	void checkBounds();
+    void writePlayerPositions(Packet& p);
+    void writeAsteroidPositions(Packet& p);
+    void writeAsteroidPositionsIncremental(Packet& p);
 	Packet getPositions();
 	void injectKeyDown(const OIS::KeyEvent &arg);
 	void injectKeyUp(const OIS::KeyEvent &arg);
