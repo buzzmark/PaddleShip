@@ -119,7 +119,7 @@ void Alien::update(void)
 	if (context->hit && dynamic_cast<Asteroid*>(context->theObject) == nullptr){
 		//lose health
 		if (hp > 0 && iframes <= 0) {
-			hp -= 35;
+			hp -= 50;
 			damageTaken();
 		}
 		soundPlayer->playShipHit(); //only if current player?
