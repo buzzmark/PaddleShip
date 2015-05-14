@@ -442,13 +442,7 @@ void GameScreen::reset() {
             sim->getDynamicsWorld()->removeRigidBody(player->getBody());
             delete player->getBody()->getMotionState();
             delete player->getBody();
-
-            float maxP = 2000;
-            float minP = -maxP;
-            Ogre::Real xP = minP + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(maxP-minP)));
-            Ogre::Real zP = minP + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(maxP-minP)));
-
-            Ogre::Vector3 pos(xP,0,zP);
+            Ogre::Vector3 pos = randomSpawnPoint();
             player->getTransform()->setOrigin(btVector3(pos.x, pos.y, pos.z));
             Ogre::Quaternion qt = player->getNode()->getOrientation();
             player->getTransform()->setRotation(btQuaternion(qt.x, qt.y, qt.z, qt.w));
@@ -480,4 +474,13 @@ void GameScreen::reset() {
     CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild("warningMessage")->setVisible(false);
     CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild("deathMessage")->setVisible(false);
 
+}
+
+Ogre::Vector3 GameScreen::randomSpawnPoint(){
+    float maxP = 2000;
+    float minP = -maxP;
+    Ogre::Real xP = minP + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(maxP-minP)));
+    Ogre::Real zP = minP + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(maxP-minP)));
+
+    return Ogre::Vector3(xP,0,zP);
 }

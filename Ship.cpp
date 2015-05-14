@@ -37,6 +37,12 @@ Ship::Ship(Ogre::String nym, Ogre::SceneManager* mgr, Simulator* sim, GameScreen
 	*/
     motorRight = true;
     paddle = NULL;
+
+    float maxP = 2000;
+    float minP = -maxP;
+    Ogre::Real xP = minP + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(maxP-minP)));
+    Ogre::Real zP = minP + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(maxP-minP)));
+	rootNode->setPosition(Ogre::Vector3(xP,0,zP));
 }
 //---------------------------------------------------------------------------
 Ship::~Ship(void)

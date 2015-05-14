@@ -48,6 +48,7 @@ public:
     void setNetManager(NetManager* nm);
     NetManager* getNetManager();
     void reset();
+    Ogre::Vector3 randomSpawnPoint();
 
     std::vector<Asteroid*> getAsteroids();
     std::vector<PlayerObject*> getPlayers();

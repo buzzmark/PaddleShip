@@ -31,7 +31,11 @@ ShipAI::ShipAI(Ogre::String nym, Ogre::SceneManager* mgr, Simulator* sim, GameSc
 	forward = false;
 	back = false;
 
-	rootNode->setPosition(Ogre::Vector3(0, 0, 600));
+    float maxP = 2000;
+    float minP = -maxP;
+    Ogre::Real xP = minP + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(maxP-minP)));
+    Ogre::Real zP = minP + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(maxP-minP)));
+	rootNode->setPosition(Ogre::Vector3(xP,0,zP));
 }
 
 //---------------------------------------------------------------------------
