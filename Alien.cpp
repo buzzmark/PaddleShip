@@ -118,13 +118,6 @@ void Alien::update(void)
                 gameScreen->getNetManager()->messageClientTCP(clientId, p);
             }
 		}
-		std::stringstream healthVal;
- 		healthVal << "" << health;
- 		if (mDetailsPanel==NULL) {
- 	 		printf("mDetailsPanel is null ptr\n");
- 	 	} else {
-     	 	mDetailsPanel->setParamValue(2, healthVal.str());
-        }
 		soundPlayer->playShipHit();
 	}
 	light->setPosition(Ogre::Vector3(getPos().x + 0,getPos().y + 500,getPos().z + 250));
