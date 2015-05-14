@@ -62,13 +62,18 @@ struct BulletContactCallback : public btCollisionWorld::ContactResultCallback {
 		const btCollisionObject* colObj0 = w1->m_collisionObject;
 		const btCollisionObject* colObj1 = w2->m_collisionObject;
 
+		//to fix a crash when resetting
+		if (colObj0 != &body && colObj1 != &body){
+			printf("body does not match either collision object\n");
+			return 0;
+		}
+		
 		ctxt.hit = true;
 		ctxt.lastBody = ctxt.body;
 		if(colObj0 == &body) {
 			ctxt.point = cp.m_localPointA;
 			ctxt.body = colObj1;
 		} else {
-			assert(colObj1 == &body && "body does not match either collision object");
 			ctxt.point = cp.m_localPointB;
 			ctxt.body = colObj0;
 		}

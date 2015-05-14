@@ -47,6 +47,7 @@ public:
     void setClientId(int id);
     void setNetManager(NetManager* nm);
     NetManager* getNetManager();
+    void reset();
 
     std::vector<Asteroid*> getAsteroids();
     std::vector<PlayerObject*> getPlayers();

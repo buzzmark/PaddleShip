@@ -318,6 +318,10 @@ void GameScreen::injectKeyDown(const OIS::KeyEvent &arg)
 		soundPlayer->soundOn();
 	}
 
+    if (arg.key == OIS::KC_P){
+        reset();
+    }
+
     PlayerObject* player = getCurrentPlayer();
     if (player != nullptr) {
     	getCurrentPlayer()->injectKeyDown(arg);
@@ -429,4 +433,48 @@ void GameScreen::setNetManager(NetManager* nm) {
 
 NetManager* GameScreen::getNetManager() {
     return netManager;
+}
+
+void GameScreen::reset() {
+    if (!isClient || singlePlayer){
+        for (auto player : getPlayers()){
+            //reset ship position
+            sim->getDynamicsWorld()->removeRigidBody(player->getBody());
+            delete player->getBody()->getMotionState();
+            delete player->getBody();
+
+            float maxP = 2000;
+            float minP = -maxP;
+            Ogre::Real xP = minP + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(maxP-minP)));
+            Ogre::Real zP = minP + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(maxP-minP)));
+
+            Ogre::Vector3 pos(xP,0,zP);
+            player->getTransform()->setOrigin(btVector3(pos.x, pos.y, pos.z));
+            Ogre::Quaternion qt = player->getNode()->getOrientation();
+            player->getTransform()->setRotation(btQuaternion(qt.x, qt.y, qt.z, qt.w));
+            player->setMotionState(new OgreMotionState(*(player -> getTransform()), player -> getNode()));
+            btRigidBody::btRigidBodyConstructionInfo rbInfo(player->getMass(), player->getMotionState(), player->getShape(), player->getInertia());
+            rbInfo.m_restitution = player->getRestitution();
+            rbInfo.m_friction = player->getFriction();
+            player->setBody(new btRigidBody(rbInfo));
+            player->getBody()->setLinearFactor(btVector3(1,0,1));
+            player->getBody()->setAngularFactor(btVector3(0,0,0));
+            sim->getDynamicsWorld()->addRigidBody(player->getBody());
+
+        }
+
+    }
+    for (auto player : getPlayers()){
+        player->setHealth(100);
+        Ship* shipPtr = dynamic_cast<Ship*>(player);
+        if(shipPtr != nullptr)
+            shipPtr->getParticleSystem()->setEmitting(true);
+        
+    }
+    //reset all messages
+    std::string message = std::string("HP:  ") + std::to_string(getCurrentPlayer()->getHealth());
+    CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild("healthCounter")->setText((char*)message.c_str());
+    CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild("warningMessage")->setVisible(false);
+    CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild("deathMessage")->setVisible(false);
+
 }
