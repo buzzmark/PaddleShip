@@ -20,7 +20,7 @@ class GameScreen;
 #define IFRAMES_ON_HIT 180
 #define IFRAMES_ON_SPAWN 180
 #define IFRAMES_ON_DEFEND 90 //TODO use to stop damage when hitting asteroids
-#define FRAMES_PER_OOB_DAMAGE 360
+#define FRAMES_PER_OOB_DAMAGE 90
 #define OOB_DAMAGE 1
 
 //---------------------------------------------------------------------------
