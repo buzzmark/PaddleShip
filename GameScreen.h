@@ -73,6 +73,7 @@ protected:
 	std::unordered_map<PlayerObject*, Ogre::OverlayElement*> mmPlayerIcons;
 	bool reverseSymbol;
 	bool warningVisible;
+	int resetTimer;
 
     int clientId;
 

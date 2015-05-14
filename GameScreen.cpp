@@ -20,6 +20,7 @@ GameScreen::GameScreen(Ogre::SceneManager* sceneMgr, Ogre::SceneNode* cameraNode
 	isClient = false;
 	singlePlayer = false;
     clientId = -1;
+    resetTimer = -1;
 }
 //---------------------------------------------------------------------------
 GameScreen::~GameScreen(void)
@@ -113,6 +114,16 @@ void GameScreen::update(const Ogre::FrameEvent &evt)
 	updateMinimap();
     updateHealthDisplay();
     checkBounds();
+    if (resetTimer == -1){
+        int count = 0;
+        for (auto player : getPlayers())
+            if (player->getHealth() > 0)
+                count++;
+        if (count < 2)
+            resetTimer = 1500;
+    } else if (resetTimer-- == 0){
+        reset();
+    }
 }
 //---------------------------------------------------------------------------
 void updatePlayerObject(Packet &p, PlayerObject* player, char type) {
