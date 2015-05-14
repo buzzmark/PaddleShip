@@ -46,45 +46,47 @@ void Simulator::stepSimulation(const Ogre::Real elapsedTime, int maxSubSteps, co
 {
     dynamicsWorld->stepSimulation(elapsedTime, maxSubSteps, fixedTimestep);
 
-    std::vector<PlayerObject*> players = gameScreen->getPlayers();
-    std::vector<Asteroid*> asts = gameScreen->getAsteroids();
+    if (gameScreen->isSinglePlayer() || !gameScreen->getIsClient()) {
+        std::vector<PlayerObject*> players = gameScreen->getPlayers();
+        std::vector<Asteroid*> asts = gameScreen->getAsteroids();
 
-    for (PlayerObject* obj : players) {
-        obj->getCollisionCallback()->ctxt.hit = false;
-        Ship* ship = dynamic_cast<Ship*>(obj);
-        if (ship != nullptr) {
-            ship->getPaddle()->getCollisionCallback()->ctxt.hit = false;
-        }
-    }
-
-    //collision call back
-    for (PlayerObject* obj : players) {
-        Ship* ship = dynamic_cast<Ship*>(obj);
-
-        if (ship != nullptr) {
-            GameObject* paddle = ship->getPaddle();
-
-            for (Asteroid* ast : asts) {
-                btRigidBody* astBody = ast->getBody();
-
-                dynamicsWorld->contactPairTest(ship->getBody(), astBody, *(ship->getCollisionCallback()));
-                dynamicsWorld->contactPairTest(paddle->getBody(), astBody, *(paddle->getCollisionCallback()));
+        for (PlayerObject* obj : players) {
+            obj->getCollisionCallback()->ctxt.hit = false;
+            Ship* ship = dynamic_cast<Ship*>(obj);
+            if (ship != nullptr) {
+                ship->getPaddle()->getCollisionCallback()->ctxt.hit = false;
             }
+        }
 
-            for (PlayerObject* targetObj : players) {
-                if (targetObj != obj) {
-                    dynamicsWorld->contactPairTest(targetObj->getBody(), paddle->getBody(), *(targetObj->getCollisionCallback()));
+        //collision call back
+        for (PlayerObject* obj : players) {
+            Ship* ship = dynamic_cast<Ship*>(obj);
+
+            if (ship != nullptr) {
+                GameObject* paddle = ship->getPaddle();
+
+                for (Asteroid* ast : asts) {
+                    btRigidBody* astBody = ast->getBody();
+
+                    dynamicsWorld->contactPairTest(ship->getBody(), astBody, *(ship->getCollisionCallback()));
+                    dynamicsWorld->contactPairTest(paddle->getBody(), astBody, *(paddle->getCollisionCallback()));
+                }
+
+                for (PlayerObject* targetObj : players) {
+                    if (targetObj != obj) {
+                        dynamicsWorld->contactPairTest(targetObj->getBody(), paddle->getBody(), *(targetObj->getCollisionCallback()));
+                    }
+                }
+            } else {
+                for (Asteroid* ast : asts) {
+                    dynamicsWorld->contactPairTest(obj->getBody(), ast->getBody(), *(obj->getCollisionCallback()));
                 }
             }
-        } else {
-            for (Asteroid* ast : asts) {
-                dynamicsWorld->contactPairTest(obj->getBody(), ast->getBody(), *(obj->getCollisionCallback()));
-            }
         }
-    }
 
-    for (GameObject* obj : objList) {
-        obj->update();
+        for (GameObject* obj : objList) {
+            obj->update();
+        }
     }
     //mDebugDrawer->Update(); //uncomment to see collision shapes
 }

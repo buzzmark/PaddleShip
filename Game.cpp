@@ -17,7 +17,6 @@ Game::Game(char *hostIP)
     host = hostIP;
     test = true;
     lastNetUpdate = std::chrono::steady_clock::now();
-    netFrameCount = 0;
 }
 //---------------------------------------------------------------------------
 Game::~Game(void)
@@ -188,6 +187,9 @@ bool Game::frameRenderingQueued(const Ogre::FrameEvent &evt){
                     case SPT_ASTPOS:
                         gameScreen->updateClientAsteroids(p);
                         break;
+                    case SPT_ASTPOSINC:
+                        gameScreen->updateClientAsteroidsIncremental(p);
+                        break;
                     case SPT_CLIENTID:
                         p >> id;
                         gameScreen->setClientId(id);
@@ -209,6 +211,8 @@ bool Game::frameRenderingQueued(const Ogre::FrameEvent &evt){
                         break;
                 }
             }
+
+            gameScreen->update(evt);
         } else if (isServer){
             NetUpdate clientUpdate = netMgr->checkForUpdates();
 
@@ -226,6 +230,7 @@ bool Game::frameRenderingQueued(const Ogre::FrameEvent &evt){
                 Packet p;
                 p << (char) SPT_CLIENTID << id;
                 netMgr->messageClientTCP(id, p);
+                netMgr->messageClientTCP(id, gameScreen->getPositions());
             }
 
             auto& clientData = clientUpdate.data;
@@ -262,17 +267,15 @@ bool Game::frameRenderingQueued(const Ogre::FrameEvent &evt){
                 gameScreen->writePlayerPositions(p);
                 netMgr->messageClientsUDP(p);
 
-                lastNetUpdate = now;
-                netFrameCount++;
+                p.reset();
+                p << (char) SPT_ASTPOSINC;
+                gameScreen->writeAsteroidPositionsIncremental(p);
 
-                if (netFrameCount == 2) {
-                    Packet p2;
-                    p2 << (char) SPT_ASTPOS;
-                    gameScreen->writeAsteroidPositions(p2);
-                    netMgr->messageClientsUDP(p2);
-
-                    netFrameCount = 0;
+                if (p.size() > 5) {
+                    netMgr->messageClientsUDP(p);
                 }
+
+                lastNetUpdate = now;
             }
         }
     }

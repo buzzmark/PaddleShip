@@ -31,6 +31,7 @@ public:
 	void update(const Ogre::FrameEvent &evt);
     void updateClientPlayers(Packet& p);
     void updateClientAsteroids(Packet& p);
+    void updateClientAsteroidsIncremental(Packet& p);
 	void updateClient(const Ogre::FrameEvent &evt, Packet& p);
 	void updateMinimap();
 	void updateHealthDisplay();
@@ -38,6 +39,7 @@ public:
 	void checkBounds();
     void writePlayerPositions(Packet& p);
     void writeAsteroidPositions(Packet& p);
+    void writeAsteroidPositionsIncremental(Packet& p);
 	Packet getPositions();
 	void injectKeyDown(const OIS::KeyEvent &arg);
 	void injectKeyUp(const OIS::KeyEvent &arg);

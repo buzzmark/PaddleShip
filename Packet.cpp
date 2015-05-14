@@ -36,6 +36,12 @@ const char* Packet::data() const {
     return &buffer[0];
 }
 
+void Packet::reset() {
+    buffer.clear();
+    length = 0;
+    position = 0;
+}
+
 //---------------------------------------------------------------------------
 
 Packet& Packet::operator<<(const char a) {
@@ -68,6 +74,16 @@ Packet& Packet::operator<<(const std::string& a) {
     return *this;
 }
 
+Packet& Packet::operator<<(const btVector3& a) {
+    return *this << a.x() << a.y() << a.z();
+}
+
+Packet& Packet::operator<<(const btTransform& a) {
+    const btQuaternion& r = a.getRotation();
+
+    return *this << a.getOrigin() << r.getAxis() << r.getW();
+}
+
 //---------------------------------------------------------------------------
 
 Packet& Packet::operator>>(char &a) {
@@ -96,6 +112,27 @@ Packet& Packet::operator>>(Ogre::Quaternion& a) {
 Packet& Packet::operator>>(std::string& a) {
     a = std::string(&buffer[position]);
     position = find(buffer.begin() + position, buffer.end(), (char) 0) + 1 - buffer.begin();
+    return *this;
+}
+
+Packet& Packet::operator>>(btVector3& a) {
+    float x, y, z;
+    *this >> x >> y >> z;
+    a.setValue(x, y, z);
+
+    return *this;
+}
+
+Packet& Packet::operator>>(btTransform& a) {
+    btVector3 v;
+    float w;
+
+    *this >> v;
+    a.setOrigin(v);
+
+    *this >> v >> w;
+    a.setRotation(btQuaternion(v, w));
+
     return *this;
 }
 

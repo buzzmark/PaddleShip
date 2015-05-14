@@ -43,7 +43,6 @@ void GameScreen::createScene(void)
 
     //ship AI
 	shipAI->addToScene();
-	shipAI->addToSimulator();
 
 	//minimap
 	Ogre::OverlayManager& omgr = Ogre::OverlayManager::getSingleton();
@@ -170,17 +169,22 @@ void GameScreen::updateClientPlayers(Packet& p) {
 }
 //---------------------------------------------------------------------------
 void GameScreen::updateClientAsteroids(Packet& p) {
-    int numAsteroids;
-    p >> numAsteroids;
-
-	Ogre::Vector3 pos;
-	Ogre::Quaternion rot;
+    std::vector<Asteroid*> asteroids = getAsteroids();
+    for (Asteroid* ast : asteroids) {
+        ast->readFromPacket(p);
+    }
+}
+//---------------------------------------------------------------------------
+void GameScreen::updateClientAsteroidsIncremental(Packet& p) {
     std::vector<Asteroid*> asteroids = getAsteroids();
 
-    for (Asteroid* ast : asteroids) {
-        p >> pos >> rot;
-		ast->setPosition(pos.x, pos.y, pos.z);
-		ast->getNode()->setOrientation(rot);
+    int id;
+    p >> id;
+
+    while (id != -1) {
+        Asteroid* ast = asteroids[id];
+        ast->readFromPacket(p);
+        p >> id;
     }
 }
 //---------------------------------------------------------------------------
@@ -312,17 +316,24 @@ void GameScreen::writePlayerPositions(Packet& p) {
 //---------------------------------------------------------------------------
 void GameScreen::writeAsteroidPositions(Packet& p) {
     std::vector<Asteroid*> asteroids = getAsteroids();
-    p << (int) asteroids.size();
-
-    Ogre::Vector3 pos;
-    Ogre::Quaternion rot;
-
     for (Asteroid* ast : asteroids) {
-		pos = ast->getPos();
-		rot = ast->getNode()->getOrientation();
-
-		p << pos << rot;
+        ast->writeToPacket(p);
     }
+}
+//---------------------------------------------------------------------------
+void GameScreen::writeAsteroidPositionsIncremental(Packet& p) {
+    std::vector<Asteroid*> asteroids = getAsteroids();
+
+    for (int i = 0; i < asteroids.size(); ++i) {
+        Asteroid* ast = asteroids[i];
+        if (ast->getNetState()) {
+            p << i;
+            ast->writeToPacket(p);
+            ast->resetNetState();
+        }
+    }
+
+    p << (int) -1;
 }
 //---------------------------------------------------------------------------
 Packet GameScreen::getPositions()
@@ -421,7 +432,9 @@ PlayerObject* GameScreen::createClientObject(int id, int type) {
     }
 
 	player->addToScene();
-	player->addToSimulator();
+    if (clientId == 0) {
+    	player->addToSimulator();
+    }
 
     if (id == clientId) {
         addPlayerToMinimap(player);
@@ -452,6 +465,9 @@ void GameScreen::removeClientObject(int id) {
 
 void GameScreen::setClientId(int id) {
     clientId = id;
+    if (id == 0) {
+        shipAI->addToSimulator();
+    }
 }
 
 void GameScreen::setNetManager(NetManager* nm) {
